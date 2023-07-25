@@ -808,7 +808,6 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-
 public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
 
 		List<Integer> present = new ArrayList<>();
@@ -822,6 +821,8 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 		LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
 		LocalDate currentDay = firstDayOfMonth;
+		
+		LocalDate lastDateOfLeave = LocalDate.of(year, month, 1);
 
 		StudentCalenderResponse data = new StudentCalenderResponse();
 
@@ -829,40 +830,45 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 
 		int currentMonthValue = currentDate.getMonthValue();
 
-		int tempCount =0 ;
-
+			
+		// checking given month is not greather then current month
 		if (month <= currentMonthValue && currentDate.getYear() == year) {
 
-			List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
-            			//counting total leaves
+
+			//counting total leaves
+		   List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
 		   for (Leaves list : leavesData) {
-				 tempCount++;
-				 LocalDate leaveDate = list.getLeaveDate();
-				if (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth()
-						&& leaveDate.getMonth().getValue() == month && leaveDate.getYear() == year && tempCount< leavesData.size()-1) {
-					leaves.add(leaveDate.getDayOfMonth());
-				}
+			           
+			       int dayOfMonth = list.getLeaveDate().getDayOfMonth();
+			           currentDay = LocalDate.of(year, month, dayOfMonth);
+			       int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
+			       	   lastDateOfLeave  = LocalDate.of(year, month, dayOfMonth2);
 			    
+			       while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() ==month) {
+						if (!present.contains(currentDay.getDayOfMonth())) {
+							leaves.add(currentDay.getDayOfMonth());
+						}
+						currentDay = currentDay.plusDays(1);
+					}
 			}
-			
-			tempCount =0 ;
-			
+		   currentDay = firstDayOfMonth;
+		   
+		   
+		    // getting total present 
 			List<Attendance> studentAttendenceList = attendenceRepository.findAllByStudentId(id);
-		
-			// getting total present 
 			for (Attendance list : studentAttendenceList) {
-				tempCount++;
+				//tempCount++;
 				LocalDate temp = list.getCheckInDate();
-				if (temp.getMonth().getValue() == month && temp.getYear() == year && tempCount< studentAttendenceList.size()-1) {
+				if (temp.getMonth().getValue() == month && temp.getYear() == year) {
 					present.add(temp.getDayOfMonth());
 				}
 			}
 			 
-			tempCount =0;
+		
 			//getting total absent for current month and  till today date
 			if(currentDate.getMonthValue() == month) {
 				while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth()-1 && !currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth()) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY ) {
+					if (!present.contains(currentDay.getDayOfMonth()-1) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY ) {
 						absent.add(currentDay.getDayOfMonth());
 					}
 					currentDay = currentDay.plusDays(1);
@@ -876,6 +882,8 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 					currentDay = currentDay.plusDays(1);
 				}
 			}
+		}else {
+			// return ????????
 		}
 		
 		data.setPresent(present);
