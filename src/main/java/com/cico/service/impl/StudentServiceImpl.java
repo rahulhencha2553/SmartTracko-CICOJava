@@ -808,8 +808,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-
-	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
+public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
 
 		List<Integer> present = new ArrayList<>();
 		List<Integer> leaves = new ArrayList<>();
