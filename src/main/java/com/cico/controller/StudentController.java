@@ -18,11 +18,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.payload.ApiResponse;
 import com.cico.payload.StudentLoginResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 
-@RequestMapping("/Student")
+@RequestMapping("/student")
 @RestController
 @CrossOrigin("*")
 public class StudentController {
@@ -34,97 +35,92 @@ public class StudentController {
 	private IStudentService studentService;
 
 	@PostMapping("/studentLoginApi")
-	public ResponseEntity<StudentLoginResponse> loginStudent(@RequestParam("userId") String userId,
+	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
 			@RequestParam("password") String password, @RequestParam("fcmId") String fcmId,
 			@RequestParam("deviceId") String deviceId, @RequestParam("deviceType") String deviceType) {
+			
+		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
-		StudentLoginResponse studentLogin = studentService.login(userId, password, fcmId, deviceId, deviceType);
-		return ResponseEntity.ok(studentLogin);
 	}
 
 	@PostMapping("/studentDeviceIdApprovalApi")
-	public ResponseEntity<Map<String, Object>> approveDevice(@RequestParam("userId") String userId,
+	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
 
-		Map<String, Object> approvalData = studentService.approveDevice(userId, deviceId);
-		return ResponseEntity.ok(approvalData);
+		return studentService.approveDevice(userId, deviceId);
+
 	}
 
 	@PostMapping("/studentCheckInCheckOutApi")
-	public ResponseEntity<Map<String, Object>> checkInCheckOut(@RequestParam("lat") String latitude,
+	public ResponseEntity<?> checkInCheckOut(@RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
 			@RequestParam("type") String type, @RequestParam("date") String date,
 			@RequestPart("studentImage") MultipartFile studentImage,
 			@RequestPart("attachment") MultipartFile attachment, @RequestParam("workReport") String workReport,
 			@RequestHeader HttpHeaders header) {
 
-		Map<String, Object> checkInCheckOutData = studentService.checkInCheckOut(latitude, longitude, time, type, date,
+		return studentService.checkInCheckOut(latitude, longitude, time, type, date,
 				studentImage, attachment, workReport, header);
-		return ResponseEntity.ok(checkInCheckOutData);
+		 
 	}
 
 	@GetMapping("/studentDashboardApi")
-	public ResponseEntity<Map<String, Object>> studentDashboard(@RequestHeader HttpHeaders header) {
-		Map<String, Object> dashboard = studentService.dashboard(header);
-		return ResponseEntity.ok(dashboard);
+	public ResponseEntity<?> studentDashboard(@RequestHeader HttpHeaders header) {
+		return studentService.dashboard(header);
 	}
 
 	@PostMapping("/studentMispunchRequestApi")
-	public ResponseEntity<Map<String, Object>> studentMispunchRequest(
+	public ResponseEntity<?> studentMispunchRequest(
 			@RequestHeader(name=AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("time") String time,
-			@RequestParam("date") String date, @RequestParam("workReport") String workReport) {
-		Map<String, Object> studentMispunchRequest = studentService.studentMispunchRequest(header, time, date,
-				workReport);
-		return ResponseEntity.ok(studentMispunchRequest);
+			@RequestParam("date") String date, @RequestParam("workReport") String workReport,@RequestPart(name="attachment",required = false) MultipartFile attechment) {
+		
+		return studentService.studentMispunchRequest(header, time, date,workReport,attechment);
 	}
 
 	@PostMapping("/studentEarlyCheckoutRequestApi")
-	public ResponseEntity<Map<String, Object>> studentEarlyCheckoutRequest(
+	public ResponseEntity<?> studentEarlyCheckoutRequest(
 			@RequestHeader(name=AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
 			@RequestParam("date") String date, @RequestParam("type") String type,
-			@RequestParam("workReport") String workReport, @RequestPart("studentImage") MultipartFile studentImage) {
+			@RequestParam("workReport") String workReport, @RequestPart("studentImage") MultipartFile studentImage, @RequestPart(name="attachment",required =  false) MultipartFile attachment) {
 
-		Map<String, Object> studentEarlyCheckoutData = studentService.studentEarlyCheckoutRequest(header, latitude,
-				longitude, time, date, type, workReport, studentImage);
-
-		return ResponseEntity.ok(studentEarlyCheckoutData);
+		return studentService.studentEarlyCheckoutRequest(header, latitude,
+				longitude, time, date, type, workReport, studentImage,attachment);
 	}
 
 	@GetMapping("/getStudentCheckInCheckOutHistory")
-	public ResponseEntity<Map<String, Object>> getStudentCheckInCheckOutHistory(
+	public ResponseEntity<?> getStudentCheckInCheckOutHistory(
 			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate,
 			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
-		Map<String, Object> map = studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, page,
+		
+		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, page,
 				size);
-		return ResponseEntity.ok(map);
 	}
 
 	@GetMapping("/getStudentProfileApi")
-	public ResponseEntity<Map<String, Object>> getStudentProfileApi(
-			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header) {
-		Map<String, Object> studentProfileApi = studentService.getStudentProfileApi(header);
-		return ResponseEntity.ok(studentProfileApi);
+	public ResponseEntity<?> getStudentProfileApi(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header) {
+		return studentService.getStudentProfileApi(header);
 	}
 
 	@PostMapping("/studentChangePasswordApi")
-	public ResponseEntity<Map<String, Object>> studentChangePassword(@RequestHeader HttpHeaders header,
+	public ResponseEntity<?> studentChangePassword(@RequestHeader HttpHeaders header,
 			@RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword) {
-		Map<String, Object> studentChangePassword = studentService.studentChangePassword(header, oldPassword,
+		
+		return studentService.studentChangePassword(header, oldPassword,
 				newPassword);
-		return ResponseEntity.ok(studentChangePassword);
+
 	}
 
 	@PostMapping("/updateStudentProfileApi")
-	public ResponseEntity<Map<String, Object>> updateStudentProfileApi(@RequestHeader HttpHeaders header,
+	public ResponseEntity<?> updateStudentProfileApi(@RequestHeader HttpHeaders header,
 			@RequestParam("full_name") String fullName, @RequestParam("mobile") String mobile,
 			@RequestParam("dob") String dob, @RequestParam("email") String email,
 			@RequestPart("profile_pic") MultipartFile profilePic) {
-		Map<String, Object> updateStudentProfile = studentService.updateStudentProfile(header, fullName, mobile, dob,
+		
+		return studentService.updateStudentProfile(header, fullName, mobile, dob,
 				email, profilePic);
-		return ResponseEntity.ok(updateStudentProfile);
 	}
 
 	@GetMapping("/getTodayAttendance/{studentId}")

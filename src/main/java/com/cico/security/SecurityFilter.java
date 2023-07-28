@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.cico.service.impl.CustomUserDetailsServiceImpl;
+import com.cico.util.AppConstants;
 
 
 @Component
@@ -33,7 +34,7 @@ public class SecurityFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String token=request.getHeader("Authorization");
+		String token=request.getHeader(AppConstants.AUTHORIZATION);
 		
 		if(token!=null) {
 			String username = util.getUsername(token);

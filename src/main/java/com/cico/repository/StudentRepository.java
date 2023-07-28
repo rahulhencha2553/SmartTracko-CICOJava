@@ -12,12 +12,14 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	Optional<Student> findByUserIdAndIsActive(String username, boolean b);
 
-	Student findByDeviceId(String deviceId);
+	Student findByInUseDeviceId(String deviceId);
 
 	Student findByUserId(String userId);
 
 	Student findByStudentId(Integer studentId);
 	
 	Optional<Student> findByEmail(String email);
+
+	Student findByinUseDeviceId(String deviceId);
 	
 }

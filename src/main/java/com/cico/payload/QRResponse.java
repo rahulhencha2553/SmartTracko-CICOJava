@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class QRResponse {
 
 	private String qrData;
+	private String qrKey;
 	private LocalDateTime createdAt;
 }

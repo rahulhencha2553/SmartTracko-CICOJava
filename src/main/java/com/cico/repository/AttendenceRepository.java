@@ -21,9 +21,8 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	Attendance findByStudentIdAndCheckInDateLessThanCurrentDate(Integer studentId, LocalDate currentDate);
 
 	public Attendance findByStudentIdAndCheckInDateAndCheckOutDate(Integer studentId, LocalDate date, LocalDate checkOutDate );
-
 	
-	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND a.checkInDate between :startDate AND :endDate")
+	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND a.checkInDate between :startDate AND :endDate AND a.checkInTime IS NOT NULL AND a.checkOutTime IS NOT NULL")
 	public Page<Attendance> findAttendanceHistory(Integer studentId, LocalDate startDate, LocalDate endDate, PageRequest of);
 	
 	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND MONTH(a.checkInDate)=:monthNo")

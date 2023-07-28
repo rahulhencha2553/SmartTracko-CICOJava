@@ -18,7 +18,7 @@ import com.cico.service.IFileService;
 
 
 @RestController
-@RequestMapping("/File")
+@RequestMapping("/file")
 @CrossOrigin("*")
 public class FileController {
 

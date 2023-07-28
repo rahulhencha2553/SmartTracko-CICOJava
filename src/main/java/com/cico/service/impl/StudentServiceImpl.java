@@ -1,6 +1,5 @@
 package com.cico.service.impl;
 
-import java.io.File;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -20,16 +19,17 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.exception.InvalidCredentialsException;
-import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.Student;
 import com.cico.model.StudentWorkReport;
+import com.cico.payload.ApiResponse;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
@@ -50,16 +50,11 @@ import com.cico.util.HelperService;
 import com.cico.util.Roles;
 
 @Service
-
-
-
-
 public class StudentServiceImpl implements IStudentService {
-
-	public static final String NOT_CHECKED_IN = "NOT_CHECKED_IN";
-	public static final String ALREADY_CHECKIN = "ALREADY_CHECKIN";
-	public static final String CHECK_IN = "checkIn";
-	public static final String CHECK_OUT = "checkOut";
+	
+	public static final String ANDROID = "Android";
+	public static final String IOS = "iOS";
+	
 
 	@Autowired
 	private StudentRepository studRepo;
@@ -95,40 +90,41 @@ public class StudentServiceImpl implements IStudentService {
 		return studRepo.findByUserId(userId);
 	}
 
-	public Student getStudentByDeviceId(String deviceId) {
-		return studRepo.findByDeviceId(deviceId);
+	public Student getStudentByInUseDeviceId(String deviceId) {
+		return studRepo.findByInUseDeviceId(deviceId);
 	}
 
 	@Override
-	public StudentLoginResponse login(String userId, String password, String fcmId, String deviceId,
+	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId,
 			String deviceType) {
-
-		if (deviceType.equals("Android") || deviceType.equals("iOS")) {
+		Map<String, Object> response = new HashMap<>();
+		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
 			// manager.authenticate(new UsernamePasswordAuthenticationToken(userId,
 			// password));
 			// String token = util.generateToken(dto.getUserId());
 			Student studentByUserId = getStudentByUserId(userId);
-			Student studentByDeviceId = getStudentByDeviceId(deviceId);
+			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
-
+			
 			if (studentByUserId != null) {
 
 				if (studentByUserId.getIsActive().equals(true)) {
-					if (studentByDeviceId != null) {
+					if (studentByInUseDeviceId != null) {
 
-						if (userId.equalsIgnoreCase(studentByDeviceId.getUserId())) {
+						if (userId.equalsIgnoreCase(studentByInUseDeviceId.getUserId())) {
 
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
 									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
 
-							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, true, false);
-
-							return studentResponse2;
+							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, false, false);
+							studentResponse2.setStudentData(studentByUserId);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse2);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 
 						else {
 							studentByUserId.setUserId(userId);
-							studentByUserId.setInUseDeviceId(deviceId);
 							studRepo.save(studentByUserId);
 
 							studentResponse.setToken(null);
@@ -136,16 +132,18 @@ public class StudentServiceImpl implements IStudentService {
 							studentResponse.setIsFeesDue(false);
 							studentResponse.setIsDeviceAlreadyInUse(true);
 
-							return studentResponse;
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 
 					}
 
 					else {
-						if ((studentByUserId.getDeviceId() == null)
+						if ((studentByUserId.getInUseDeviceId() == null)
 								|| (studentByUserId.getDeviceId().trim().equals(""))) {
 
-							studentByUserId.setDeviceId(deviceId);
+							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
 							studentByUserId.setDeviceType(deviceType);
 							studRepo.save(studentByUserId);
@@ -157,6 +155,10 @@ public class StudentServiceImpl implements IStudentService {
 							studentResponse.setIsDeviceIdDifferent(false);
 							studentResponse.setIsDeviceAlreadyInUse(false);
 							studentResponse.setIsFeesDue(false);
+							studentResponse.setStudentData(studentByUserId);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 
 						else {
@@ -165,26 +167,35 @@ public class StudentServiceImpl implements IStudentService {
 							studentResponse.setIsDeviceAlreadyInUse(false);
 							studentResponse.setIsFeesDue(false);
 
-							return studentResponse;
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+							return new ResponseEntity<>(response,HttpStatus.OK);
+
 						}
 					}
-				} else
-					throw new ResourceNotFoundException("Student_Deactive");
-
-				return studentResponse;
+				} else {
+					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
+					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+				}
+					
 			}
 
-			else
-				throw new InvalidCredentialsException(AppConstants.INVALID_CREDENTIALS + "ram");
+			else {
+				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+			}
+			
 		}
 
-		else
-			throw new ResourceNotFoundException("Invalid_Device_Type");
+		else {
+			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 
 	@Override
-	public Map<String, Object> approveDevice(String userId, String deviceId) {
-		Map<String, Object> map = new HashMap();
+	public ResponseEntity<ApiResponse> approveDevice(String userId, String deviceId) {
 		if ((!userId.equals("")) && (!deviceId.equals(""))) {
 			Student findByUserId = studRepo.findByUserId(userId);
 
@@ -194,35 +205,29 @@ public class StudentServiceImpl implements IStudentService {
 				Student updateStudent = studRepo.save(findByUserId);
 
 				if (updateStudent != null) {
-					map.put("Message", "APPROVAL_REQUEST");
-					map.put("StatusCode", 200);
 
+					return new ResponseEntity<>(new ApiResponse(Boolean.TRUE,AppConstants.APPROVAL_REQUEST,HttpStatus.OK),HttpStatus.OK);
 				}
 
 				else {
-					map.put("Message", AppConstants.FAILED);
-					map.put("StatusCode", 200);
+					return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.FAILED,HttpStatus.OK),HttpStatus.OK);
 				}
 			}
 
 			else {
-				map.put("Message", AppConstants.INVALID_CREDENTIALS);
-				map.put("StatusCode", 404);
+				return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.INVALID_CREDENTIALS,HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
 			}
 
 		}
 
 		else {
-			map.put("Message", AppConstants.ALL_REQUIRED);
-			map.put("StatusCode", 404);
+			return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.ALL_REQUIRED,HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
 		}
-		return map;
 	}
 
 	@Override
-	public Map<String, Object> checkInCheckOut(String latitude, String longitude, String time, String type, String date,
-			MultipartFile studentImage, MultipartFile attachment, String workReport, HttpHeaders header) {
-		Map<String, Object> map = new HashMap<>();
+	public ResponseEntity<?> checkInCheckOut(String latitude, String longitude, String time, String type, String date,MultipartFile studentImage, MultipartFile attachment, String workReport, HttpHeaders header) {
+		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
@@ -233,7 +238,7 @@ public class StudentServiceImpl implements IStudentService {
 						.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
 				Attendance attendanceData = attendenceRepository.findByStudentIdAndCheckInDate(studentId,
 						LocalDate.parse(date));
-				if (type.equals(CHECK_IN)) {
+				if (type.equals(AppConstants.CHECK_IN)) {
 					if (Objects.isNull(attendanceData)) {
 						Attendance checkInAttenedanceData = new Attendance();
 						checkInAttenedanceData.setStudentId(studentId);
@@ -249,17 +254,17 @@ public class StudentServiceImpl implements IStudentService {
 						checkInAttenedanceData.setCheckOutStatus("Pending");
 						Attendance saveAttendenceCheckInData = attendenceRepository.save(checkInAttenedanceData);
 						if (saveAttendenceCheckInData != null) {
-							map.put("Message", AppConstants.SUCCESS);
-							map.put("StatusCode", 200);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						} else {
-							map.put("Message", AppConstants.FAILED);
-							map.put("StatusCode", 200);
+							response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 					} else {
-						map.put("Message", ALREADY_CHECKIN);
-						map.put("StatusCode", 400);
+						response.put(AppConstants.MESSAGE, AppConstants.ALREADY_CHECKIN);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
-				} else if (type.equals(CHECK_OUT)) {
+				} else if (type.equals(AppConstants.CHECK_OUT)) {
 					if (workReport != null) {
 						if (attendanceData != null) {
 							OrganizationInfo organizationInfo = organizationInfoRepository.findById(1).get();
@@ -289,39 +294,39 @@ public class StudentServiceImpl implements IStudentService {
 
 								StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
-									map.put("Message", AppConstants.SUCCESS);
-									map.put("StatusCode", 200);
+									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+									return new ResponseEntity<>(response,HttpStatus.OK);
 								} else {
-									map.put("Message", AppConstants.FAILED);
-									map.put("StatusCode", 200);
+									response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+									return new ResponseEntity<>(response,HttpStatus.OK);
 								}
 							} else {
-								map.put("Message", "EARLY_CHECKOUT");
-								map.put("StatusCode", 202);
+								response.put(AppConstants.MESSAGE, AppConstants.EARLY_CHECKOUT);
+								return new ResponseEntity<>(response,HttpStatus.ACCEPTED);
 							}
 						} else {
-							map.put("Message", NOT_CHECKED_IN);
-							map.put("StatusCode", 400);
+							response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
+							return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 						}
 					} else {
-						map.put("Message", AppConstants.ALL_REQUIRED);
-						map.put("StatusCode", 400);
+						response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);           
 					}
 				}
 			} else {
-				map.put("Message", AppConstants.ALL_REQUIRED);
-				map.put("StatusCode", 400);
-			}
-		} else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
-		}
-		return map;
+				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST); 
+				
+			} 
+		} 
+		
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED); 		
 	}
 
 	@Override
-	public Map<String, Object> dashboard(HttpHeaders header) {
-		Map<String, Object> map = new HashMap<String, Object>();
+	public ResponseEntity<?> dashboard(HttpHeaders header) {
+		Map<String, Object> response = new HashMap<String, Object>();
 
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Integer studentId = Integer.parseInt(
@@ -340,13 +345,13 @@ public class StudentServiceImpl implements IStudentService {
 			attendance = attendenceRepository.findByStudentIdAndCheckInDate(studentId, LocalDate.now());
 			if (attendance != null) {
 				if (attendance.getCheckOutDate() == null) {
-					dashboardResponseDto.setAttendanceStatus(CHECK_IN);
+					dashboardResponseDto.setAttendanceStatus(AppConstants.CHECK_IN);
 					dashboardResponseDto.setCheckInDate(attendance.getCheckInDate());
 					dashboardResponseDto.setCheckInTime(attendance.getCheckInTime());
 					dashboardResponseDto.setCheckInImage(attendance.getCheckInImage());
 
 				} else {
-					dashboardResponseDto.setAttendanceStatus(CHECK_OUT);
+					dashboardResponseDto.setAttendanceStatus(AppConstants.CHECK_OUT);
 					dashboardResponseDto.setCheckInDate(attendance.getCheckInDate());
 					dashboardResponseDto.setCheckInTime(attendance.getCheckInTime());
 					dashboardResponseDto.setCheckInImage(attendance.getCheckInImage());
@@ -357,24 +362,20 @@ public class StudentServiceImpl implements IStudentService {
 			}
 
 			else
-				dashboardResponseDto.setAttendanceStatus(CHECK_OUT);
+				dashboardResponseDto.setAttendanceStatus(AppConstants.CHECK_OUT);
 
-			dashboardResponseDto.setIsFeesDue(false);
-			dashboardResponseDto.setFeesDueDate(null);
+//			dashboardResponseDto.setIsFeesDue(false);
+//			dashboardResponseDto.setFeesDueDate(null);
 
 			if (student != null) {
-
+				studentResponseDto.setUserId(student.getUserId());
 				studentResponseDto.setStudentId(student.getStudentId());
 				studentResponseDto.setFullName(student.getFullName());
 				studentResponseDto.setMobile(student.getMobile());
 				studentResponseDto.setEmail(student.getEmail());
 				studentResponseDto.setDob(student.getDob());
-
-				File f = new File(IMG_UPLOAD_DIR + student.getProfilePic());
-
-				if (student.getProfilePic() != null && f.exists()) {
-					studentResponseDto.setProfilePic(IMG_UPLOAD_DIR + student.getProfilePic());
-				}
+			
+					studentResponseDto.setProfilePic(student.getProfilePic());
 			}
 
 			dashboardResponseDto.setStudentResponseDto(studentResponseDto);
@@ -394,22 +395,19 @@ public class StudentServiceImpl implements IStudentService {
 				dashboardResponseDto.setIsMispunch(false);
 
 			if (Objects.nonNull(dashboardResponseDto)) {
-				map.put("Message", AppConstants.SUCCESS);
-				map.put("StatusCode", 200);
-				map.put("DashboardResponseDto", dashboardResponseDto);
-			} else {
-				map.put("Message", AppConstants.FAILED);
-				map.put("StatusCode", 404);
-				map.put("DashboardResponseDto", null);
-			}
+				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				response.put("dashboardResponseDto", dashboardResponseDto);
+				return new ResponseEntity<>(response,HttpStatus.OK); 
 
-			return map;
+			} else {
+				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+				return new ResponseEntity<>(response,HttpStatus.OK);
+			}
 
 		}
 
-		else
-			return null;
-
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	private Attendance checkStudentMispunch(Integer studentId) {
@@ -418,8 +416,8 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public Map<String, Object> studentMispunchRequest(HttpHeaders header, String time, String date, String workReport) {
-		Map<String, Object> map = new HashMap<>();
+	public ResponseEntity<?> studentMispunchRequest(HttpHeaders header, String time, String date, String workReport,MultipartFile attachment) {
+		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		Boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
@@ -433,11 +431,11 @@ public class StudentServiceImpl implements IStudentService {
 
 				if (attendanceData != null && Objects.nonNull(attendanceData.getCheckOutStatus().equals("Pending"))) {
 					LocalDateTime checkInDateTime = attendanceData.getCreatedDate();
-					LocalDateTime checkOutDateTime = LocalDateTime.now();
+					LocalDateTime checkOutDateTime = LocalDateTime.of(LocalDate.parse(date), LocalTime.parse(time));
 					Duration duration = Duration.between(checkInDateTime, checkOutDateTime);
 					long workingHour = duration.getSeconds();
-					attendanceData.setCheckOutDate(LocalDate.now());
-					attendanceData.setCheckOutTime(LocalTime.now());
+					attendanceData.setCheckOutDate(LocalDate.parse(date));
+					attendanceData.setCheckOutTime(LocalTime.parse(time));
 					attendanceData.setWorkingHour(workingHour);
 					attendanceData.setCheckOutStatus("Approved");
 					attendanceData.setUpdatedDate(checkOutDateTime);
@@ -445,36 +443,40 @@ public class StudentServiceImpl implements IStudentService {
 
 					StudentWorkReport studentWorkReport = new StudentWorkReport();
 					studentWorkReport.setAttendanceId(saveAttdance.getAttendanceId());
-					studentWorkReport.setAttachment(null);
+					String attachmentImage = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+					studentWorkReport.setAttachment(attachmentImage);
 					studentWorkReport.setWorkReport(workReport);
 					studentWorkReport.setCreatedDate(LocalDateTime.now());
 
 					StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 					if (Objects.nonNull(saveAttdance)) {
-						map.put("Message", AppConstants.SUCCESS);
-						map.put("StatusCode", 200);
+						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+						return new ResponseEntity<>(response,HttpStatus.OK);
+						
 					} else {
-						map.put("Message", AppConstants.FAILED);
-						map.put("StatusCode", 200);
-
+						response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+						return new ResponseEntity<>(response,HttpStatus.OK);
 					}
 
 				} else {
-					map.put("Message", NOT_CHECKED_IN);
-					map.put("StatusCode", 400);
+					response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
+					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);	
 				}
 			} else {
-				map.put("Message", AppConstants.ALL_REQUIRED);
-				map.put("StatusCode", 400);
+				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+				
 			}
 		}
-		return map;
+		
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 
 	}
 
 	@Override
-	public Map<String, Object> getStudentProfileApi(HttpHeaders header) {
-		Map<String, Object> map = new HashMap<>();
+	public ResponseEntity<?> getStudentProfileApi(HttpHeaders header) {
+		Map<String, Object> response = new HashMap<>();
 
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 
@@ -521,24 +523,24 @@ public class StudentServiceImpl implements IStudentService {
 			dashboardResponseDto.setOrganizationInfo(organizationInfoRepository.findById(1).get());
 
 			if (Objects.nonNull(dashboardResponseDto)) {
-				map.put("Message", AppConstants.SUCCESS);
-				map.put("StatusCode", 200);
-				map.put("DashboardResponseDto", dashboardResponseDto);
+				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				response.put("dashboardResponseDto", dashboardResponseDto);
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			} else {
-				map.put("Message", AppConstants.FAILED);
-				map.put("StatusCode", 404);
-				map.put("DashboardResponseDto", null);
+				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			}
 
 		}
 
-		return map;
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
-	public Map<String, Object> studentEarlyCheckoutRequest(HttpHeaders header, String latitude, String longitude,
-			String time, String date, String type, String workReport, MultipartFile studentImage) {
-		Map<String, Object> map = new HashMap<>();
+	public ResponseEntity<?> studentEarlyCheckoutRequest(HttpHeaders header, String latitude, String longitude,
+			String time, String date, String type, String workReport, MultipartFile studentImage,MultipartFile attachment) {
+		Map<String, Object> response = new HashMap<>();
 
 		CheckoutResponse checkoutResponseDto = new CheckoutResponse();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
@@ -585,80 +587,80 @@ public class StudentServiceImpl implements IStudentService {
 					attendance.setUpdatedDate(checkoutResponseDto.getUpdatedDate());
 
 					Attendance updateAttendance = attendenceRepository.save(attendance);
-
+					String attachmentImage = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
-							workReport, WORK_UPLOAD_DIR + studentImage.getOriginalFilename(), LocalDateTime.now());
+							workReport,attachmentImage, LocalDateTime.now());
 					workReportRepository.save(studentWorkReport);
 
 					if (updateAttendance != null) {
-						map.put("Message", AppConstants.SUCCESS);
-						map.put("StatusCode", 200);
+						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+						return new ResponseEntity<>(response,HttpStatus.OK);					
 					}
-
 					else {
-						map.put("Message", AppConstants.FAILED);
-						map.put("StatusCode", 404);
+						response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+						return new ResponseEntity<>(response,HttpStatus.OK);	
 					}
 				}
-
 				else {
-					map.put("Message", NOT_CHECKED_IN);
-					map.put("StatusCode", 404);
+					response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
+					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);	
 				}
 			}
-
 			else {
-				map.put("Message", AppConstants.ALL_REQUIRED);
-				map.put("StatusCode", 404);
+				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);		
 			}
-			return map;
 		}
-
-		else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
-		}
-		return map;
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
+	
+	// get history data after checkout 
 	@Override
-	public Map<String, Object> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
+	public ResponseEntity<?> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
 			Integer limit, Integer offset) {
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
+		System.out.println(username);
 		Integer studentId = Integer.parseInt(
 				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
 
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 
 		if (validateToken) {
 			Page<Attendance> attendanceHistory = attendenceRepository.findAttendanceHistory(studentId,
 					LocalDate.parse(startDate), LocalDate.parse(endDate),
 					PageRequest.of(limit, offset, Sort.by(Direction.DESC, "attendanceId")));
-			List<CheckinCheckoutHistoryResponse> historyDto = new ArrayList();
-
-			List<Attendance> content = attendanceHistory.getContent();
-
-			for (Attendance attendance : content) {
-				historyDto.add(getCicoHistoryObjDto(attendance));
+			List<CheckinCheckoutHistoryResponse> historyDto = new ArrayList<>();
+			if(!attendanceHistory.isEmpty()) {
+				List<Attendance> content = attendanceHistory.getContent();
+				for (Attendance attendance : content) {
+					StudentWorkReport stdWorkReport = workReportRepository.findByAttendanceId(attendance.getAttendanceId());
+					CheckinCheckoutHistoryResponse cicoHistoryObjDto = getCicoHistoryObjDto(attendance);
+					if(stdWorkReport != null) {
+						cicoHistoryObjDto.setWorkReport(stdWorkReport.getWorkReport());
+						cicoHistoryObjDto.setAttachment(stdWorkReport.getAttachment());
+					}
+					historyDto.add(cicoHistoryObjDto);
+				}
+	
+				Map<String, Object> map = new HashMap<>();
+				map.put("attendance", historyDto);
+				map.put("totalPages", attendanceHistory.getTotalPages());
+				map.put("totalAttendance", attendanceHistory.getTotalElements());
+				map.put("currentPage", attendanceHistory.getNumber());
+				map.put("pageSize", attendanceHistory.getNumberOfElements());
+				response.put("response", map);
+				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				return new ResponseEntity<>(response,HttpStatus.OK);
+			}else {
+				response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			}
-
-			Map<String, Object> response = new HashMap<>();
-			response.put("Attendance", historyDto);
-			response.put("TotalPages", attendanceHistory.getTotalPages());
-			response.put("TotalAttendance", attendanceHistory.getTotalElements());
-			response.put("currentPage", attendanceHistory.getNumber());
-			response.put("PageSize", attendanceHistory.getNumberOfElements());
-			map.put("response", response);
-			map.put("Message", AppConstants.SUCCESS);
 		}
-
-		else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
-		}
-
-		return map;
+			response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+			return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);	
 	}
 
 	private CheckinCheckoutHistoryResponse getCicoHistoryObjDto(Attendance attendance) {
@@ -667,7 +669,7 @@ public class StudentServiceImpl implements IStudentService {
 		historyDto.setCheckInDate(attendance.getCheckInDate());
 		historyDto.setCheckInImage(attendance.getCheckInImage());
 		historyDto.setCheckInTime(attendance.getCheckInTime());
-		historyDto.setCheckOutDate(attendance.getCheckInDate());
+		historyDto.setCheckOutDate(attendance.getCheckOutDate());
 		historyDto.setCheckOutImage(attendance.getCheckOutImage());
 		historyDto.setCheckOutTime(attendance.getCheckOutTime());
 		historyDto.setWorkingHour(attendance.getWorkingHour());
@@ -676,8 +678,8 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public Map<String, Object> studentChangePassword(HttpHeaders header, String oldPassword, String newPassword) {
-		Map<String, Object> map = new HashMap<>();
+	public ResponseEntity<?> studentChangePassword(HttpHeaders header, String oldPassword, String newPassword) {
+		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
@@ -689,35 +691,34 @@ public class StudentServiceImpl implements IStudentService {
 						student.setPassword(newPassword);
 						Student updatedStudent = studRepo.save(student);
 						if (updatedStudent != null) {
-							map.put("Message", "PASS_CHANGED");
-							map.put("StatusCode", 200);
+							response.put(AppConstants.MESSAGE, AppConstants.PASSWORD_CHANGED);
+							return new ResponseEntity<>(response,HttpStatus.OK);							
 						} else {
-							map.put("Message", "PASS_NOT_CHANGED");
-							map.put("StatusCode", 200);
+							response.put(AppConstants.MESSAGE, AppConstants.PASSWORD_NOT_CHANGED);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 					} else {
-						map.put("Message", "INVALID_PASSWORD_FORMAT");
-						map.put("StatusCode", 400);
+						response.put(AppConstants.MESSAGE, AppConstants.INVALID_PASSWORD_FORMAT);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
 				} else {
-					map.put("Message", "WRONG_PASSWORD");
-					map.put("StatusCode", 400);
+					response.put(AppConstants.MESSAGE, AppConstants.WRONG_PASSWORD);
+					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 				}
 			} else {
-				map.put("Message", AppConstants.ALL_REQUIRED);
-				map.put("StatusCode", 400);
+				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);		
 			}
-		} else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
-		}
-		return map;
+		} 
+		
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
-	public Map<String, Object> updateStudentProfile(HttpHeaders header, String fullName, String mobile, String dob,
+	public ResponseEntity<?> updateStudentProfile(HttpHeaders header, String fullName, String mobile, String dob,
 			String email, MultipartFile profilePic) {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
@@ -742,21 +743,20 @@ public class StudentServiceImpl implements IStudentService {
 			if (Objects.nonNull(student)) {
 				Student updatedStudent = studRepo.save(student);
 				if (updatedStudent != null) {
-					map.put("Message", AppConstants.SUCCESS);
-					map.put("StatusCode", 200);
+					response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+					return new ResponseEntity<>(response,HttpStatus.OK);		
 				} else {
-					map.put("Message", AppConstants.FAILED);
-					map.put("StatusCode", 200);
+					response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+					return new ResponseEntity<>(response,HttpStatus.OK);
 				}
 			} else {
-				map.put("Message", AppConstants.FAILED);
-				map.put("StatusCode", 200);
+				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			}
-		} else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
-		}
-		return map;
+		} 
+		
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -766,14 +766,14 @@ public class StudentServiceImpl implements IStudentService {
 		// String format =
 		// attendance.getCheckInTime().format(DateTimeFormatter.ofPattern("hh:mm:ss"));
 		if (Objects.nonNull(attendance)) {
-			map.put("Message", AppConstants.SUCCESS);
+			map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			map.put("Attendance", attendance);
-			map.put("StatusCode", 200);
+			
 		}
 
 		else {
-			map.put("Message", NOT_CHECKED_IN);
-			map.put("StatusCode", 400);
+			map.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
+			
 		}
 		return map;
 	}
@@ -793,17 +793,17 @@ public class StudentServiceImpl implements IStudentService {
 					monthNo);
 			Collections.reverse(findByStudentIdAndMonthNo);
 			if (!findByStudentIdAndMonthNo.isEmpty()) {
-				map.put("Message", AppConstants.SUCCESS);
-				map.put("StatusCode", 200);
+				map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				
 				map.put("AttendanceData", findByStudentIdAndMonthNo);
 			} else {
-				map.put("Message", AppConstants.NO_DATA_FOUND);
-				map.put("StatusCode", 404);
+				map.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
+				
 				map.put("AttendanceData", findByStudentIdAndMonthNo);
 			}
 		} else {
-			map.put("Message", AppConstants.UNAUTHORIZED);
-			map.put("StatusCode", 401);
+			map.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+			
 		}
 		return map;
 	}
@@ -876,14 +876,12 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 				
 			}else {// getting absent for previous month from current month
 				while (!currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth()-1) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+					if (!present.contains(currentDay.getDayOfMonth()) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 						absent.add(currentDay.getDayOfMonth());
 					}
 					currentDay = currentDay.plusDays(1);
 				}
 			}
-		}else {
-			// return ????????
 		}
 		
 		data.setPresent(present);

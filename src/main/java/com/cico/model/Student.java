@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +26,7 @@ public class Student {
 	private String mobile;
 	private LocalDate dob;
 	private String email;
+	@JsonIgnore
 	private String password;
 	private String college;
 	private LocalDate joinDate;

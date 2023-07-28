@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.LeaveType;
 import com.cico.model.Leaves;
+import com.cico.payload.LeaveResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.ILeaveService;
 import com.cico.util.AppConstants;
@@ -23,7 +24,7 @@ import com.cico.util.AppConstants;
 
 
 @RestController
-@RequestMapping("/Leave")
+@RequestMapping("/leave")
 @CrossOrigin("*")
 public class LeaveController {
 
@@ -31,27 +32,24 @@ public class LeaveController {
 	private ILeaveService leaveService;
 
 	@GetMapping("/getLeavesType")
-	public ResponseEntity<List<LeaveType>> getAllLeavesType() {
-		List<LeaveType> leaveTypes = leaveService.getAllLeavesType();
-		return ResponseEntity.ok(leaveTypes);
+	public ResponseEntity<?> getAllLeavesType() {
+		return leaveService.getAllLeavesType();
 	}
 
 	@PostMapping("/addStudentLeave")
-	public ResponseEntity<Map<String, Object>> addStudentLeave(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+	public ResponseEntity<?> addStudentLeave(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam("leaveTypeId") Integer leaveTypeId, @RequestParam("leaveStartDate") String leaveStartDate,
 			@RequestParam(value = "leaveEndDate") String leaveEndDate, @RequestParam("leaveReason") String leaveReason,
 			@RequestParam("leaveDayType") String leaveDayType, @RequestParam("halfDayType") String halfDayType) {
-		Map<String, Object> addStudentLeave = leaveService.addStudentLeave(header, leaveTypeId, leaveStartDate,
+		 
+		return leaveService.addStudentLeave(header, leaveTypeId, leaveStartDate,
 				leaveEndDate, leaveReason, leaveDayType, halfDayType);
-
-		return ResponseEntity.ok(addStudentLeave);
 	}
 
 	@GetMapping("/getStudentLeaves")
-	public ResponseEntity<PageResponse<Leaves>> getStudentLeaves(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+	public ResponseEntity<?> getStudentLeaves(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam(name="page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page, @RequestParam(name="size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
-		PageResponse<Leaves> studentLeaves = leaveService.getStudentLeaves(header, page, size);
-		return ResponseEntity.ok(studentLeaves);
+		return leaveService.getStudentLeaves(header, page, size);
 	}
 
 	@PostMapping("/deleteStudentLeave")
