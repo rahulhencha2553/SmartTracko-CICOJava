@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,12 +16,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.LeaveType;
 import com.cico.model.Leaves;
 import com.cico.model.Student;
+import com.cico.payload.LeaveResponse;
 import com.cico.payload.PageResponse;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.LeaveTypeRepository;
@@ -32,9 +36,6 @@ import com.cico.util.AppConstants;
 
 @Service
 public class LeaveServiceImpl implements ILeaveService{
-	
-	public static final String INVALID_DATE = "INVALID_DATE";
-	public static final String INVALID_ID = "INVALID_ID";
 
 	@Autowired
 	private LeaveTypeRepository leaveTypeRepository;
@@ -52,9 +53,9 @@ public class LeaveServiceImpl implements ILeaveService{
 	private ModelMapper mapper;
 
 	@Override
-	public Map<String, Object> addStudentLeave(HttpHeaders header, Integer leaveTypeId, String leaveStartDate,
+	public ResponseEntity<?> addStudentLeave(HttpHeaders header, Integer leaveTypeId, String leaveStartDate,
 			String leaveEndDate, String leaveReason, String leaveDayType, String halfDayType) {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> response = new HashMap<>();
 		long dateDiff = 0;
 		int i = 0;
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
@@ -88,10 +89,12 @@ public class LeaveServiceImpl implements ILeaveService{
 						leavesData.setLeaveDate(toDate);
 						leavesData.setLeaveEndDate(toDate);
 						leavesData.setLeaveDuration(0);
-
-						map.put("Message", AppConstants.SUCCESS);
+						
+						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+						return new ResponseEntity<>(response,HttpStatus.OK);
 					} else {
-						map.put("Message", AppConstants.ALL_REQUIRED);
+						response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
 				}
 				if (leaveDayType.equals("Full Day")) {
@@ -102,10 +105,11 @@ public class LeaveServiceImpl implements ILeaveService{
 						leavesData.setLeaveEndDate(fromDate);
 						dateDiff = (int) ChronoUnit.DAYS.between(toDate, fromDate);
 						leavesData.setCreatedDate(LocalDateTime.now());
-						leavesData.setLeaveDuration((int) dateDiff);
+						leavesData.setLeaveDuration((int) dateDiff+1);
 						System.out.println(dateDiff);
 					} else {
-						map.put("Message", AppConstants.ALL_REQUIRED);
+						response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
 				}
 				if (!leaveDayType.isEmpty()) {
@@ -123,46 +127,61 @@ public class LeaveServiceImpl implements ILeaveService{
 							leavesRepository.save(leavesData);
 						}
 						if (Objects.nonNull(leavesData)) {
-							map.put("Message", AppConstants.SUCCESS);
-							map.put("LeavesData", leavesData);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 						else {
-							map.put("Message", AppConstants.FAILED);
+							response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
 					} else {
-						map.put("Message", INVALID_DATE);
+						response.put(AppConstants.MESSAGE, AppConstants.INVALID_DATE);
+						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
 				} else {
-					map.put("Message", "error");
+					response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 				}
 			} else {
-				map.put("Message", AppConstants.ALL_REQUIRED);
+				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
+				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 			}
 		}
-		return map;
+	
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
-	public PageResponse<Leaves> getStudentLeaves(HttpHeaders header, Integer page, Integer size) {
+	public ResponseEntity<?> getStudentLeaves(HttpHeaders header, Integer page, Integer size) {
+		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Integer studentId = Integer.parseInt(util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
 
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
-		Map<String, Object> map = new HashMap<>();
+		List<LeaveResponse> leavesResponse = new ArrayList<>();
 
 		if (validateToken) {
 			Page<Leaves> StudentLeaves = leavesRepository.findStudentLeaves(studentId,
 					PageRequest.of(page, size,Sort.by(Direction.DESC, "leaveId")));
+				for (Leaves leaves : StudentLeaves.getContent()) {
+					LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
+					responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
+					leavesResponse.add(responseData);
+				}
 
 			int totalLeaves = leavesRepository.countByStudentId(studentId);
 			if (Objects.nonNull(StudentLeaves)) {
-				return new PageResponse<>(StudentLeaves.getContent(), StudentLeaves.getNumber(), StudentLeaves.getSize(), StudentLeaves.getTotalElements(), StudentLeaves.getTotalPages(),StudentLeaves.isLast());
+				response.put(AppConstants.MESSAGE,AppConstants.SUCCESS);
+				response.put("leavesData", new PageResponse<>(leavesResponse, StudentLeaves.getNumber(), StudentLeaves.getSize(), StudentLeaves.getTotalElements(), StudentLeaves.getTotalPages(),StudentLeaves.isLast()));
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			} else {
-				
-				throw new ResourceNotFoundException(AppConstants.NO_DATA_FOUND);
+				response.put(AppConstants.MESSAGE,AppConstants.FAILED);
+				return new ResponseEntity<>(response,HttpStatus.OK);
 			}
 		}
-		return null;
+		response.put(AppConstants.MESSAGE,AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -179,16 +198,16 @@ public class LeaveServiceImpl implements ILeaveService{
 				if (findByStudentIdAndLeaveId.getLeaveStatus() == 0) {
 					int deleteByStudnetIdLeaveId = leavesRepository.deleteByStudnetIdLeaveId(studentId, leaveId);
 					if (Objects.nonNull(deleteByStudnetIdLeaveId)) {
-						map.put("Message", AppConstants.SUCCESS);
+						map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 
 					} else {
-						map.put("Message", AppConstants.FAILED);
+						map.put(AppConstants.MESSAGE, AppConstants.FAILED);
 					}
 				} else {
-					map.put("Message", "LEAVE_APPROVE_REJECT");
+					map.put(AppConstants.MESSAGE, "LEAVE_APPROVE_REJECT");
 				}
 			} else {
-				map.put("Message", INVALID_ID);
+				map.put(AppConstants.MESSAGE, AppConstants.INVALID_ID);
 			}
 		}
 		return map;
@@ -210,18 +229,18 @@ public class LeaveServiceImpl implements ILeaveService{
 						int deleteByStudnetIdLeaveId = leavesRepository.deleteByStudnetIdLeaveIdStudentId(studentId,
 								leaveId);
 						if (Objects.nonNull(deleteByStudnetIdLeaveId)) {
-							map.put("Message", AppConstants.SUCCESS);
+							map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 						} else {
-							map.put("Message", AppConstants.FAILED);
+							map.put(AppConstants.MESSAGE, AppConstants.FAILED);
 						}
 					} else {
-						map.put("Message", "ALREADY_RETRACT_LEAVE");
+						map.put(AppConstants.MESSAGE, "ALREADY_RETRACT_LEAVE");
 					}
 				} else {
-					map.put("Message", "LEAVE_PENDING");
+					map.put(AppConstants.MESSAGE, "LEAVE_PENDING");
 				}
 			} else {
-				map.put("Message", INVALID_ID);
+				map.put(AppConstants.MESSAGE, AppConstants.INVALID_ID);
 			}
 		}
 		return map;
@@ -239,23 +258,30 @@ public class LeaveServiceImpl implements ILeaveService{
 		if (validateToken) {
 			List<Leaves> findByStudentIdAndMonthNo = leavesRepository.findByStudentIdAndMonthNo(studentId, monthNo);
 			if (Objects.nonNull(findByStudentIdAndMonthNo)) {
-				map.put("Message", AppConstants.SUCCESS);
+				map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				map.put("LeaveData", findByStudentIdAndMonthNo);
 			} else {
-				map.put("Message", AppConstants.NO_DATA_FOUND);
+				map.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
 				map.put("LeaveData", findByStudentIdAndMonthNo);
 
 			}
 		}else {
-			map.put("Message",AppConstants.UNAUTHORIZED);
+			map.put(AppConstants.MESSAGE,AppConstants.UNAUTHORIZED);
 		}
 		return map;
 	}
 
 	@Override
-	public List<LeaveType> getAllLeavesType() {
+	public ResponseEntity<?>  getAllLeavesType() {
+		Map<String, Object> response = new HashMap<>();
 		List<LeaveType> leaveTypeList = leaveTypeRepository.findByIsActiveAndIsDelete(true, false);
-		return leaveTypeList;
+		if(leaveTypeList.isEmpty()) {
+			response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+			return new ResponseEntity<>(response,HttpStatus.OK);
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+		response.put("leaveType", leaveTypeList);
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 
 }

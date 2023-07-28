@@ -10,6 +10,8 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +27,8 @@ public class LeaveType {
 	  private Integer leaveTypeId;
 	  private String leaveTypeName;
 	  private Boolean isActive;
-	  private Boolean isDelete; 
+	  private Boolean isDelete;
+	  @JsonIgnore
 	  @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
 	  private LocalDateTime createdDate;
 }

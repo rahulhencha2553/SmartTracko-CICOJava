@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 
 
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -38,8 +39,8 @@ public class SecurityConfig {
 	
 	String apiPaths[] = {
 			"/swagger-ui/**","/swagger-ui.html", "/swagger-resources/**","/v3/api-docs", "/v2/api-docs", "/webjars/**",
-			"/Student/**","/File/**","/Leave/**","/admin/**","/job/**","/technologyStack/**","/assignment/**","/course/**",
-			"/newsEvents/**","/qr/**","/kafka/**"
+			"/student/**","/file/**","/Leave/**","/admin/**","/job/**","/technologyStack/**","/assignment/**","/course/**",
+			"/newsEvents/**","/qr/**","/resources/**","/socket/**","/queue/**"
 	};
 	
 	@Bean	
@@ -70,3 +71,14 @@ public class SecurityConfig {
 				.build();
 	}
 }
+
+
+
+
+
+	
+	
+	
+	
+
+

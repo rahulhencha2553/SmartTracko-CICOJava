@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.cico.util.AppConstants;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
@@ -37,6 +39,15 @@ public class GlobalExceptionHandler {
 				new MyErrorResponse(new Date().toString(),
 						"INVALID_CREDENTIALS",
 						ice.getMessage()),HttpStatus.UNAUTHORIZED);			
+	}
+	
+	@ExceptionHandler(UnauthorizeException.class)
+	public ResponseEntity<MyErrorResponse> showMYCustomError(UnauthorizeException ue)
+	{
+		return new ResponseEntity<MyErrorResponse>(
+				new MyErrorResponse(new Date().toString(),
+						AppConstants.UNAUTHORIZED,
+						ue.getMessage()),HttpStatus.UNAUTHORIZED);			
 	}
 	
 }

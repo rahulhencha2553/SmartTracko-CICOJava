@@ -24,12 +24,43 @@ public class AppConstants {
 	
 	public static final String DATA_ALREADY_EXIST = "DATA ALREADY EXIST";
 	
-	public static final String INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
-	
+	public static final String INVALID_CREDENTIALS = "INVALID CREDENTIALS";
 	
 	public static final String DELETE_SUCCESS = "Deleted Successfully";
 	
 	public static final String CREATE_SUCCESS = "Created Successfully";
+	
+	
+	public static final String MESSAGE = "message";
+	
+	
+	public static final String NOT_CHECKED_IN = "NOT_CHECKED_IN";
+	
+	public static final String ALREADY_CHECKIN = "ALREADY CHECKIN";
+	
+	public static final String CHECK_IN = "checkIn";
+	
+	public static final String CHECK_OUT = "checkOut";
+	
+	public static final String STUDENT_DEACTIVE = "STUDENT DEACTIVE";
+	
+	public static final String INVALID_DEVICE_TYPE = "INVALID DEVICE TYPE";
+	
+	public static final String APPROVAL_REQUEST = "APPROVAL REQUEST";
+	
+	public static final String EARLY_CHECKOUT = "EARLY CHECKOUT";
+	
+	public static final String WRONG_PASSWORD = "WRONG PASSWORD";
+	
+	public static final String INVALID_PASSWORD_FORMAT = "INVALID PASSWORD FORMAT";
+	
+	public static final String PASSWORD_NOT_CHANGED = "PASSWORD NOT CHANGED";
+	
+	public static final String PASSWORD_CHANGED = "PASSWORD CHANGED";
+	
+	public static final String INVALID_DATE = "INVALID DATE";
+	
+	public static final String INVALID_ID = "INVALID ID";
 	
 	
 	
