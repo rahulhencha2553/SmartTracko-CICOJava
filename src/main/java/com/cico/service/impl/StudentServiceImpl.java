@@ -106,7 +106,7 @@ public class StudentServiceImpl implements IStudentService {
 			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
 			
-			if (studentByUserId != null) {
+			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
 
 				if (studentByUserId.getIsActive().equals(true)) {
 					if (studentByInUseDeviceId != null) {
@@ -196,7 +196,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<ApiResponse> approveDevice(String userId, String deviceId) {
-		if ((!userId.equals("")) && (!deviceId.equals(""))) {
+		if (Objects.nonNull(userId) && Objects.nonNull(deviceId)) {
 			Student findByUserId = studRepo.findByUserId(userId);
 
 			if (findByUserId != null) {
@@ -684,7 +684,7 @@ public class StudentServiceImpl implements IStudentService {
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
 		if (validateToken) {
-			if (!(oldPassword.equals("")) && !(newPassword.equals(""))) {
+			if (Objects.nonNull(oldPassword) && Objects.nonNull(newPassword)) {
 				if (student.getPassword().equals(oldPassword)) {
 					Boolean checkPasswordValidation = true;
 					if (checkPasswordValidation) {

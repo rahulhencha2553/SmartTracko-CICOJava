@@ -56,7 +56,7 @@ public class StudentController {
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
 			@RequestParam("type") String type, @RequestParam("date") String date,
 			@RequestPart("studentImage") MultipartFile studentImage,
-			@RequestPart("attachment") MultipartFile attachment, @RequestParam("workReport") String workReport,
+			@RequestPart(name="attachment",required = false) MultipartFile attachment, @RequestParam("workReport") String workReport,
 			@RequestHeader HttpHeaders header) {
 
 		return studentService.checkInCheckOut(latitude, longitude, time, type, date,
