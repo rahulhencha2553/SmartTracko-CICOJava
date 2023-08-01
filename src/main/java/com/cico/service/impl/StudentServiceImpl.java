@@ -94,104 +94,182 @@ public class StudentServiceImpl implements IStudentService {
 		return studRepo.findByInUseDeviceId(deviceId);
 	}
 
+//	@Override
+//	public ResponseEntity<?> login1(String userId, String password, String fcmId, String deviceId,
+//			String deviceType) {
+//		Map<String, Object> response = new HashMap<>();
+//		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
+//			Student studentByUserId = getStudentByUserId(userId);
+//			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
+//			StudentLoginResponse studentResponse = new StudentLoginResponse();
+//			
+//			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
+//				
+//				if(!studentByUserId.getInUseDeviceId().equals(deviceId)&&!studentByUserId.getInUseDeviceId().equals("")) {
+//					if( studentByInUseDeviceId != null) {
+//						studentResponse.setIsDeviceAlreadyInUse(true);
+//
+//					}else {
+//						studentResponse.setIsDeviceAlreadyInUse(false);	
+//					}
+//					studentResponse.setToken(null);
+//					studentResponse.setIsDeviceIdDifferent(true);
+//					studentResponse.setIsFeesDue(false);
+//					response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//					response.put("student", studentResponse);
+//					return new ResponseEntity<>(response,HttpStatus.OK);
+//				}
+//				if (studentByUserId.getIsActive()) {
+//					if (studentByInUseDeviceId != null) {
+//
+//						if (userId.equals(studentByInUseDeviceId.getUserId())) {
+//							System.out.println("1 case");
+//							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+//									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+//
+//							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, false, false);
+//							studentResponse2.setStudentData(studentByUserId);
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse2);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//						else {
+//							System.out.println("2 case");
+//							studentResponse.setToken(null);
+//							studentResponse.setIsDeviceIdDifferent(true);
+//							studentResponse.setIsFeesDue(false);
+//							studentResponse.setIsDeviceAlreadyInUse(true);
+//
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//					}
+//
+//					else {
+//						if ((studentByUserId.getInUseDeviceId() == null)
+//								|| (studentByUserId.getDeviceId().trim().equals(""))) {
+////							System.out.println("3 case");
+////							studentByUserId.setInUseDeviceId(deviceId);
+////							studentByUserId.setFcmId(fcmId);
+////							studentByUserId.setDeviceType(deviceType);
+////							studRepo.save(studentByUserId);
+//
+//							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+//									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+//
+//							studentResponse.setToken(token);
+//							studentResponse.setIsDeviceIdDifferent(false);
+//							studentResponse.setIsDeviceAlreadyInUse(false);
+//							studentResponse.setIsFeesDue(false);
+//							studentResponse.setStudentData(studentByUserId);
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//						else {
+//							System.out.println("4 case");
+//							studentResponse.setToken("");
+//							studentResponse.setIsDeviceIdDifferent(true);
+//							studentResponse.setIsDeviceAlreadyInUse(false);
+//							studentResponse.setIsFeesDue(false);
+//
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//
+//						}
+//					}
+//				} else {
+//					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
+//					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//				}
+//					
+//			}
+//
+//			else {
+//				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
+//				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//			}
+//			
+//		}
+//
+//		else {
+//			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+//			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//		}
+//		
+//	}
+	
 	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId,
 			String deviceType) {
 		Map<String, Object> response = new HashMap<>();
 		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
-			// manager.authenticate(new UsernamePasswordAuthenticationToken(userId,
-			// password));
-			// String token = util.generateToken(dto.getUserId());
 			Student studentByUserId = getStudentByUserId(userId);
 			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
 			
 			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
-
-				if (studentByUserId.getIsActive().equals(true)) {
-					if (studentByInUseDeviceId != null) {
-
-						if (userId.equalsIgnoreCase(studentByInUseDeviceId.getUserId())) {
-
-							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
-									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
-
-							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, false, false);
-							studentResponse2.setStudentData(studentByUserId);
-							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-							response.put("student", studentResponse2);
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-						else {
-							studentByUserId.setUserId(userId);
-							studRepo.save(studentByUserId);
-
-							studentResponse.setToken(null);
-							studentResponse.setIsDeviceIdDifferent(true);
-							studentResponse.setIsFeesDue(false);
-							studentResponse.setIsDeviceAlreadyInUse(true);
-
-							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-							response.put("student", studentResponse);
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-					}
-
-					else {
-						if ((studentByUserId.getInUseDeviceId() == null)
-								|| (studentByUserId.getDeviceId().trim().equals(""))) {
-
+				if(studentByUserId.getIsActive()) {
+					if(studentByInUseDeviceId == null) {// device Id is not present in db
+						//login
+						if(studentByUserId.getInUseDeviceId().equals("")) {
+							System.out.println("1 CASE");
 							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
-							studentByUserId.setDeviceType(deviceType);
-							studRepo.save(studentByUserId);
-
+							Student student = studRepo.save(studentByUserId);
+							studentResponse.setStudentData(student);
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
 									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
-
 							studentResponse.setToken(token);
-							studentResponse.setIsDeviceIdDifferent(false);
-							studentResponse.setIsDeviceAlreadyInUse(false);
-							studentResponse.setIsFeesDue(false);
-							studentResponse.setStudentData(studentByUserId);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-						else {
-							studentResponse.setToken("");
+						}else {
+							System.out.println("2 CASE");
 							studentResponse.setIsDeviceIdDifferent(true);
-							studentResponse.setIsDeviceAlreadyInUse(false);
-							studentResponse.setIsFeesDue(false);
-
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+							return new ResponseEntity<> (response,HttpStatus.OK);
+						}
+						
+					}else {
+						if(studentByUserId.getUserId().equals(studentByInUseDeviceId.getUserId())) {
+							System.out.println("3 CASE");
+							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+							studentResponse.setToken(token);
+							studentResponse.setStudentData(studentByInUseDeviceId);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 							return new ResponseEntity<>(response,HttpStatus.OK);
-
+						}else {
+							System.out.println("4 CASE");
+							studentResponse.setIsDeviceAlreadyInUse(true);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
+						
 					}
-				} else {
+					
+				}else {
 					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
 					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 				}
-					
 			}
-
 			else {
 				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
 				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 			}
-			
-		}
-
-		else {
-			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
-			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 		}
 		
+			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 	}
 
 	@Override

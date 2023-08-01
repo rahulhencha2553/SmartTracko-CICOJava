@@ -89,7 +89,7 @@ public class LeaveServiceImpl implements ILeaveService{
 						leavesData.setLeaveDate(toDate);
 						leavesData.setLeaveEndDate(toDate);
 						leavesData.setLeaveDuration(0);
-						
+						leavesRepository.save(leavesData);
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 						return new ResponseEntity<>(response,HttpStatus.OK);
 					} else {
@@ -112,8 +112,10 @@ public class LeaveServiceImpl implements ILeaveService{
 						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 					}
 				}
+				
 				if (!leaveDayType.isEmpty()) {
 					if (dateDiff >= 0) {
+						Leaves leaves = null;
 						for (i = 0; i <= dateDiff; i++) {
 							if (i == 0) {
 								leavesData.setLeaveDate(toDate);
@@ -124,9 +126,10 @@ public class LeaveServiceImpl implements ILeaveService{
 								leavesData.setLeaveDate(toDate);
 								leavesData.setCreatedDate(LocalDateTime.now());
 							}
-							leavesRepository.save(leavesData);
+							
+							 leaves = leavesRepository.save(leavesData);
 						}
-						if (Objects.nonNull(leavesData)) {
+						if (Objects.nonNull(leaves)) {
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							return new ResponseEntity<>(response,HttpStatus.OK);
 						}
