@@ -73,7 +73,8 @@ public class QRServiceImpl implements IQRService{
 		String username = util.getUsername(token);
 		Student student = studentRepository.findByUserId(username);
 		String newToken = util.generateTokenForStudent(student.getStudentId().toString(), student.getUserId(), student.getDeviceId(), Roles.STUDENT.toString());
-		return new JwtResponse(newToken);
+	    
+		return new JwtResponse(newToken,student.getStudentId(),student.getFullName(),student.getProfilePic(),student.getApplyForCourse());
 	}
 	
 	 private void jobEnd(String qrKey, JwtResponse message){

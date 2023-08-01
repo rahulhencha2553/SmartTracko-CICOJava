@@ -39,7 +39,7 @@ public class Assignment {
 	private LocalDateTime createdTime;
 	private LocalDateTime upatedDate;
 	private Boolean isDeleted;
-	
+	private  Boolean isCompleted;
 	@ElementCollection
     @CollectionTable
     private List<String> hints = new ArrayList<>();
