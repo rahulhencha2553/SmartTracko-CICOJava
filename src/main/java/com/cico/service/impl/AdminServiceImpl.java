@@ -18,6 +18,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Admin;
 import com.cico.payload.AdminResponse;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.JwtResponse;
 import com.cico.repository.AdminRepository;
 import com.cico.security.JwtUtil;
 import com.cico.service.IAdminService;
@@ -45,12 +46,12 @@ public class AdminServiceImpl implements IAdminService {
 	private String WORK_UPLOAD_DIR;
 
 	@Override
-	public String adminLogin(String adminId, String password) {
-		Optional<Admin> AdminEmail = repo.findByAdminEmail(adminId);
-		if (AdminEmail.isPresent()) {
-			if (AdminEmail.get().getPassword().equals(password)) {
+	public JwtResponse adminLogin(String adminId, String password) {
+		Optional<Admin> adminEmail = repo.findByAdminEmail(adminId);
+		if (adminEmail.isPresent()) {
+			if (adminEmail.get().getPassword().equals(password)) {
 				String token = jwtUtil.generateTokenForAdmin(adminId);
-				return token;
+				return new JwtResponse(token, adminId,adminEmail.get().getAdminName(), adminEmail.get().getProfilePic(), null);
 			} else {
 				throw new InvalidCredentialsException(AppConstants.INVALID_CREDENTIALS);
 			}
