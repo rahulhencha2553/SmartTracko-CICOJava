@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
 import com.cico.model.AssignmentImage;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.AssignmentResponse;
 import com.cico.repository.AssignmentImageRepository;
 import com.cico.repository.AssignmentRepository;
 import com.cico.service.IAssignmentService;
@@ -26,13 +28,13 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Autowired
 	private AssignmentRepository assignmentRepository;
-	
+
 	@Autowired
 	private IFileService fileService;
-	
+
 	@Autowired
 	private AssignmentImageRepository imageRepository;
-	
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -54,7 +56,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignment.setQuestion(question);
 		System.out.println(images.toString());
 		// setting images
-		if (images!=null) {
+		if (images != null) {
 			List<AssignmentImage> list = assignment.getAssignmentImages();
 			for (MultipartFile file : images) {
 				if (file != null && !file.isEmpty()) {
@@ -90,14 +92,51 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 		assignment.setIsDeleted(true);
 		assignmentRepository.save(assignment);
-		return new ApiResponse(Boolean.TRUE,AppConstants.DELETE_SUCCESS,HttpStatus.OK);
+		return new ApiResponse(Boolean.TRUE, AppConstants.DELETE_SUCCESS, HttpStatus.OK);
 	}
 
 	@Override
-	public List<Assignment> getAllAssignment() {
+	public List<List<Assignment>> getAllAssignment() {
+		
 		List<Assignment> list = assignmentRepository.findAll();
-		System.out.println(list.toString());
-		return list;
+		List<List<Assignment>> response = new ArrayList<>();
+	
+		List<AssignmentResponse> assignmentResponses = new ArrayList<>();
+		AssignmentResponse assignmentResponse = new AssignmentResponse();
+		assignmentResponses.add(assignmentResponse);
+		
+		List<Assignment> assignmentslist = new ArrayList<>();
+		
+		int dayOfMonth = -1; // Initialize to an invalid value
+
+		for (Assignment assignment : list) {
+			int currentDayOfMonth = assignment.getCreatedTime().getDayOfMonth();
+
+			if (currentDayOfMonth == dayOfMonth) {
+				assignmentslist.add(assignment);
+			} else {
+				if (!assignmentslist.isEmpty()) {
+					response.add(new ArrayList<>(assignmentslist));
+				}
+				dayOfMonth = currentDayOfMonth;
+				assignmentslist = new ArrayList<>();
+				assignmentslist.add(assignment);
+				
+			}
+		}
+
+		if (!assignmentslist.isEmpty()) {
+			response.add(new ArrayList<>(assignmentslist));
+		}                          
+
+		for (List<Assignment> dayAssignments : response) {
+			for (Assignment assignment : dayAssignments) {
+				System.out.println(assignment);
+			}
+			System.out.println("\n\n");
+		}
+
+		return response;
 	}
 
 	// not working
@@ -135,11 +174,11 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignment.setAssignmentImages(imagesList);
 		return assignmentRepository.save(assignment);
 	}
-	
+
 	@Override
 	public Assignment updateAssignment1(Assignment assignment) {
-		Assignment assignment1 = assignmentRepository.findById(assignment.getId()).orElseThrow(
-				() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		Assignment assignment1 = assignmentRepository.findById(assignment.getId())
+				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 
 		if (assignment.getQuestion() != null)
 			assignment.setQuestion(assignment.getQuestion());
@@ -149,8 +188,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<AssignmentImage> assignmentImages = assignment.getAssignmentImages();
 		if (assignmentImages != null) {
 			for (AssignmentImage image : assignmentImages) {
-				AssignmentImage assignmentImage = imageRepository.findById(image.getId()).orElseThrow(
-						() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+				AssignmentImage assignmentImage = imageRepository.findById(image.getId())
+						.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 			}
 		}
 		return null;

@@ -62,7 +62,7 @@ public class BatchController {
 		return ResponseEntity.ok(batches);
 
 	}
-
+  
 	@GetMapping("/getUpcomingBatches")
 	public ResponseEntity<List<Batch>> getUpcomingBatches() {
 		List<Batch> batches = batchService.getUpcomingBatches();

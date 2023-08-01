@@ -1,12 +1,23 @@
 package com.cico.payload;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class JwtResponse {
-String token;
+	String token;
+	int studentId;
+	String studentName;
+	String profilePic;
+    String course;
+	public JwtResponse(String token, int studentId, String studentName, String profilePic, String course) {
+		super();
+		this.token = token;
+		this.studentId = studentId;
+		this.studentName = studentName;
+		this.profilePic = profilePic;
+		this.course = course;
+	}
+    
 }

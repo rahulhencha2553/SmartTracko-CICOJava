@@ -15,7 +15,7 @@ public interface IAssignmentService {
 
 	ApiResponse deleteAssignment(Integer id);
 
-	List<Assignment> getAllAssignment();
+	List<List<Assignment>> getAllAssignment();
 
 	Assignment updateAssignment(Integer id, String question, String[] imagesId, MultipartFile[] images,String[] hints);
 
