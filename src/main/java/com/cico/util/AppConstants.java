@@ -34,7 +34,7 @@ public class AppConstants {
 	public static final String MESSAGE = "message";
 	
 	
-	public static final String NOT_CHECKED_IN = "NOT_CHECKED_IN";
+	public static final String NOT_CHECKED_IN = "NOT CHECKED IN";
 	
 	public static final String ALREADY_CHECKIN = "ALREADY CHECKIN";
 	
