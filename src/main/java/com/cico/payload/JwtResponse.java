@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtResponse {
 	String token;
+
 	String userId;
 	String name;
 	String profilePic;
@@ -19,5 +20,5 @@ public class JwtResponse {
 		this.profilePic = profilePic;
 		this.course = course;
 	}
-    
+	
 }
