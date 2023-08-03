@@ -6,10 +6,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.payload.AdminResponse;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.JwtResponse;
 
 public interface IAdminService {
 	
-	public String adminLogin(String adminId, String password);
+	public JwtResponse adminLogin(String adminId, String password);
 
 	public ApiResponse createAdmin(String adminName, String adminEmail, String password);
 

@@ -51,10 +51,9 @@ public class QRController {
 
     @PostMapping("/clientlogin")
     public ResponseEntity<?> qrLoginClientAuthentication(@RequestParam("token") String token){
-    	System.out.println(token);
     	JwtResponse clientLogin = qrService.ClientLogin(token);
+    	System.out.println("response responseresponseresponseresponseresponse "+clientLogin);
         return new ResponseEntity<>(clientLogin,HttpStatus.OK);
     }
 
-   
 }

@@ -1,5 +1,6 @@
 package com.cico.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,8 +20,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.payload.ApiResponse;
-import com.cico.payload.StudentLoginResponse;
+import com.cico.model.Student;
+import com.cico.payload.OnLeavesResponse;
+import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 
@@ -38,7 +41,7 @@ public class StudentController {
 	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
 			@RequestParam("password") String password, @RequestParam("fcmId") String fcmId,
 			@RequestParam("deviceId") String deviceId, @RequestParam("deviceType") String deviceType) {
-			
+
 		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
 	}
@@ -56,12 +59,12 @@ public class StudentController {
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
 			@RequestParam("type") String type, @RequestParam("date") String date,
 			@RequestPart("studentImage") MultipartFile studentImage,
-			@RequestPart("attachment") MultipartFile attachment, @RequestParam("workReport") String workReport,
-			@RequestHeader HttpHeaders header) {
+			@RequestPart(name = "attachment", required = false) MultipartFile attachment,
+			@RequestParam("workReport") String workReport, @RequestHeader HttpHeaders header) {
 
-		return studentService.checkInCheckOut(latitude, longitude, time, type, date,
-				studentImage, attachment, workReport, header);
-		 
+		return studentService.checkInCheckOut(latitude, longitude, time, type, date, studentImage, attachment,
+				workReport, header);
+
 	}
 
 	@GetMapping("/studentDashboardApi")
@@ -71,21 +74,23 @@ public class StudentController {
 
 	@PostMapping("/studentMispunchRequestApi")
 	public ResponseEntity<?> studentMispunchRequest(
-			@RequestHeader(name=AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("time") String time,
-			@RequestParam("date") String date, @RequestParam("workReport") String workReport,@RequestPart(name="attachment",required = false) MultipartFile attechment) {
-		
-		return studentService.studentMispunchRequest(header, time, date,workReport,attechment);
+			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("time") String time,
+			@RequestParam("date") String date, @RequestParam("workReport") String workReport,
+			@RequestPart(name = "attachment", required = false) MultipartFile attechment) {
+
+		return studentService.studentMispunchRequest(header, time, date, workReport, attechment);
 	}
 
 	@PostMapping("/studentEarlyCheckoutRequestApi")
 	public ResponseEntity<?> studentEarlyCheckoutRequest(
-			@RequestHeader(name=AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("lat") String latitude,
+			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header, @RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
 			@RequestParam("date") String date, @RequestParam("type") String type,
-			@RequestParam("workReport") String workReport, @RequestPart("studentImage") MultipartFile studentImage, @RequestPart(name="attachment",required =  false) MultipartFile attachment) {
+			@RequestParam("workReport") String workReport, @RequestPart("studentImage") MultipartFile studentImage,
+			@RequestPart(name = "attachment", required = false) MultipartFile attachment) {
 
-		return studentService.studentEarlyCheckoutRequest(header, latitude,
-				longitude, time, date, type, workReport, studentImage,attachment);
+		return studentService.studentEarlyCheckoutRequest(header, latitude, longitude, time, date, type, workReport,
+				studentImage, attachment);
 	}
 
 	@GetMapping("/getStudentCheckInCheckOutHistory")
@@ -94,22 +99,21 @@ public class StudentController {
 			@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate,
 			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
-		
-		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, page,
-				size);
+
+		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, page, size);
 	}
 
 	@GetMapping("/getStudentProfileApi")
-	public ResponseEntity<?> getStudentProfileApi(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header) {
+	public ResponseEntity<?> getStudentProfileApi(
+			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header) {
 		return studentService.getStudentProfileApi(header);
 	}
 
 	@PostMapping("/studentChangePasswordApi")
 	public ResponseEntity<?> studentChangePassword(@RequestHeader HttpHeaders header,
 			@RequestParam("oldPassword") String oldPassword, @RequestParam("newPassword") String newPassword) {
-		
-		return studentService.studentChangePassword(header, oldPassword,
-				newPassword);
+
+		return studentService.studentChangePassword(header, oldPassword, newPassword);
 
 	}
 
@@ -118,9 +122,8 @@ public class StudentController {
 			@RequestParam("full_name") String fullName, @RequestParam("mobile") String mobile,
 			@RequestParam("dob") String dob, @RequestParam("email") String email,
 			@RequestPart("profile_pic") MultipartFile profilePic) {
-		
-		return studentService.updateStudentProfile(header, fullName, mobile, dob,
-				email, profilePic);
+
+		return studentService.updateStudentProfile(header, fullName, mobile, dob, email, profilePic);
 	}
 
 	@GetMapping("/getTodayAttendance/{studentId}")
@@ -136,7 +139,7 @@ public class StudentController {
 		Map<String, Object> studentAttendanceMonthFilter = studentService.studentAttendanceMonthFilter(header, monthNo);
 		return ResponseEntity.ok(studentAttendanceMonthFilter);
 	}
-	
+
 	@GetMapping("/getStudentCalenderData")
 	public ResponseEntity<Map<String, Object>> getCalenderData(@Param("id") Integer id, @Param("month") Integer month,
 			@Param("year") Integer year) {
@@ -144,4 +147,40 @@ public class StudentController {
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
+	@GetMapping("/getStudentData/{studentId}")
+	public ResponseEntity<Map<String, Object>> getStudentData(@PathVariable("studentId") Integer studentId) {
+		Map<String, Object> studentData = studentService.getStudentData(studentId);
+		System.out.println(studentData);
+		return new ResponseEntity<Map<String, Object>>(studentData, HttpStatus.OK);
+	}
+
+	// getting total absent student today
+	@GetMapping("/getTotalTodayAbsentStudent")
+	public ResponseEntity<List<Student>> getTotalTodayAbsentStudent() {
+		List<Student> totalTodayAbsentStudent = studentService.getTotalTodayAbsentStudent();
+		System.out.println(totalTodayAbsentStudent);
+		return new ResponseEntity<List<Student>>(totalTodayAbsentStudent, HttpStatus.OK);
+	}
+
+	// getting total student who are in currently leave
+	@GetMapping("/getTotalStudentInLeaves")
+	public ResponseEntity<List<OnLeavesResponse>> getTotalStudentInLeaves() {
+		List<OnLeavesResponse> leavesData = studentService.getTotalStudentInLeaves();
+		return new ResponseEntity<List<OnLeavesResponse>>(leavesData, HttpStatus.OK);
+	}
+
+	// getting all leaves request
+	@GetMapping("/getTotalStudentTodaysInLeaves")
+	public ResponseEntity<List<TodayLeavesRequestResponse>> getTotalStudentTodaysInLeaves() {
+		List<TodayLeavesRequestResponse> totalTodaysLeavesRequest = studentService.getTotalTodaysLeavesRequest();
+		return new ResponseEntity<List<TodayLeavesRequestResponse>>(totalTodaysLeavesRequest, HttpStatus.OK);
+	}
+
+	// approve leave Request
+	@PutMapping("approveStudentLeaveReqeust/{studentId}/{status}")
+	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,
+			@PathVariable("status") String Leavestatus) {
+		Boolean status = studentService.approveStudentLeaveReqeust(studentId, Leavestatus);
+		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
+	}
 }

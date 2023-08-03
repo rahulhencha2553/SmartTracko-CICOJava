@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
@@ -34,9 +36,11 @@ import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
 import com.cico.payload.MispunchResponse;
+import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.StudentCalenderResponse;
 import com.cico.payload.StudentLoginResponse;
 import com.cico.payload.StudentResponse;
+import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
@@ -51,14 +55,13 @@ import com.cico.util.Roles;
 
 @Service
 public class StudentServiceImpl implements IStudentService {
-	
+
 	public static final String ANDROID = "Android";
 	public static final String IOS = "iOS";
-	
 
 	@Autowired
 	private StudentRepository studRepo;
-	
+
 	@Autowired
 	private LeaveRepository leaveRepository;
 
@@ -94,109 +97,193 @@ public class StudentServiceImpl implements IStudentService {
 		return studRepo.findByInUseDeviceId(deviceId);
 	}
 
+//	@Override
+//	public ResponseEntity<?> login1(String userId, String password, String fcmId, String deviceId,
+//			String deviceType) {
+//		Map<String, Object> response = new HashMap<>();
+//		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
+//			Student studentByUserId = getStudentByUserId(userId);
+//			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
+//			StudentLoginResponse studentResponse = new StudentLoginResponse();
+//			
+//			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
+//				
+//				if(!studentByUserId.getInUseDeviceId().equals(deviceId)&&!studentByUserId.getInUseDeviceId().equals("")) {
+//					if( studentByInUseDeviceId != null) {
+//						studentResponse.setIsDeviceAlreadyInUse(true);
+//
+//					}else {
+//						studentResponse.setIsDeviceAlreadyInUse(false);	
+//					}
+//					studentResponse.setToken(null);
+//					studentResponse.setIsDeviceIdDifferent(true);
+//					studentResponse.setIsFeesDue(false);
+//					response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//					response.put("student", studentResponse);
+//					return new ResponseEntity<>(response,HttpStatus.OK);
+//				}
+//				if (studentByUserId.getIsActive()) {
+//					if (studentByInUseDeviceId != null) {
+//
+//						if (userId.equals(studentByInUseDeviceId.getUserId())) {
+//							System.out.println("1 case");
+//							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+//									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+//
+//							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, false, false);
+//							studentResponse2.setStudentData(studentByUserId);
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse2);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//						else {
+//							System.out.println("2 case");
+//							studentResponse.setToken(null);
+//							studentResponse.setIsDeviceIdDifferent(true);
+//							studentResponse.setIsFeesDue(false);
+//							studentResponse.setIsDeviceAlreadyInUse(true);
+//
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//					}
+//
+//					else {
+//						if ((studentByUserId.getInUseDeviceId() == null)
+//								|| (studentByUserId.getDeviceId().trim().equals(""))) {
+////							System.out.println("3 case");
+////							studentByUserId.setInUseDeviceId(deviceId);
+////							studentByUserId.setFcmId(fcmId);
+////							studentByUserId.setDeviceType(deviceType);
+////							studRepo.save(studentByUserId);
+//
+//							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+//									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+//
+//							studentResponse.setToken(token);
+//							studentResponse.setIsDeviceIdDifferent(false);
+//							studentResponse.setIsDeviceAlreadyInUse(false);
+//							studentResponse.setIsFeesDue(false);
+//							studentResponse.setStudentData(studentByUserId);
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//						}
+//
+//						else {
+//							System.out.println("4 case");
+//							studentResponse.setToken("");
+//							studentResponse.setIsDeviceIdDifferent(true);
+//							studentResponse.setIsDeviceAlreadyInUse(false);
+//							studentResponse.setIsFeesDue(false);
+//
+//							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+//							response.put("student", studentResponse);
+//							return new ResponseEntity<>(response,HttpStatus.OK);
+//
+//						}
+//					}
+//				} else {
+//					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
+//					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//				}
+//					
+//			}
+//
+//			else {
+//				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
+//				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//			}
+//			
+//		}
+//
+//		else {
+//			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+//			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+//		}
+//		
+//	}
+	
 	@Override
-	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId,
-			String deviceType) {
+	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
 		Map<String, Object> response = new HashMap<>();
 		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
-			// manager.authenticate(new UsernamePasswordAuthenticationToken(userId,
-			// password));
-			// String token = util.generateToken(dto.getUserId());
 			Student studentByUserId = getStudentByUserId(userId);
 			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
-			
-			if (studentByUserId != null) {
 
-				if (studentByUserId.getIsActive().equals(true)) {
-					if (studentByInUseDeviceId != null) {
-
-						if (userId.equalsIgnoreCase(studentByInUseDeviceId.getUserId())) {
-
-							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
-									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
-
-							StudentLoginResponse studentResponse2 = new StudentLoginResponse(token, false, false, false);
-							studentResponse2.setStudentData(studentByUserId);
-							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-							response.put("student", studentResponse2);
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-						else {
-							studentByUserId.setUserId(userId);
-							studRepo.save(studentByUserId);
-
-							studentResponse.setToken(null);
-							studentResponse.setIsDeviceIdDifferent(true);
-							studentResponse.setIsFeesDue(false);
-							studentResponse.setIsDeviceAlreadyInUse(true);
-
-							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-							response.put("student", studentResponse);
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-					}
-
-					else {
-						if ((studentByUserId.getInUseDeviceId() == null)
-								|| (studentByUserId.getDeviceId().trim().equals(""))) {
-
+			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
+				if(studentByUserId.getIsActive()) {
+					if(studentByInUseDeviceId == null) {// device Id is not present in db
+						//login
+						if(studentByUserId.getInUseDeviceId().equals("")) {
+							System.out.println("1 CASE");
 							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
-							studentByUserId.setDeviceType(deviceType);
-							studRepo.save(studentByUserId);
-
+							Student student = studRepo.save(studentByUserId);
+							studentResponse.setStudentData(student);
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
 									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
 
 							studentResponse.setToken(token);
-							studentResponse.setIsDeviceIdDifferent(false);
-							studentResponse.setIsDeviceAlreadyInUse(false);
-							studentResponse.setIsFeesDue(false);
-							studentResponse.setStudentData(studentByUserId);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 							return new ResponseEntity<>(response,HttpStatus.OK);
-						}
-
-						else {
-							studentResponse.setToken("");
+						}else {
+							System.out.println("2 CASE");
 							studentResponse.setIsDeviceIdDifferent(true);
-							studentResponse.setIsDeviceAlreadyInUse(false);
-							studentResponse.setIsFeesDue(false);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
 
+							return new ResponseEntity<> (response,HttpStatus.OK);
+						}
+						
+					}else {
+						if(studentByUserId.getUserId().equals(studentByInUseDeviceId.getUserId())) {
+							System.out.println("3 CASE");
+							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
+									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
+							studentResponse.setToken(token);
+							studentResponse.setStudentData(studentByInUseDeviceId);
+							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+							response.put("student", studentResponse);
+
+							return new ResponseEntity<>(response,HttpStatus.OK);
+						}else {
+							System.out.println("4 CASE");
+							studentResponse.setIsDeviceAlreadyInUse(true);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 							return new ResponseEntity<>(response,HttpStatus.OK);
 
 						}
+						
 					}
-				} else {
-					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
-					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-				}
 					
-			}
+				}else {
+					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+				}
 
+			}
 			else {
 				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
-				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
-			
-		}
 
-		else {
-			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
-			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 		}
 		
+			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+
+			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 	}
 
 	@Override
 	public ResponseEntity<ApiResponse> approveDevice(String userId, String deviceId) {
-		if ((!userId.equals("")) && (!deviceId.equals(""))) {
+		if (Objects.nonNull(userId) && Objects.nonNull(deviceId)) {
 			Student findByUserId = studRepo.findByUserId(userId);
 
 			if (findByUserId != null) {
@@ -206,27 +293,34 @@ public class StudentServiceImpl implements IStudentService {
 
 				if (updateStudent != null) {
 
-					return new ResponseEntity<>(new ApiResponse(Boolean.TRUE,AppConstants.APPROVAL_REQUEST,HttpStatus.OK),HttpStatus.OK);
+					return new ResponseEntity<>(
+							new ApiResponse(Boolean.TRUE, AppConstants.APPROVAL_REQUEST, HttpStatus.OK), HttpStatus.OK);
 				}
 
 				else {
-					return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.FAILED,HttpStatus.OK),HttpStatus.OK);
+					return new ResponseEntity<>(new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK),
+							HttpStatus.OK);
 				}
 			}
 
 			else {
-				return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.INVALID_CREDENTIALS,HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(
+						new ApiResponse(Boolean.FALSE, AppConstants.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST),
+						HttpStatus.BAD_REQUEST);
 			}
 
 		}
 
 		else {
-			return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.ALL_REQUIRED,HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(
+					new ApiResponse(Boolean.FALSE, AppConstants.ALL_REQUIRED, HttpStatus.BAD_REQUEST),
+					HttpStatus.BAD_REQUEST);
 		}
 	}
 
 	@Override
-	public ResponseEntity<?> checkInCheckOut(String latitude, String longitude, String time, String type, String date,MultipartFile studentImage, MultipartFile attachment, String workReport, HttpHeaders header) {
+	public ResponseEntity<?> checkInCheckOut(String latitude, String longitude, String time, String type, String date,
+			MultipartFile studentImage, MultipartFile attachment, String workReport, HttpHeaders header) {
 		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
@@ -255,14 +349,14 @@ public class StudentServiceImpl implements IStudentService {
 						Attendance saveAttendenceCheckInData = attendenceRepository.save(checkInAttenedanceData);
 						if (saveAttendenceCheckInData != null) {
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-							return new ResponseEntity<>(response,HttpStatus.OK);
+							return new ResponseEntity<>(response, HttpStatus.OK);
 						} else {
 							response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-							return new ResponseEntity<>(response,HttpStatus.OK);
+							return new ResponseEntity<>(response, HttpStatus.OK);
 						}
 					} else {
 						response.put(AppConstants.MESSAGE, AppConstants.ALREADY_CHECKIN);
-						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+						return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 					}
 				} else if (type.equals(AppConstants.CHECK_OUT)) {
 					if (workReport != null) {
@@ -295,33 +389,33 @@ public class StudentServiceImpl implements IStudentService {
 								StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-									return new ResponseEntity<>(response,HttpStatus.OK);
+									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
 									response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-									return new ResponseEntity<>(response,HttpStatus.OK);
+									return new ResponseEntity<>(response, HttpStatus.OK);
 								}
 							} else {
 								response.put(AppConstants.MESSAGE, AppConstants.EARLY_CHECKOUT);
-								return new ResponseEntity<>(response,HttpStatus.ACCEPTED);
+								return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
 							}
 						} else {
 							response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
-							return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+							return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 						}
 					} else {
 						response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
-						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);           
+						return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 					}
 				}
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
-				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST); 
-				
-			} 
-		} 
-		
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
+			}
+		}
+
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED); 		
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -374,8 +468,8 @@ public class StudentServiceImpl implements IStudentService {
 				studentResponseDto.setMobile(student.getMobile());
 				studentResponseDto.setEmail(student.getEmail());
 				studentResponseDto.setDob(student.getDob());
-			
-					studentResponseDto.setProfilePic(student.getProfilePic());
+
+				studentResponseDto.setProfilePic(student.getProfilePic());
 			}
 
 			dashboardResponseDto.setStudentResponseDto(studentResponseDto);
@@ -397,17 +491,17 @@ public class StudentServiceImpl implements IStudentService {
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				response.put("dashboardResponseDto", dashboardResponseDto);
-				return new ResponseEntity<>(response,HttpStatus.OK); 
+				return new ResponseEntity<>(response, HttpStatus.OK);
 
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-				return new ResponseEntity<>(response,HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 
 		}
 
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	private Attendance checkStudentMispunch(Integer studentId) {
@@ -416,7 +510,8 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public ResponseEntity<?> studentMispunchRequest(HttpHeaders header, String time, String date, String workReport,MultipartFile attachment) {
+	public ResponseEntity<?> studentMispunchRequest(HttpHeaders header, String time, String date, String workReport,
+			MultipartFile attachment) {
 		Map<String, Object> response = new HashMap<>();
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
@@ -451,26 +546,26 @@ public class StudentServiceImpl implements IStudentService {
 					StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 					if (Objects.nonNull(saveAttdance)) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-						return new ResponseEntity<>(response,HttpStatus.OK);
-						
+						return new ResponseEntity<>(response, HttpStatus.OK);
+
 					} else {
 						response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-						return new ResponseEntity<>(response,HttpStatus.OK);
+						return new ResponseEntity<>(response, HttpStatus.OK);
 					}
 
 				} else {
 					response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
-					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);	
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
-				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-				
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+
 			}
 		}
-		
+
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 
 	}
 
@@ -525,21 +620,22 @@ public class StudentServiceImpl implements IStudentService {
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				response.put("dashboardResponseDto", dashboardResponseDto);
-				return new ResponseEntity<>(response,HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-				return new ResponseEntity<>(response,HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 
 		}
 
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
 	public ResponseEntity<?> studentEarlyCheckoutRequest(HttpHeaders header, String latitude, String longitude,
-			String time, String date, String type, String workReport, MultipartFile studentImage,MultipartFile attachment) {
+			String time, String date, String type, String workReport, MultipartFile studentImage,
+			MultipartFile attachment) {
 		Map<String, Object> response = new HashMap<>();
 
 		CheckoutResponse checkoutResponseDto = new CheckoutResponse();
@@ -589,34 +685,30 @@ public class StudentServiceImpl implements IStudentService {
 					Attendance updateAttendance = attendenceRepository.save(attendance);
 					String attachmentImage = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
-							workReport,attachmentImage, LocalDateTime.now());
+							workReport, attachmentImage, LocalDateTime.now());
 					workReportRepository.save(studentWorkReport);
 
 					if (updateAttendance != null) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-						return new ResponseEntity<>(response,HttpStatus.OK);					
-					}
-					else {
+						return new ResponseEntity<>(response, HttpStatus.OK);
+					} else {
 						response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-						return new ResponseEntity<>(response,HttpStatus.OK);	
+						return new ResponseEntity<>(response, HttpStatus.OK);
 					}
-				}
-				else {
+				} else {
 					response.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
-					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);	
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
-			}
-			else {
+			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
-				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);		
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 		}
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
-	
-	// get history data after checkout 
+	// get history data after checkout
 	@Override
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
 			Integer limit, Integer offset) {
@@ -633,18 +725,19 @@ public class StudentServiceImpl implements IStudentService {
 					LocalDate.parse(startDate), LocalDate.parse(endDate),
 					PageRequest.of(limit, offset, Sort.by(Direction.DESC, "attendanceId")));
 			List<CheckinCheckoutHistoryResponse> historyDto = new ArrayList<>();
-			if(!attendanceHistory.isEmpty()) {
+			if (!attendanceHistory.isEmpty()) {
 				List<Attendance> content = attendanceHistory.getContent();
 				for (Attendance attendance : content) {
-					StudentWorkReport stdWorkReport = workReportRepository.findByAttendanceId(attendance.getAttendanceId());
+					StudentWorkReport stdWorkReport = workReportRepository
+							.findByAttendanceId(attendance.getAttendanceId());
 					CheckinCheckoutHistoryResponse cicoHistoryObjDto = getCicoHistoryObjDto(attendance);
-					if(stdWorkReport != null) {
+					if (stdWorkReport != null) {
 						cicoHistoryObjDto.setWorkReport(stdWorkReport.getWorkReport());
 						cicoHistoryObjDto.setAttachment(stdWorkReport.getAttachment());
 					}
 					historyDto.add(cicoHistoryObjDto);
 				}
-	
+
 				Map<String, Object> map = new HashMap<>();
 				map.put("attendance", historyDto);
 				map.put("totalPages", attendanceHistory.getTotalPages());
@@ -653,14 +746,14 @@ public class StudentServiceImpl implements IStudentService {
 				map.put("pageSize", attendanceHistory.getNumberOfElements());
 				response.put("response", map);
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-				return new ResponseEntity<>(response,HttpStatus.OK);
-			}else {
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
-				return new ResponseEntity<>(response,HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		}
-			response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-			return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);	
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	private CheckinCheckoutHistoryResponse getCicoHistoryObjDto(Attendance attendance) {
@@ -684,7 +777,7 @@ public class StudentServiceImpl implements IStudentService {
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
 		if (validateToken) {
-			if (!(oldPassword.equals("")) && !(newPassword.equals(""))) {
+			if (Objects.nonNull(oldPassword) && Objects.nonNull(newPassword)) {
 				if (student.getPassword().equals(oldPassword)) {
 					Boolean checkPasswordValidation = true;
 					if (checkPasswordValidation) {
@@ -692,27 +785,27 @@ public class StudentServiceImpl implements IStudentService {
 						Student updatedStudent = studRepo.save(student);
 						if (updatedStudent != null) {
 							response.put(AppConstants.MESSAGE, AppConstants.PASSWORD_CHANGED);
-							return new ResponseEntity<>(response,HttpStatus.OK);							
+							return new ResponseEntity<>(response, HttpStatus.OK);
 						} else {
 							response.put(AppConstants.MESSAGE, AppConstants.PASSWORD_NOT_CHANGED);
-							return new ResponseEntity<>(response,HttpStatus.OK);
+							return new ResponseEntity<>(response, HttpStatus.OK);
 						}
 					} else {
 						response.put(AppConstants.MESSAGE, AppConstants.INVALID_PASSWORD_FORMAT);
-						return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+						return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 					}
 				} else {
 					response.put(AppConstants.MESSAGE, AppConstants.WRONG_PASSWORD);
-					return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
-				return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);		
+				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
-		} 
-		
+		}
+
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -744,19 +837,19 @@ public class StudentServiceImpl implements IStudentService {
 				Student updatedStudent = studRepo.save(student);
 				if (updatedStudent != null) {
 					response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-					return new ResponseEntity<>(response,HttpStatus.OK);		
+					return new ResponseEntity<>(response, HttpStatus.OK);
 				} else {
 					response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-					return new ResponseEntity<>(response,HttpStatus.OK);
+					return new ResponseEntity<>(response, HttpStatus.OK);
 				}
 			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
-				return new ResponseEntity<>(response,HttpStatus.OK);
+				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-		} 
-		
+		}
+
 		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -768,12 +861,9 @@ public class StudentServiceImpl implements IStudentService {
 		if (Objects.nonNull(attendance)) {
 			map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 			map.put("Attendance", attendance);
-			
-		}
-
-		else {
+		} else {
 			map.put(AppConstants.MESSAGE, AppConstants.NOT_CHECKED_IN);
-			
+
 		}
 		return map;
 	}
@@ -794,21 +884,21 @@ public class StudentServiceImpl implements IStudentService {
 			Collections.reverse(findByStudentIdAndMonthNo);
 			if (!findByStudentIdAndMonthNo.isEmpty()) {
 				map.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-				
+
 				map.put("AttendanceData", findByStudentIdAndMonthNo);
 			} else {
 				map.put(AppConstants.MESSAGE, AppConstants.NO_DATA_FOUND);
-				
+
 				map.put("AttendanceData", findByStudentIdAndMonthNo);
 			}
 		} else {
 			map.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-			
+
 		}
 		return map;
 	}
 
-public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
+	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
 
 		List<Integer> present = new ArrayList<>();
 		List<Integer> leaves = new ArrayList<>();
@@ -821,7 +911,7 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 		LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
 		LocalDate currentDay = firstDayOfMonth;
-		
+
 		LocalDate lastDateOfLeave = LocalDate.of(year, month, 1);
 
 		StudentCalenderResponse data = new StudentCalenderResponse();
@@ -830,60 +920,58 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 
 		int currentMonthValue = currentDate.getMonthValue();
 
-			
 		// checking given month is not greather then current month
 		if (month <= currentMonthValue && currentDate.getYear() == year) {
 
+			// counting total leaves
+			List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
+			for (Leaves list : leavesData) {
 
-			//counting total leaves
-		   List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
-		   for (Leaves list : leavesData) {
-			           
-			       int dayOfMonth = list.getLeaveDate().getDayOfMonth();
-			           currentDay = LocalDate.of(year, month, dayOfMonth);
-			       int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
-			       	   lastDateOfLeave  = LocalDate.of(year, month, dayOfMonth2);
-			    
-			       while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() ==month) {
-						if (!present.contains(currentDay.getDayOfMonth())) {
-							leaves.add(currentDay.getDayOfMonth());
-						}
-						currentDay = currentDay.plusDays(1);
+				int dayOfMonth = list.getLeaveDate().getDayOfMonth();
+				currentDay = LocalDate.of(year, month, dayOfMonth);
+				int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
+				lastDateOfLeave = LocalDate.of(year, month, dayOfMonth2);
+
+				while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() == month) {
+					if (!present.contains(currentDay.getDayOfMonth())) {
+						leaves.add(currentDay.getDayOfMonth());
 					}
+					currentDay = currentDay.plusDays(1);
+				}
 			}
-		   currentDay = firstDayOfMonth;
-		   
-		   
-		    // getting total present 
+			currentDay = firstDayOfMonth;
+
+			// getting total present
 			List<Attendance> studentAttendenceList = attendenceRepository.findAllByStudentId(id);
 			for (Attendance list : studentAttendenceList) {
-				//tempCount++;
 				LocalDate temp = list.getCheckInDate();
 				if (temp.getMonth().getValue() == month && temp.getYear() == year) {
 					present.add(temp.getDayOfMonth());
 				}
 			}
-			 
-		
-			//getting total absent for current month and  till today date
-			if(currentDate.getMonthValue() == month) {
-				while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth()-1 && !currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth()-1) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY ) {
+
+			// getting total absent for current month and till today date
+			if (currentDate.getMonthValue() == month) {
+				while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
+						&& !currentDay.isAfter(lastDayOfMonth)) {
+					if (!present.contains(currentDay.getDayOfMonth() - 1)
+							&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 						absent.add(currentDay.getDayOfMonth());
 					}
 					currentDay = currentDay.plusDays(1);
 				}
-				
-			}else {// getting absent for previous month from current month
+
+			} else {// getting absent for previous month from current month
 				while (!currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth()) && currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+					if (!present.contains(currentDay.getDayOfMonth())
+							&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 						absent.add(currentDay.getDayOfMonth());
 					}
 					currentDay = currentDay.plusDays(1);
 				}
 			}
 		}
-		
+
 		data.setPresent(present);
 		data.setAbsent(absent);
 		data.setLeaves(leaves);
@@ -894,4 +982,89 @@ public Map<String, Object> getCalenderData(Integer id, Integer month, Integer ye
 		return response;
 	}
 
+	@Override
+	public Map<String, Object> getStudentData(Integer studentId) {
+		Student student = studRepo.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Student not found with this id :"));
+		Map<String, Object> response = new HashMap<>();
+		response.put("studentName", student.getFullName());
+		response.put("profilePic", student.getProfilePic());
+		response.put("course", student.getApplyForCourse());
+		response.put("id", student.getStudentId());
+		return response;
+	}
+
+	@Override
+	public List<Student> getTotalTodayAbsentStudent() {
+		LocalDate today = LocalDate.now();
+		List<Object[]> result = studRepo.getTotalTodayAbsentStudent(today);
+
+		List<Student> absentStudents = new ArrayList<>();
+		for (Object[] row : result) {
+
+			Student student = new Student();
+			student.setFullName((String) row[0]);
+			student.setMobile((String) row[1]);
+			student.setProfilePic((String) row[2]);
+
+			absentStudents.add(student);
+		}
+
+		return absentStudents;
+	}
+
+	@Override
+	public List<OnLeavesResponse> getTotalStudentInLeaves() {
+		List<OnLeavesResponse> response = new ArrayList<>();
+		List<Object[]> totalStudentInLeaves = studRepo.getTotalStudentInLeaves();
+		for (Object[] row : totalStudentInLeaves) {
+			OnLeavesResponse leavesResponse = new OnLeavesResponse();
+			Integer id = (Integer) row[0];
+			Map<String, Object> studentData = this.getStudentData(id);
+			leavesResponse.setProfilePic(studentData.get("profilePic").toString());
+			leavesResponse.setApplyForCourse(studentData.get("course").toString());
+			leavesResponse.setName(studentData.get("studentName").toString());
+			leavesResponse.setLeaveDate((LocalDate) row[1]);
+			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
+			response.add(leavesResponse);
+		}
+		return response;
+	}
+
+	@Override
+	public List<TodayLeavesRequestResponse> getTotalTodaysLeavesRequest() {
+
+		List<Object[]> totalTodaysLeavesRequest = studRepo.getTotalTodaysLeavesRequest();
+		List<TodayLeavesRequestResponse> response = new ArrayList<>();
+		System.out.println(totalTodaysLeavesRequest);
+
+		for (Object[] row : totalTodaysLeavesRequest) {
+			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
+			leavesRequestResponse.setLeaveDate((LocalDate) row[0]);
+			leavesRequestResponse.setLeaveEndDate((LocalDate) row[1]);
+			leavesRequestResponse.setStudentId((Integer) row[2]);
+			leavesRequestResponse.setFullName((String) row[3]);
+			leavesRequestResponse.setProfilePic((String) row[4]);
+			leavesRequestResponse.setApplyForCourse((String) row[5]);
+			leavesRequestResponse.setLeaveTypeId((Integer) row[6]);
+			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
+			leavesRequestResponse.setLeaveReason((String) row[8]);
+			response.add(leavesRequestResponse);
+		}
+
+		// System.out.println(response);
+		return response;
+	}
+
+	@Override
+	public Boolean approveStudentLeaveReqeust(Integer studentId, String leaveStatus) {
+		
+		int updateStudentLeaves = 0;
+		if (leaveStatus.equals("approve")) {
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 1);
+		} else if (leaveStatus.equals("deny")) {
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2);
+		}
+		return (updateStudentLeaves!=0) ? true : false;
+	}
 }
