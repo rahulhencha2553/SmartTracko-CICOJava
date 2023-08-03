@@ -39,8 +39,8 @@ public class SecurityConfig {
 	
 	String apiPaths[] = {
 			"/swagger-ui/**","/swagger-ui.html", "/swagger-resources/**","/v3/api-docs", "/v2/api-docs", "/webjars/**",
-			"/student/**","/file/**","/Leave/**","/admin/**","/job/**","/technologyStack/**","/assignment/**","/course/**",
-			"/newsEvents/**","/qr/**","/resources/**","/socket/**","/queue/**"
+			"/student/**","/file/**","/leave/**","/admin/**","/job/**","/technologyStack/**","/assignment/**","/course/**",
+			"/newsEvents/**","/qr/**","/resources/**","/socket/**","/queue/**","/batch/**"
 	};
 	
 	@Bean	

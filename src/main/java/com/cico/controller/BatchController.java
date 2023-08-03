@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Batch;
@@ -28,18 +29,18 @@ public class BatchController {
 	IBatchService batchService;
 
 	@PostMapping("/createBatch")
-	public ResponseEntity<Batch> createBatch(@RequestBody Batch batch) {
+	public ResponseEntity<Batch> createBatch(@RequestParam("technologyStackId") Integer technologyStackId,@RequestParam("batchName") String batchName,@RequestParam("batchStartDate") String batchStartDate,@RequestParam("batchEndDate") String batchEndDate) {
 
-		batch = batchService.createBatch(batch);
-		return ResponseEntity.ok(batch);
+		 Batch createBatch = batchService.createBatch(technologyStackId,batchName,batchStartDate,batchEndDate);
+		return ResponseEntity.ok(createBatch);
 
 	}
 
 	@PutMapping("/updateBatch")
 	public ResponseEntity<Batch> updateBatch(@RequestBody Batch batch) {
 
-		batch = batchService.createBatch(batch);
-		return ResponseEntity.ok(batch);
+//		batch = batchService.createBatch(batch);
+		return ResponseEntity.ok(null);
 
 	}
 
