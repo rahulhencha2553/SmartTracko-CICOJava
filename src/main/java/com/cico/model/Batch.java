@@ -29,5 +29,12 @@ public class Batch {
 	
 	private boolean isDeleted;
 	private boolean isActive=true;
+	public Batch(String batchName, LocalDate batchStartDate, LocalDate batchEndDate, TechnologyStack technologyStack) {
+		super();
+		this.batchName = batchName;
+		this.batchStartDate = batchStartDate;
+		this.batchEndDate = batchEndDate;
+		this.technologyStack = technologyStack;
+	}
 
 }
