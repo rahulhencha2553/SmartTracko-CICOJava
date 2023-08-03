@@ -17,6 +17,7 @@ public class JwtUtil {
 	@Value("${secret}")
 	private String secret;
 
+
 private String generateToken(Map<String, Object> claims, String subject) {
 		
 		return Jwts.builder().setClaims(claims).setSubject(subject)

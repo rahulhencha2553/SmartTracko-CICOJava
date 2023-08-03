@@ -7,17 +7,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class JwtResponse {
 	String token;
-	int studentId;
-	String studentName;
-	String profilePic;
-    String course;
-	public JwtResponse(String token, int studentId, String studentName, String profilePic, String course) {
+
+	public JwtResponse(String token) {
 		super();
 		this.token = token;
-		this.studentId = studentId;
-		this.studentName = studentName;
-		this.profilePic = profilePic;
-		this.course = course;
 	}
-    
+	
 }
