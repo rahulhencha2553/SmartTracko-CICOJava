@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Attendance;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
+import com.cico.model.QrManage;
 import com.cico.model.Student;
 import com.cico.model.StudentWorkReport;
 import com.cico.payload.ApiResponse;
@@ -40,6 +41,7 @@ import com.cico.payload.StudentResponse;
 import com.cico.repository.AttendenceRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
+import com.cico.repository.QrManageRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.StudentWorkReportRepository;
 import com.cico.security.JwtUtil;
@@ -58,6 +60,9 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private StudentRepository studRepo;
+	
+	@Autowired
+	private QrManageRepository qrManageRepository;
 	
 	@Autowired
 	private LeaveRepository leaveRepository;
@@ -474,6 +479,9 @@ public class StudentServiceImpl implements IStudentService {
 
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				QrManage findByUserId = qrManageRepository.findByUserId(username);
+				if(Objects.nonNull(findByUserId))
+					dashboardResponseDto.setIsWebLoggedIn(true);
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response,HttpStatus.OK); 
 
@@ -602,6 +610,9 @@ public class StudentServiceImpl implements IStudentService {
 
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				QrManage findByUserId = qrManageRepository.findByUserId(username);
+				if(Objects.nonNull(findByUserId))
+					dashboardResponseDto.setIsWebLoggedIn(true);
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response,HttpStatus.OK);
 			} else {

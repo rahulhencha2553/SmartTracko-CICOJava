@@ -3,12 +3,15 @@ package com.cico.controller;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +21,7 @@ import com.cico.payload.JwtResponse;
 import com.cico.payload.QRResponse;
 import com.cico.security.JwtUtil;
 import com.cico.service.IQRService;
+import com.cico.util.AppConstants;
 
 @RestController
 @RequestMapping("/qr")
@@ -45,15 +49,29 @@ public class QRController {
         if(Objects.isNull(qrKey)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        ApiResponse response = qrService.QRLogin(qrKey, token);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return qrService.QRLogin(qrKey, token);
     }
 
-    @PostMapping("/clientlogin")
-    public ResponseEntity<?> qrLoginClientAuthentication(@RequestParam("token") String token){
-    	JwtResponse clientLogin = qrService.ClientLogin(token);
-    	System.out.println("response responseresponseresponseresponseresponse "+clientLogin);
-        return new ResponseEntity<>(clientLogin,HttpStatus.OK);
+    @PostMapping("/updateWebLoginStatus")
+    public ResponseEntity<?> updateWebLoginStatus(@RequestParam("token")String token,@RequestParam("os") String os,
+			@RequestParam("deviceType") String deviceType, @RequestParam("browser") String browser){
+    	return qrService.updateWebLoginStatus(token,os,deviceType,browser);
+
     }
+    
+    @GetMapping("/getLinkedDevice")
+    public ResponseEntity<?> getLinkedDevice(@RequestHeader HttpHeaders headers){
+  
+    	return qrService.getLinkedDeviceData(headers);
+    }
+    
+    @DeleteMapping("/webLogout")
+    public ResponseEntity<?> logoutUserFromWeb(@RequestHeader HttpHeaders headers){
+    	System.out.println(headers.getFirst(AppConstants.AUTHORIZATION));
+    	return qrService.removeDeviceFromWeb(headers);
+    }
+    
+    
+    
 
 }
