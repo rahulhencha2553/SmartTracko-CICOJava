@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,9 @@ public class QRServiceImpl implements IQRService {
 
 	@Autowired
 	private JwtUtil util;
+	
+	@Value("${cico.key}")
+	private String qrSecretKey;
 
 	@Autowired
 	private SimpMessageSendingOperations messageSendingOperations;
@@ -55,7 +59,7 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public QRResponse generateQRCode() throws WriterException, IOException {
-		String randomData = UUID.randomUUID().toString();
+		String randomData = qrSecretKey+UUID.randomUUID().toString();
 
 		int imageSize = 283;
 		BitMatrix matrix = new MultiFormatWriter().encode(randomData, BarcodeFormat.QR_CODE, imageSize, imageSize);
@@ -66,22 +70,23 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?>  QRLogin(String qrKey, String token) {
-		QrManage findByUuid = qrManageRepository.findByUuid(qrKey);
-		System.out.println("***************** "+findByUuid+" *******************");
-		if(Objects.isNull(findByUuid)) {
-			
-			String username = util.getUsername(token);
-			findByUuid = new QrManage(username,qrKey);
-			QrManage qrManage = qrManageRepository.save(findByUuid);
-			JwtResponse message = ClientLogin(token);
-			executor.submit(() -> {
-				message.setToken(token);
-				jobEnd(qrKey, message);
-			});
-				return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+		String[] split = qrKey.split("#");
+		if(split[0].equals("CICO")){
+			QrManage findByUuid = qrManageRepository.findByUuid(split[1]);
+			if(Objects.isNull(findByUuid)) {
+				
+				String username = util.getUsername(token);
+				findByUuid = new QrManage(username,split[1]);
+				QrManage qrManage = qrManageRepository.save(findByUuid);
+				JwtResponse message = ClientLogin(token);
+				executor.submit(() -> {
+					message.setToken(token);
+					jobEnd(split[1], message);
+				});
+					return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+			}
 		}
-		else
-			return new ResponseEntity<> (new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<> (new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
 	}
 
 	

@@ -32,5 +32,15 @@ public class StudentWorkReport {
 	private String attachment;
 	
 	private LocalDateTime createdDate;
+
+	public StudentWorkReport(Integer workReportId, Integer attendanceId, String workReport, LocalDateTime createdDate) {
+		super();
+		this.workReportId = workReportId;
+		this.attendanceId = attendanceId;
+		this.workReport = workReport;
+		this.createdDate = createdDate;
+	}
+	
+	
 }
 
