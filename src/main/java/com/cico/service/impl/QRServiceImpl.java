@@ -110,9 +110,9 @@ public class QRServiceImpl implements IQRService {
 	public ResponseEntity<?> getLinkedDeviceData(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
-		System.out.println(findByUserId);
 		Map<String, Object> response = new HashMap<>();
 		response.put("loginDevice", findByUserId);
+		response.put("loginAt",findByUserId != null ? findByUserId.getLoginAt().toString().replace('T',' '):"");
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
