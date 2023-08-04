@@ -23,4 +23,6 @@ public interface IQRService {
 	public ResponseEntity<?> removeDeviceFromWeb(HttpHeaders headers);
 
 	public ResponseEntity<?> updateWebLoginStatus(String token, String os, String deviceType, String browser);
+
+	public ResponseEntity<?> getLinkedDeviceDataByUuid(String key);
 }

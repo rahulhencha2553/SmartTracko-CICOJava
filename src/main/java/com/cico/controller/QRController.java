@@ -61,8 +61,12 @@ public class QRController {
     
     @GetMapping("/getLinkedDevice")
     public ResponseEntity<?> getLinkedDevice(@RequestHeader HttpHeaders headers){
-  
     	return qrService.getLinkedDeviceData(headers);
+    }
+    
+    @GetMapping("/getLinkedDeviceByUuid")
+    public ResponseEntity<?> getLinkedDevice(@RequestParam("key") String key){
+    	return qrService.getLinkedDeviceDataByUuid(key);
     }
     
     @DeleteMapping("/webLogout")
