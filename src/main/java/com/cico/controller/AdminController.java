@@ -29,14 +29,11 @@ public class AdminController {
 	@Autowired
 	private IAdminService service;
 	
-	
 
 	@PostMapping("/adminLoginApi")
 	public ResponseEntity<JwtResponse> adminLogin(@RequestParam(name=AppConstants.ADMIN_ID) String adminId,
 			@RequestParam("password") String password) {
-		String token = service.adminLogin(adminId, password);
-		JwtResponse response = new JwtResponse(token);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(service.adminLogin(adminId, password));
 	}
 
 	@PostMapping("/createAdmin")

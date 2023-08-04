@@ -8,7 +8,6 @@ import com.cico.payload.ApiResponse;
 
 public interface IBatchService {
 
-	Batch createBatch(Batch batch);
 
 	ApiResponse deleteBatch(Integer batchId);
 
@@ -19,5 +18,7 @@ public interface IBatchService {
 	List<Batch> getUpcomingBatches();
 	
 	ApiResponse updateBatchStatus(Integer batchId);
+
+	Batch createBatch(Integer technologyStackId, String batchName, String batchStartDate, String batchEndDate);
 
 }
