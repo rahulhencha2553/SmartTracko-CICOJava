@@ -51,7 +51,7 @@ public class AdminServiceImpl implements IAdminService {
 		if (adminEmail.isPresent()) {
 			if (adminEmail.get().getPassword().equals(password)) {
 				String token = jwtUtil.generateTokenForAdmin(adminId);
-				return new JwtResponse(token, adminId,adminEmail.get().getAdminName(), adminEmail.get().getProfilePic(), null);
+				return new JwtResponse(token);
 			} else {
 				throw new InvalidCredentialsException(AppConstants.INVALID_CREDENTIALS);
 			}
