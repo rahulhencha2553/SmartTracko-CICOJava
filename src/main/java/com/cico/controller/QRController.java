@@ -71,7 +71,4 @@ public class QRController {
     	return qrService.removeDeviceFromWeb(headers);
     }
     
-    
-    
-
 }

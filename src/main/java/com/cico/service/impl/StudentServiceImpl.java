@@ -386,8 +386,10 @@ public class StudentServiceImpl implements IStudentService {
 
 								StudentWorkReport studentWorkReport = new StudentWorkReport();
 								studentWorkReport.setAttendanceId(saveAttendenceCheckOutData.getAttendanceId());
-								String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
-								studentWorkReport.setAttachment(workImageName);
+								if(!attachment.getOriginalFilename().equals("")) {
+									String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+									studentWorkReport.setAttachment(workImageName);
+								}
 								studentWorkReport.setWorkReport(workReport);
 								studentWorkReport.setCreatedDate(LocalDateTime.now());
 
@@ -546,8 +548,10 @@ public class StudentServiceImpl implements IStudentService {
 
 					StudentWorkReport studentWorkReport = new StudentWorkReport();
 					studentWorkReport.setAttendanceId(saveAttdance.getAttendanceId());
-					String attachmentImage = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
-					studentWorkReport.setAttachment(attachmentImage);
+					if(!attachment.getOriginalFilename().equals("")) {
+						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+						studentWorkReport.setAttachment(workImageName);
+					}
 					studentWorkReport.setWorkReport(workReport);
 					studentWorkReport.setCreatedDate(LocalDateTime.now());
 
@@ -694,9 +698,12 @@ public class StudentServiceImpl implements IStudentService {
 					attendance.setUpdatedDate(checkoutResponseDto.getUpdatedDate());
 
 					Attendance updateAttendance = attendenceRepository.save(attendance);
-					String attachmentImage = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
-							workReport, attachmentImage, LocalDateTime.now());
+							workReport,LocalDateTime.now());
+					if(!attachment.getOriginalFilename().equals("")) {
+						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
+						studentWorkReport.setAttachment(workImageName);
+					}
 					workReportRepository.save(studentWorkReport);
 
 					if (updateAttendance != null) {
