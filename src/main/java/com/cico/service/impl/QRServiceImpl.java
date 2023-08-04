@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -109,6 +110,7 @@ public class QRServiceImpl implements IQRService {
 	public ResponseEntity<?> getLinkedDeviceData(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
+		System.out.println(findByUserId);
 		Map<String, Object> response = new HashMap<>();
 		response.put("loginDevice", findByUserId);
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -119,7 +121,7 @@ public class QRServiceImpl implements IQRService {
 	public ResponseEntity<?> removeDeviceFromWeb(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
-		if(Objects.nonNull(findByUserId)) {
+		if(findByUserId != null) {
 			System.out.println(findByUserId);
 			jobEnd(findByUserId.getUuid(), "LOGOUT");
 			qrManageRepository.delete(findByUserId);
@@ -139,6 +141,15 @@ public class QRServiceImpl implements IQRService {
 			findByUserId.setLoginAt(LocalDateTime.now());
 			QrManage save = qrManageRepository.save(findByUserId);
 			return new ResponseEntity<>(save,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getLinkedDeviceDataByUuid(String key) {
+		QrManage findByUuid = qrManageRepository.findByUuid(key);
+		Map<String, Object> response = new HashMap<>();
+		response.put("loginDevice", findByUuid);
+		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
 	
