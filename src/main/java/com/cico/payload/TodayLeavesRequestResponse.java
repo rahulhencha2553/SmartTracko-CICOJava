@@ -16,5 +16,5 @@ public class TodayLeavesRequestResponse {
 	private LocalDate leaveEndDate;
 	private Integer leaveDuration;
 	private Integer leaveTypeId;
-
+    private Integer leaveId;
 }

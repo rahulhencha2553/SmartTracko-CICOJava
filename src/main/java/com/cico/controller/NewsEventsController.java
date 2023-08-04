@@ -1,7 +1,5 @@
 package com.cico.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,6 +90,4 @@ public class NewsEventsController {
 		 PageResponse<NewsEvents> searchNewsAndEvents = newsEventsService.searchNewsAndEvents(search,role,page,size);
 		return ResponseEntity.status(HttpStatus.OK).body(searchNewsAndEvents);
 	}
-
-	
 }

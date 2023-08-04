@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -917,7 +916,6 @@ public class StudentServiceImpl implements IStudentService {
 
 		List<Student> absentStudents = new ArrayList<>();
 		for (Object[] row : result) {
-
 			Student student = new Student();
 			student.setFullName((String) row[0]);
 			student.setMobile((String) row[1]);
@@ -925,7 +923,6 @@ public class StudentServiceImpl implements IStudentService {
 
 			absentStudents.add(student);
 		}
-
 		return absentStudents;
 	}
 
@@ -965,6 +962,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesRequestResponse.setLeaveTypeId((Integer) row[6]);
 			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
 			leavesRequestResponse.setLeaveReason((String) row[8]);
+			leavesRequestResponse.setLeaveId((Integer) row[9]);
 			response.add(leavesRequestResponse);
 		}
 
@@ -973,13 +971,13 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public Boolean approveStudentLeaveReqeust(Integer studentId, String leaveStatus) {
-		
+	public Boolean approveStudentLeaveReqeust(Integer studentId, Integer leaveId,String leaveStatus) {
+		  
 		int updateStudentLeaves = 0;
 		if (leaveStatus.equals("approve")) {
-			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 1);
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 1,leaveId);
 		} else if (leaveStatus.equals("deny")) {
-			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2);
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2,leaveId);
 		}
 		return (updateStudentLeaves!=0) ? true : false;
 	}

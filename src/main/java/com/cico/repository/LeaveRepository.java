@@ -37,14 +37,16 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 			@Param("leaveId") Integer leaveId);
 
 	@Query("SELECT l FROM Leaves l WHERE l.studentId=:studentId AND MONTH(l.leaveDate)=:monthNo")
-	public List<Leaves> findByStudentIdAndMonthNo(@Param("studentId") Integer studentId,
-			@Param("monthNo") Integer monthNo);
+	public Page<Leaves> findByStudentIdAndMonthNo(@Param("studentId") Integer studentId,
+			@Param("monthNo") Integer monthNo, PageRequest of);
 
 	@Query("SELECT u FROM Leaves u where u.studentId =:id And u.leaveStatus = 1 ")
 	public List<Leaves> findAllByStudentId(@Param("id") Integer id);
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE Leaves  l SET l.leaveStatus=:status WHERE l.studentId =:studentId ")
-	public int updateStudentLeaves(@PathVariable("studentId") Integer studentId,@PathVariable("status") Integer status );
+	@Query("UPDATE Leaves  l SET l.leaveStatus=:status WHERE l.studentId =:studentId AND l.leaveId =:leaveId ")
+	public int updateStudentLeaves(@Param("studentId") Integer studentId,@Param("status") Integer status, @Param("leaveId") Integer leaveId );
+    
+	public Leaves findByStudentId(Integer StudentId);
 }
