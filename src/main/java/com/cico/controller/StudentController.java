@@ -177,10 +177,10 @@ public class StudentController {
 	}
 
 	// approve leave Request
-	@PutMapping("approveStudentLeaveReqeust/{studentId}/{status}")
-	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,
+	@PutMapping("approveStudentLeaveReqeust/{studentId}/{leaveId}/{status}")
+	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,@PathVariable("leaveId")Integer leaveId,
 			@PathVariable("status") String Leavestatus) {
-		Boolean status = studentService.approveStudentLeaveReqeust(studentId, Leavestatus);
+		Boolean status = studentService.approveStudentLeaveReqeust(studentId,leaveId, Leavestatus);
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
 }

@@ -67,10 +67,11 @@ public class LeaveController {
 	}
 
 	@GetMapping("/studentLeaveMonthFilter")
-	public ResponseEntity<Map<String, Object>> studentLeaveMonthFilter(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+	public ResponseEntity<?> studentLeaveMonthFilter(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam("monthNo") Integer monthNo) {
-		Map<String, Object> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilter(header, monthNo);
-		return ResponseEntity.ok(studentLeaveMonthFilter);
+		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilter(header, monthNo);
+		return studentLeaveMonthFilter;
 	}
+	
 }
 

@@ -30,4 +30,5 @@ public class LeaveResponse {
 	private String leaveDeclinedReason;
 	private LocalDateTime createdDate;
 	private Integer leaveDuration;
+	
 }
