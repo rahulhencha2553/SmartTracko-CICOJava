@@ -81,7 +81,7 @@ public class QRServiceImpl implements IQRService {
 				JwtResponse message = ClientLogin(token);
 				executor.submit(() -> {
 					message.setToken(token);
-					jobEnd(split[1], message);
+					jobEnd(split[1], message.getToken());
 				});
 					return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
 			}
@@ -101,8 +101,8 @@ public class QRServiceImpl implements IQRService {
 		return jwtResponse;
 	}
 
-	private void jobEnd(String qrKey, JwtResponse message) {
-		messageSendingOperations.convertAndSend("/queue/messages-" + qrKey, message.getToken());
+	private void jobEnd(String qrKey, String message) {
+		messageSendingOperations.convertAndSend("/queue/messages-" + qrKey, message);
 	}
 
 	
@@ -118,10 +118,15 @@ public class QRServiceImpl implements IQRService {
 	
 	public ResponseEntity<?> removeDeviceFromWeb(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
-		int check = qrManageRepository.deleteByUserId(username);
-		if(check != 0)
+		QrManage findByUserId = qrManageRepository.findByUserId(username);
+		if(Objects.nonNull(findByUserId)) {
+			System.out.println(findByUserId);
+			jobEnd(findByUserId.getUuid(), "LOGOUT");
+			qrManageRepository.delete(findByUserId);
 			return new ResponseEntity<>(new ApiResponse(Boolean.TRUE,AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+		}
 		return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.FAILED, HttpStatus.OK),HttpStatus.OK);
+		
 	}
 
 	@Override
