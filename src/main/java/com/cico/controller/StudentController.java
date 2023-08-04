@@ -155,11 +155,11 @@ public class StudentController {
 	}
 
 	// getting total absent student today
-	@GetMapping("/getTotalTodayAbsentStudent")
-	public ResponseEntity<List<Student>> getTotalTodayAbsentStudent() {
-		List<Student> totalTodayAbsentStudent = studentService.getTotalTodayAbsentStudent();
-		System.out.println(totalTodayAbsentStudent);
-		return new ResponseEntity<List<Student>>(totalTodayAbsentStudent, HttpStatus.OK);
+	@GetMapping("/getTotalTodayAbsentStudentAndPresent")
+	public ResponseEntity<Map<String, Object>> getTotalTodayAbsentStudent() {
+		Map<String, Object>response = studentService.getTotalTodayAbsentStudent();
+	//	System.out.println(totalTodayAbsentStudent);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
 	// getting total student who are in currently leave

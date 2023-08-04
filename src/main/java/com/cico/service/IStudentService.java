@@ -51,7 +51,7 @@ public interface IStudentService {
 
 	public Map<String, Object> getStudentData(Integer studentId);
 
-	public List<Student>getTotalTodayAbsentStudent();
+	public Map<String, Object>getTotalTodayAbsentStudent();
 
 	public List<OnLeavesResponse> getTotalStudentInLeaves();
 	

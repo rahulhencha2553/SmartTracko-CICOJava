@@ -1,7 +1,6 @@
 package com.cico.repository;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,17 +30,11 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))")
 	List<Object[]> getTotalTodayAbsentStudent(@Param("todaysdate") LocalDate todaysdate);
 
+	@Query("SELECT COUNT(A.studentId) FROM Attendance A WHERE A.checkInDate = :todaysdate")
+	Long getTotalPresentToday(@Param("todaysdate") LocalDate todaysdate);
+
 	@Query("SELECT l.studentId ,l.leaveDate,l.leaveEndDate  FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN l.leaveDate AND l.createdDate")
 	List<Object[]> getTotalStudentInLeaves();
-
-//	@Query("SELECT l.leaveDate , l.leaveEndDate , l.studentId , l.leaveTypeId , l.leaveReason FROM Leaves l WHERE  l.leaveStatus = 0  AND CURRENT_DATE() BETWEEN l.createdDate AND l.leaveDate")
-//	List<Object[]> getTotalTodaysLeavesRequest();
-
-//	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, l.leaveTypeId, l.leaveReason " +
-//		       "FROM Leaves l " +
-//		       "INNER JOIN Student s ON l.studentId = s.studentId " +
-//		       "WHERE l.leaveStatus = 0 AND CURRENT_DATE() BETWEEN l.createdDate AND l.leaveDate")
-//		List<Object[]> getTotalTodaysLeavesRequest();
 
 	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic ,s.applyForCourse, l.leaveTypeId,l.leaveDuration, l.leaveReason,l.leaveId\r\n"
 			+ "FROM Leaves l\r\n" + "INNER JOIN Student s ON l.studentId = s.studentId\r\n"

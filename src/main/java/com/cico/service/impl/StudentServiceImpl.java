@@ -1012,10 +1012,12 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public List<Student> getTotalTodayAbsentStudent() {
+	public Map<String, Object> getTotalTodayAbsentStudent() {
+
+		Map<String, Object> response = new HashMap<>();
 		LocalDate today = LocalDate.now();
 		List<Object[]> result = studRepo.getTotalTodayAbsentStudent(today);
-
+		//List<Attendance> totalPresentToday = studRepo.getTotalPresentToday(today);
 		List<Student> absentStudents = new ArrayList<>();
 		for (Object[] row : result) {
 			Student student = new Student();
@@ -1025,7 +1027,11 @@ public class StudentServiceImpl implements IStudentService {
 
 			absentStudents.add(student);
 		}
-		return absentStudents;
+	
+		Long totalPresentToday = studRepo.getTotalPresentToday(today);
+        response.putIfAbsent("totalPresent", totalPresentToday);
+        response.put("totalAbsent",absentStudents);
+		return response;
 	}
 
 	@Override
@@ -1051,7 +1057,6 @@ public class StudentServiceImpl implements IStudentService {
 
 		List<Object[]> totalTodaysLeavesRequest = studRepo.getTotalTodaysLeavesRequest();
 		List<TodayLeavesRequestResponse> response = new ArrayList<>();
-		System.out.println(totalTodaysLeavesRequest);
 
 		for (Object[] row : totalTodaysLeavesRequest) {
 			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
@@ -1073,14 +1078,14 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	@Override
-	public Boolean approveStudentLeaveReqeust(Integer studentId, Integer leaveId,String leaveStatus) {
-		  
+	public Boolean approveStudentLeaveReqeust(Integer studentId, Integer leaveId, String leaveStatus) {
+
 		int updateStudentLeaves = 0;
 		if (leaveStatus.equals("approve")) {
-			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 1,leaveId);
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 1, leaveId);
 		} else if (leaveStatus.equals("deny")) {
-			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2,leaveId);
+			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2, leaveId);
 		}
-		return (updateStudentLeaves!=0) ? true : false;
+		return (updateStudentLeaves != 0) ? true : false;
 	}
 }
