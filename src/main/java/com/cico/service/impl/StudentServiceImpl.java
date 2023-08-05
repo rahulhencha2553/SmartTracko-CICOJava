@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,6 +93,9 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Value("${workReportUploadPath}")
 	private String WORK_UPLOAD_DIR;
+	
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -219,7 +223,7 @@ public class StudentServiceImpl implements IStudentService {
 			Student studentByInUseDeviceId = getStudentByInUseDeviceId(deviceId);
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
 
-			if (studentByUserId != null && studentByUserId.getPassword().equals(password)) {
+			if (studentByUserId != null && encoder.matches(password, studentByUserId.getPassword())) {
 				if(studentByUserId.getIsActive()) {
 					if(studentByInUseDeviceId == null) {// device Id is not present in db
 						//login
@@ -795,10 +799,10 @@ public class StudentServiceImpl implements IStudentService {
 		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
 		if (validateToken) {
 			if (Objects.nonNull(oldPassword) && Objects.nonNull(newPassword)) {
-				if (student.getPassword().equals(oldPassword)) {
+				if (encoder.matches(oldPassword, student.getPassword())) {
 					Boolean checkPasswordValidation = true;
 					if (checkPasswordValidation) {
-						student.setPassword(newPassword);
+						student.setPassword(encoder.encode(newPassword));
 						Student updatedStudent = studRepo.save(student);
 						if (updatedStudent != null) {
 							response.put(AppConstants.MESSAGE, AppConstants.PASSWORD_CHANGED);
