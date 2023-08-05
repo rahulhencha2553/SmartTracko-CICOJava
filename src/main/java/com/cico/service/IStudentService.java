@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Student;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.OnLeavesResponse;
+import com.cico.payload.PageResponse;
+import com.cico.payload.StudentResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 
 public interface IStudentService {
@@ -59,5 +61,12 @@ public interface IStudentService {
 
 	public Boolean approveStudentLeaveReqeust(Integer studentId,Integer leaveId, String status);
 
+	public PageResponse<StudentResponse> getAllStudentData(Integer page, Integer size);
+
+	public List<StudentResponse> searchStudentByName(String fullName);
+
+	public StudentResponse getStudentById(Integer studentId);
+
 	public Student registerStudent(Student student);
+
 }

@@ -20,6 +20,8 @@ public class StudentResponse {
 	private String profilePic;
 	private String deviceId;
 	private String fcmId;
+	private String currentCourse;
+	
 	public StudentResponse(Integer studentId, String userId, String fullName, String mobile, String email,
 			LocalDate dob, String inUseDeviceId, String profilePic, String deviceId, String fcmId, String deviceType) {
 		super();
