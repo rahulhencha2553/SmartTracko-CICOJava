@@ -239,12 +239,13 @@ public class StudentServiceImpl implements IStudentService {
 	
 	@Override
 	public Student registerStudent(Student student) {
-
 		Student student1 = studRepo.save(student);
 		student1.setPassword(passwordEncoder.encode("123456"));
+		student1.setContactFather(student.getContactFather());
 		student1.setRole(Roles.STUDENT.toString());
 		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
-		return studRepo.save(student);
+		student1.setProfilePic("default.png");
+		return studRepo.save(student1);
 	}
 
 	@Override

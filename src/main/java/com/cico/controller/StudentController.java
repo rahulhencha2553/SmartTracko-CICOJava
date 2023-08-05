@@ -62,7 +62,8 @@ public class StudentController {
 
 	@PostMapping("/registerStudent")
 	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
-		System.out.println(student);
+		System.out.println("11111111111111111111111"+student.getCotactMother());
+		System.out.println("22222222222222222222222"+student.getContactFather());
 		Student registerStudent = studentService.registerStudent(student);
 		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
 	}
