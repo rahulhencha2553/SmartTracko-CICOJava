@@ -116,15 +116,7 @@ public class StudentServiceImpl implements IStudentService {
 		return studRepo.findByInUseDeviceId(deviceId);
 	}
 	
-	@Override
-	public Student registerStudent(Student student) {
 
-		Student student1 = studRepo.save(student);
-		student1.setPassword(encoder.encode("123456"));
-		student1.setRole(Roles.STUDENT.toString());
-		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
-		return studRepo.save(student);
-	}
 
 
 //	@Override

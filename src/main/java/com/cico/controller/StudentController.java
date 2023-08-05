@@ -59,15 +59,6 @@ public class StudentController {
 		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
 	}
 
-
-	@PostMapping("/registerStudent")
-	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
-		System.out.println("11111111111111111111111"+student.getCotactMother());
-		System.out.println("22222222222222222222222"+student.getContactFather());
-		Student registerStudent = studentService.registerStudent(student);
-		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
-	}
-
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
