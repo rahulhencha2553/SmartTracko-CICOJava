@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +40,8 @@ public class StudentController {
 
 	@Autowired
 	private IStudentService studentService;
+	
+
 
 	@PostMapping("/studentLoginApi")
 	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
@@ -48,6 +51,21 @@ public class StudentController {
 		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
 	}
+	
+	@PostMapping("/registerStudent")
+	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
+		System.out.println(student);
+		Student registerStudent = studentService.registerStudent(student);
+		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
+	}
+
+
+	@PostMapping("/registerStudent")
+	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
+		System.out.println(student);
+		Student registerStudent = studentService.registerStudent(student);
+		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
+	}
 
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
@@ -56,7 +74,8 @@ public class StudentController {
 		return studentService.approveDevice(userId, deviceId);
 
 	}
-
+	
+	
 	@PostMapping("/studentCheckInCheckOutApi")
 	public ResponseEntity<?> checkInCheckOut(@RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
@@ -179,8 +198,8 @@ public class StudentController {
 	// getting total absent student today
 	@GetMapping("/getTotalTodayAbsentStudentAndPresent")
 	public ResponseEntity<Map<String, Object>> getTotalTodayAbsentStudent() {
-		Map<String, Object>response = studentService.getTotalTodayAbsentStudent();
-	//	System.out.println(totalTodayAbsentStudent);
+		Map<String, Object> response = studentService.getTotalTodayAbsentStudent();
+		// System.out.println(totalTodayAbsentStudent);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
@@ -200,9 +219,9 @@ public class StudentController {
 
 	// approve leave Request
 	@PutMapping("approveStudentLeaveReqeust/{studentId}/{leaveId}/{status}")
-	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,@PathVariable("leaveId")Integer leaveId,
-			@PathVariable("status") String Leavestatus) {
-		Boolean status = studentService.approveStudentLeaveReqeust(studentId,leaveId, Leavestatus);
+	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,
+			@PathVariable("leaveId") Integer leaveId, @PathVariable("status") String Leavestatus) {
+		Boolean status = studentService.approveStudentLeaveReqeust(studentId, leaveId, Leavestatus);
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
 }

@@ -66,4 +66,7 @@ public interface IStudentService {
 	public List<StudentResponse> searchStudentByName(String fullName);
 
 	public StudentResponse getStudentById(Integer studentId);
+
+	public Student registerStudent(Student student);
+
 }

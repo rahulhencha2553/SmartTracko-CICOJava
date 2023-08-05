@@ -3,12 +3,17 @@ package com.cico.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,9 +22,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "students")
-
 public class Student {
+	
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer studentId;
 	private String userId;
 	private String fullName;
@@ -48,9 +54,9 @@ public class Student {
 	private String inUseDeviceId;
 	private String isDeviceApproved;
 	private String deviceType;
-	private Boolean isFromEnquiry;
-	private Boolean isConverted;
-	private Boolean isCompleted;
-	private Boolean isActive;
+	private Boolean isFromEnquiry=false;
+	private Boolean isConverted=false;
+	private Boolean isCompleted=false;
+	private Boolean isActive =true;
 	private String role;
 }
