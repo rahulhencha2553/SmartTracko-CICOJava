@@ -37,6 +37,8 @@ public class StudentController {
 
 	@Autowired
 	private IStudentService studentService;
+	
+
 
 	@PostMapping("/studentLoginApi")
 	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
@@ -46,6 +48,14 @@ public class StudentController {
 		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
 	}
+	
+	@PostMapping("/registerStudent")
+	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
+		System.out.println(student);
+		Student registerStudent = studentService.registerStudent(student);
+		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
+	}
+
 
 	@PostMapping("/registerStudent")
 	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
@@ -61,7 +71,8 @@ public class StudentController {
 		return studentService.approveDevice(userId, deviceId);
 
 	}
-
+	
+	
 	@PostMapping("/studentCheckInCheckOutApi")
 	public ResponseEntity<?> checkInCheckOut(@RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,

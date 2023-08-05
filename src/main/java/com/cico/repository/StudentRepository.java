@@ -33,6 +33,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT COUNT(A.studentId) FROM Attendance A WHERE A.checkInDate = :todaysdate")
 	Long getTotalPresentToday(@Param("todaysdate") LocalDate todaysdate);
 
+
 	@Query("SELECT l.studentId ,l.leaveDate,l.leaveEndDate  FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	List<Object[]> getTotalStudentInLeaves();
 

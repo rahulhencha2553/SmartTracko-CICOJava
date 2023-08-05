@@ -1,5 +1,6 @@
 package com.cico.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Batch;
 import com.cico.payload.ApiResponse;
 import com.cico.repository.BatchRepository;
+import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
 import com.cico.util.AppConstants;
 
@@ -21,11 +23,16 @@ public class BatchServiceImpl implements IBatchService {
 	
 	@Autowired
     BatchRepository batchRepository;
-
+	@Autowired
+	private TechnologyStackRepository repository;
 	@Override
-	public Batch createBatch(Batch batch) {
+	public Batch createBatch(Integer technologyStackId, String batchName, String batchStartDate, String batchEndDate) {
+		// TODO Auto-generated method stub
+		Batch batch=new Batch(batchName, LocalDate.parse(batchStartDate), LocalDate.parse(batchEndDate), null);
+		batch.setTechnologyStack(repository.findById(technologyStackId).get());
 		return batchRepository.save(batch);
 	}
+	
 
 	@Override
 	public ApiResponse deleteBatch(Integer batchId) {
@@ -72,5 +79,7 @@ public class BatchServiceImpl implements IBatchService {
 		return new ApiResponse(Boolean.TRUE,AppConstants.SUCCESS,HttpStatus.OK);
 
 	}
+
+	
 
 }

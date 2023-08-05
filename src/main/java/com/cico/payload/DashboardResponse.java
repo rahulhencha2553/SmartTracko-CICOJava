@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import com.cico.model.OrganizationInfo;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ public class DashboardResponse {
     Boolean isFeesDue;
     LocalDate feesDueDate;
     Boolean isMispunch;
+    Boolean isWebLoggedIn = false;
      MispunchResponse mispunchResponseDto;
     StudentResponse studentResponseDto;
     OrganizationInfo organizationInfo;
