@@ -104,6 +104,17 @@ public class StudentServiceImpl implements IStudentService {
 	public Student getStudentByInUseDeviceId(String deviceId) {
 		return studRepo.findByInUseDeviceId(deviceId);
 	}
+	
+	@Override
+	public Student registerStudent(Student student) {
+
+		Student student1 = studRepo.save(student);
+		student1.setPassword(encoder.encode("123456"));
+		student1.setRole(Roles.STUDENT.toString());
+		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
+		return studRepo.save(student);
+	}
+
 
 //	@Override
 //	public ResponseEntity<?> login1(String userId, String password, String fcmId, String deviceId,
@@ -231,6 +242,7 @@ public class StudentServiceImpl implements IStudentService {
 							System.out.println("1 CASE");
 							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
+							studentByUserId.setIsDeviceApproved("Approved");
 							Student student = studRepo.save(studentByUserId);
 							studentResponse.setStudentData(student);
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
