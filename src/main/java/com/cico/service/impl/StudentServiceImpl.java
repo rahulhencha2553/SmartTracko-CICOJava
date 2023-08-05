@@ -1120,4 +1120,13 @@ public class StudentServiceImpl implements IStudentService {
 	   List<StudentResponse> asList = Arrays.asList(mapper.map(findByFullNameContaining, StudentResponse[].class));
 		return asList;
 	}
+
+	@Override
+	public StudentResponse getStudentById(Integer studentId) {
+		// TODO Auto-generated method stub
+		 Student student = studRepo.findById(studentId).orElseThrow(()-> 
+		new ResourceNotFoundException("Student not found from given id"));
+		 return mapper.map(student, StudentResponse.class);
+	
+	}
 }

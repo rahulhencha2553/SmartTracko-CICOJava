@@ -64,4 +64,6 @@ public interface IStudentService {
 	public PageResponse<StudentResponse> getAllStudentData(Integer page, Integer size);
 
 	public List<StudentResponse> searchStudentByName(String fullName);
+
+	public StudentResponse getStudentById(Integer studentId);
 }

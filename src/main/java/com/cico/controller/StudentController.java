@@ -163,6 +163,12 @@ public class StudentController {
 		 
 		return studentService.getAllStudentData(page,size);
 	}
+	
+	@GetMapping("/getStudentById")
+	public ResponseEntity<StudentResponse> getStudentById(@RequestParam(name = "studentId") Integer studentId){
+		StudentResponse studentById = studentService.getStudentById(studentId);
+		return new ResponseEntity<StudentResponse>(studentById,HttpStatus.OK);
+	}
 
 	@GetMapping("/searchStudentByName")
 	public ResponseEntity<List<StudentResponse>> searchStudentByName(@RequestParam(name = "fullName") String fullName){
