@@ -97,6 +97,9 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
+
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
 	}
@@ -227,6 +230,16 @@ public class StudentServiceImpl implements IStudentService {
 //	}
 	
 	@Override
+	public Student registerStudent(Student student) {
+
+		Student student1 = studRepo.save(student);
+		student1.setPassword(passwordEncoder.encode("123456"));
+		student1.setRole(Roles.STUDENT.toString());
+		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
+		return studRepo.save(student);
+	}
+
+	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
 		Map<String, Object> response = new HashMap<>();
 		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
@@ -245,6 +258,7 @@ public class StudentServiceImpl implements IStudentService {
 							studentByUserId.setIsDeviceApproved("Approved");
 							Student student = studRepo.save(studentByUserId);
 							studentResponse.setStudentData(student);
+
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
 									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
 
@@ -1033,7 +1047,7 @@ public class StudentServiceImpl implements IStudentService {
 		Map<String, Object> response = new HashMap<>();
 		LocalDate today = LocalDate.now();
 		List<Object[]> result = studRepo.getTotalTodayAbsentStudent(today);
-		//List<Attendance> totalPresentToday = studRepo.getTotalPresentToday(today);
+		// List<Attendance> totalPresentToday = studRepo.getTotalPresentToday(today);
 		List<Student> absentStudents = new ArrayList<>();
 		for (Object[] row : result) {
 			Student student = new Student();
@@ -1043,13 +1057,16 @@ public class StudentServiceImpl implements IStudentService {
 
 			absentStudents.add(student);
 		}
-	
+
 		Long totalPresentToday = studRepo.getTotalPresentToday(today);
-        response.putIfAbsent("totalPresent", totalPresentToday);
-        response.put("totalAbsent",absentStudents);
+		response.putIfAbsent("totalPresent", totalPresentToday);
+		response.put("totalAbsent", absentStudents);
 		return response;
 	}
 
+	// here student details depends on this method [ getStudentData(id) ]so ,
+	// changes
+	// reflect here if any changes are done in that method
 	@Override
 	public List<OnLeavesResponse> getTotalStudentInLeaves() {
 		List<OnLeavesResponse> response = new ArrayList<>();
@@ -1057,7 +1074,7 @@ public class StudentServiceImpl implements IStudentService {
 		for (Object[] row : totalStudentInLeaves) {
 			OnLeavesResponse leavesResponse = new OnLeavesResponse();
 			Integer id = (Integer) row[0];
-			Map<String, Object> studentData = this.getStudentData(id);
+			Map<String, Object> studentData = this.getStudentData(id); // ?????? <-
 			leavesResponse.setProfilePic(studentData.get("profilePic").toString());
 			leavesResponse.setApplyForCourse(studentData.get("course").toString());
 			leavesResponse.setName(studentData.get("studentName").toString());
@@ -1104,4 +1121,5 @@ public class StudentServiceImpl implements IStudentService {
 		}
 		return (updateStudentLeaves != 0) ? true : false;
 	}
+
 }

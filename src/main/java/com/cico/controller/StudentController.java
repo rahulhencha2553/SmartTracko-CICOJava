@@ -57,6 +57,13 @@ public class StudentController {
 	}
 
 
+	@PostMapping("/registerStudent")
+	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
+		System.out.println(student);
+		Student registerStudent = studentService.registerStudent(student);
+		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
+	}
+
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
@@ -169,8 +176,8 @@ public class StudentController {
 	// getting total absent student today
 	@GetMapping("/getTotalTodayAbsentStudentAndPresent")
 	public ResponseEntity<Map<String, Object>> getTotalTodayAbsentStudent() {
-		Map<String, Object>response = studentService.getTotalTodayAbsentStudent();
-	//	System.out.println(totalTodayAbsentStudent);
+		Map<String, Object> response = studentService.getTotalTodayAbsentStudent();
+		// System.out.println(totalTodayAbsentStudent);
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 	}
 
@@ -190,9 +197,9 @@ public class StudentController {
 
 	// approve leave Request
 	@PutMapping("approveStudentLeaveReqeust/{studentId}/{leaveId}/{status}")
-	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,@PathVariable("leaveId")Integer leaveId,
-			@PathVariable("status") String Leavestatus) {
-		Boolean status = studentService.approveStudentLeaveReqeust(studentId,leaveId, Leavestatus);
+	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,
+			@PathVariable("leaveId") Integer leaveId, @PathVariable("status") String Leavestatus) {
+		Boolean status = studentService.approveStudentLeaveReqeust(studentId, leaveId, Leavestatus);
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
 }
