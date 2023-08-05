@@ -58,4 +58,6 @@ public interface IStudentService {
 	public List<TodayLeavesRequestResponse>getTotalTodaysLeavesRequest();
 
 	public Boolean approveStudentLeaveReqeust(Integer studentId,Integer leaveId, String status);
+
+	public Student registerStudent(Student student);
 }

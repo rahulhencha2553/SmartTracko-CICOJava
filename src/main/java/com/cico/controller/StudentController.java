@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +37,8 @@ public class StudentController {
 
 	@Autowired
 	private IStudentService studentService;
+	
+
 
 	@PostMapping("/studentLoginApi")
 	public ResponseEntity<?> loginStudent(@RequestParam("userId") String userId,
@@ -45,6 +48,14 @@ public class StudentController {
 		return studentService.login(userId, password, fcmId, deviceId, deviceType);
 
 	}
+	
+	@PostMapping("/registerStudent")
+	public ResponseEntity<Student> registerStudent(@RequestBody Student student) {
+		System.out.println(student);
+		Student registerStudent = studentService.registerStudent(student);
+		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
+	}
+
 
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
@@ -53,7 +64,8 @@ public class StudentController {
 		return studentService.approveDevice(userId, deviceId);
 
 	}
-
+	
+	
 	@PostMapping("/studentCheckInCheckOutApi")
 	public ResponseEntity<?> checkInCheckOut(@RequestParam("lat") String latitude,
 			@RequestParam("long") String longitude, @RequestParam("time") String time,
