@@ -6,16 +6,19 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
+import com.cico.model.JobAlert;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
@@ -37,6 +41,7 @@ import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
 import com.cico.payload.MispunchResponse;
 import com.cico.payload.OnLeavesResponse;
+import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
 import com.cico.payload.StudentLoginResponse;
 import com.cico.payload.StudentResponse;
@@ -86,6 +91,9 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private IFileService fileService;
+	
+	@Autowired
+	private ModelMapper mapper;
 
 	@Value("${fileUploadPath}")
 	private String IMG_UPLOAD_DIR;
@@ -1087,5 +1095,29 @@ public class StudentServiceImpl implements IStudentService {
 			updateStudentLeaves = leaveRepository.updateStudentLeaves(studentId, 2, leaveId);
 		}
 		return (updateStudentLeaves != 0) ? true : false;
+	}
+
+	@Override
+	public PageResponse<StudentResponse> getAllStudentData(Integer page, Integer size) {
+		// TODO Auto-generated method stub
+		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "studentId");
+		 Page<Student> student = studRepo.findAllByIsCompletedAndIsActive(false,true,pageable);
+	
+		 if(student.getNumberOfElements()==0) {
+			 return new PageResponse<>(Collections.emptyList(),student.getNumber(),student.getSize(),student.getTotalElements(),student.getTotalPages(),student.isLast());
+		 }
+		 List<StudentResponse> asList = Arrays.asList(mapper.map(student.getContent(), StudentResponse[].class));
+		 return new PageResponse<>(asList,student.getNumber(),student.getSize(),student.getTotalElements(),student.getTotalPages(),student.isLast());
+	}
+
+	@Override
+	public List<StudentResponse> searchStudentByName(String fullName) {
+		// TODO Auto-generated method stub
+	   List<Student> findByFullNameContaining = studRepo.findAllByFullNameContaining(fullName);
+		if (Objects.isNull(findByFullNameContaining)) {
+		throw new ResourceNotFoundException("Student was not found");
+	}
+	   List<StudentResponse> asList = Arrays.asList(mapper.map(findByFullNameContaining, StudentResponse[].class));
+		return asList;
 	}
 }

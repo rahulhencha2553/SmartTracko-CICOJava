@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,4 +42,11 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 			+ "FROM Leaves l\r\n" + "INNER JOIN Student s ON l.studentId = s.studentId\r\n"
 			+ "WHERE l.leaveStatus = 0 AND CURRENT_DATE() BETWEEN l.leaveDate  AND l.createdDate \r\n" + "")
 	List<Object[]> getTotalTodaysLeavesRequest();
+
+	Page<Student> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
+
+	//@Query("SELECT s FROM Student s WHERE s.fullName LIKE %?1%")
+	List<Student> findAllByFullNameContaining(String fullName);
+
+
 }

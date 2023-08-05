@@ -21,7 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Student;
+import com.cico.payload.JobAlertResponse;
 import com.cico.payload.OnLeavesResponse;
+import com.cico.payload.PageResponse;
+import com.cico.payload.StudentResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
@@ -153,7 +156,20 @@ public class StudentController {
 		System.out.println(studentData);
 		return new ResponseEntity<Map<String, Object>>(studentData, HttpStatus.OK);
 	}
+	
+	@GetMapping("/getAllStudentData")
+	public PageResponse<StudentResponse> getAllStudentData(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size){
+		 
+		return studentService.getAllStudentData(page,size);
+	}
 
+	@GetMapping("/searchStudentByName")
+	public ResponseEntity<List<StudentResponse>> searchStudentByName(@RequestParam(name = "fullName") String fullName){
+		List<StudentResponse> searchStudentByName = studentService.searchStudentByName(fullName);
+		return new ResponseEntity<List<StudentResponse>>(searchStudentByName,HttpStatus.OK);
+				
+	}
 	// getting total absent student today
 	@GetMapping("/getTotalTodayAbsentStudentAndPresent")
 	public ResponseEntity<Map<String, Object>> getTotalTodayAbsentStudent() {
