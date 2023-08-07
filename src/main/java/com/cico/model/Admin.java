@@ -25,6 +25,7 @@ public class Admin {
 	private String uuid;
 	private String password;
 	private String profilePic;
+	private String role;
 
 	public Admin(String adminName, String adminEmail, String password) {
 		super();

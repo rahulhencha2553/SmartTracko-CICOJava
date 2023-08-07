@@ -69,4 +69,6 @@ public interface IStudentService {
 
 	public Student registerStudent(Student student);
 
+	public ResponseEntity<?> getStudentProfileForWeb(Integer studentId);
+
 }

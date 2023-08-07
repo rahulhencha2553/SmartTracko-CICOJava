@@ -235,7 +235,7 @@ public class StudentServiceImpl implements IStudentService {
 		student1.setRole(Roles.STUDENT.toString());
 		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
 		student1.setProfilePic("default.png");
-
+		student1.setCreatedDate(LocalDateTime.now());
 		return studRepo.save(student1);
 	}
 
@@ -1053,8 +1053,9 @@ public class StudentServiceImpl implements IStudentService {
 			student.setFullName((String) row[0]);
 			student.setMobile((String) row[1]);
 			student.setProfilePic((String) row[2]);
-			student.setCurrentCourse((String) row[3]);
-            student.setStudentId((Integer)row[4]);
+
+			student.setApplyForCourse((String) row[3]);
+			student.setStudentId((Integer) row[4]);
 			absentStudents.add(student);
 		}
 
@@ -1155,5 +1156,13 @@ public class StudentServiceImpl implements IStudentService {
 				.orElseThrow(() -> new ResourceNotFoundException("Student not found from given id"));
 		return mapper.map(student, StudentResponse.class);
 
+	}
+
+	@Override
+	public ResponseEntity<?> getStudentProfileForWeb(Integer studentId) {
+		Student findByStudentId = studRepo.findByStudentId(studentId);
+		if(Objects.isNull(findByStudentId))
+			throw new ResourceNotFoundException("Student Not Found");
+		return new ResponseEntity<>(findByStudentId,HttpStatus.OK);
 	}
 }
