@@ -210,10 +210,15 @@ public class StudentController {
 	}
 
 	// approve leave Request
-	@PutMapping("approveStudentLeaveReqeust/{studentId}/{leaveId}/{status}")
+	@PutMapping("/approveStudentLeaveReqeust/{studentId}/{leaveId}/{status}")
 	public ResponseEntity<Boolean> approveStudentLeaveReqeust(@PathVariable("studentId") Integer studentId,
 			@PathVariable("leaveId") Integer leaveId, @PathVariable("status") String Leavestatus) {
 		Boolean status = studentService.approveStudentLeaveReqeust(studentId, leaveId, Leavestatus);
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getStudentForWebStudentProfile")
+	public ResponseEntity<?> getStudentProfileForWeb(@RequestParam("studentId") Integer studentId){
+		return studentService.getStudentProfileForWeb(studentId);
 	}
 }
