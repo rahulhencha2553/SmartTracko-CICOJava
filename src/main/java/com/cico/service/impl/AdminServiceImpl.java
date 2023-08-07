@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,9 @@ public class AdminServiceImpl implements IAdminService {
 
 	@Autowired
 	private AdminRepository repo;
+	
+	@Autowired
+	private BCryptPasswordEncoder encoder;
 
 	@Autowired
 	private FileServiceImpl fileService;
@@ -49,7 +53,7 @@ public class AdminServiceImpl implements IAdminService {
 	public JwtResponse adminLogin(String adminId, String password) {
 		Optional<Admin> adminEmail = repo.findByAdminEmail(adminId);
 		if (adminEmail.isPresent()) {
-			if (adminEmail.get().getPassword().equals(password)) {
+			if (encoder.matches(password,adminEmail.get().getPassword())) {
 				String token = jwtUtil.generateTokenForAdmin(adminId);
 				return new JwtResponse(token);
 			} else {
@@ -62,7 +66,7 @@ public class AdminServiceImpl implements IAdminService {
 
 	@Override
 	public ApiResponse createAdmin(String adminName, String adminEmail, String password) {
-		Admin admin = new Admin(adminName, adminEmail, password);
+		Admin admin = new Admin(adminName, adminEmail, encoder.encode(password));
 
 		admin.setUuid(UUID.randomUUID().toString());
 		Optional<Admin> findByAdminEmail = repo.findByAdminEmail(admin.getAdminEmail());
