@@ -76,8 +76,8 @@ public class AdminServiceImpl implements IAdminService {
 	}
 
 	@Override
-	public AdminResponse getAdmin(Integer adminId) {
-		Optional<Admin> findById = repo.findById(adminId);
+	public AdminResponse getAdmin(String adminId) {
+		Optional<Admin> findById = repo.findByAdminEmail(adminId);
 		if (!findById.isPresent()) {
 			throw new ResourceNotFoundException(AppConstants.NO_DATA_FOUND);
 		}

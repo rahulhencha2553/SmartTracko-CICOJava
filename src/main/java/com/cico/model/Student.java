@@ -44,7 +44,7 @@ public class Student {
 	private String mothersName;
 	private String fathersOccupation;
 	private String contactFather;
-	private String cotactMother;
+	private String contactMother;
 	private String localAddress;
 	private String parmanentAddress;
 	private String languageKnown;

@@ -34,14 +34,13 @@ public String generateTokenForStudent(String studentId,String subject,String dev
 	claims.put("deviceId", deviceId);
 	return generateToken(claims,subject);
 }
-	
-	
 	public String generateTokenForAdmin(String adminId) {
 		Map<String, Object> claims=new HashMap<>();
 		claims.put("Role", "ADMIN");
+		claims.put("adminId", adminId);
 		return generateToken(claims,adminId);
 	}
-	
+
 	private Claims getClaims(String token) {
 		return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
 	}

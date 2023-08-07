@@ -71,7 +71,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private QrManageRepository qrManageRepository;
-	
+
 	@Autowired
 	private LeaveRepository leaveRepository;
 
@@ -92,7 +92,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private IFileService fileService;
-	
+
 	@Autowired
 	private ModelMapper mapper;
 
@@ -101,7 +101,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Value("${workReportUploadPath}")
 	private String WORK_UPLOAD_DIR;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder encoder;
 
@@ -115,9 +115,6 @@ public class StudentServiceImpl implements IStudentService {
 	public Student getStudentByInUseDeviceId(String deviceId) {
 		return studRepo.findByInUseDeviceId(deviceId);
 	}
-	
-
-
 
 //	@Override
 //	public ResponseEntity<?> login1(String userId, String password, String fcmId, String deviceId,
@@ -228,15 +225,17 @@ public class StudentServiceImpl implements IStudentService {
 //		}
 //		
 //	}
-	
+
 	@Override
 	public Student registerStudent(Student student) {
+		System.out.println("22222222222222222222222"+student);
 		Student student1 = studRepo.save(student);
 		student1.setPassword(passwordEncoder.encode("123456"));
 		student1.setContactFather(student.getContactFather());
 		student1.setRole(Roles.STUDENT.toString());
 		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
 		student1.setProfilePic("default.png");
+
 		return studRepo.save(student1);
 	}
 
@@ -249,10 +248,10 @@ public class StudentServiceImpl implements IStudentService {
 			StudentLoginResponse studentResponse = new StudentLoginResponse();
 
 			if (studentByUserId != null && encoder.matches(password, studentByUserId.getPassword())) {
-				if(studentByUserId.getIsActive()) {
-					if(studentByInUseDeviceId == null) {// device Id is not present in db
-						//login
-						if(studentByUserId.getInUseDeviceId().equals("")) {
+				if (studentByUserId.getIsActive()) {
+					if (studentByInUseDeviceId == null) {// device Id is not present in db
+						// login
+						if (studentByUserId.getInUseDeviceId().equals("")) {
 							System.out.println("1 CASE");
 							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
@@ -266,18 +265,18 @@ public class StudentServiceImpl implements IStudentService {
 							studentResponse.setToken(token);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}else {
+							return new ResponseEntity<>(response, HttpStatus.OK);
+						} else {
 							System.out.println("2 CASE");
 							studentResponse.setIsDeviceIdDifferent(true);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 
-							return new ResponseEntity<> (response,HttpStatus.OK);
+							return new ResponseEntity<>(response, HttpStatus.OK);
 						}
-						
-					}else {
-						if(studentByUserId.getUserId().equals(studentByInUseDeviceId.getUserId())) {
+
+					} else {
+						if (studentByUserId.getUserId().equals(studentByInUseDeviceId.getUserId())) {
 							System.out.println("3 CASE");
 							String token = util.generateTokenForStudent(studentByUserId.getStudentId().toString(),
 									studentByUserId.getUserId(), deviceId, Roles.STUDENT.toString());
@@ -286,34 +285,33 @@ public class StudentServiceImpl implements IStudentService {
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
 
-							return new ResponseEntity<>(response,HttpStatus.OK);
-						}else {
+							return new ResponseEntity<>(response, HttpStatus.OK);
+						} else {
 							System.out.println("4 CASE");
 							studentResponse.setIsDeviceAlreadyInUse(true);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							response.put("student", studentResponse);
-							return new ResponseEntity<>(response,HttpStatus.OK);
+							return new ResponseEntity<>(response, HttpStatus.OK);
 
 						}
-						
+
 					}
-					
-				}else {
+
+				} else {
 					response.put(AppConstants.MESSAGE, AppConstants.STUDENT_DEACTIVE);
 					return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 				}
 
-			}
-			else {
+			} else {
 				response.put(AppConstants.MESSAGE, AppConstants.INVALID_CREDENTIALS);
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 			}
 
 		}
-		
-			response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
 
-			return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+		response.put(AppConstants.MESSAGE, AppConstants.INVALID_DEVICE_TYPE);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
 	@Override
@@ -416,7 +414,7 @@ public class StudentServiceImpl implements IStudentService {
 
 								StudentWorkReport studentWorkReport = new StudentWorkReport();
 								studentWorkReport.setAttendanceId(saveAttendenceCheckOutData.getAttendanceId());
-								if(!attachment.getOriginalFilename().equals("")) {
+								if (!attachment.getOriginalFilename().equals("")) {
 									String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 									studentWorkReport.setAttachment(workImageName);
 								}
@@ -528,7 +526,7 @@ public class StudentServiceImpl implements IStudentService {
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				QrManage findByUserId = qrManageRepository.findByUserId(username);
-				if(Objects.nonNull(findByUserId))
+				if (Objects.nonNull(findByUserId))
 					dashboardResponseDto.setIsWebLoggedIn(true);
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
@@ -578,7 +576,7 @@ public class StudentServiceImpl implements IStudentService {
 
 					StudentWorkReport studentWorkReport = new StudentWorkReport();
 					studentWorkReport.setAttendanceId(saveAttdance.getAttendanceId());
-					if(!attachment.getOriginalFilename().equals("")) {
+					if (!attachment.getOriginalFilename().equals("")) {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
@@ -662,7 +660,7 @@ public class StudentServiceImpl implements IStudentService {
 			if (Objects.nonNull(dashboardResponseDto)) {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				QrManage findByUserId = qrManageRepository.findByUserId(username);
-				if(Objects.nonNull(findByUserId))
+				if (Objects.nonNull(findByUserId))
 					dashboardResponseDto.setIsWebLoggedIn(true);
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
@@ -729,8 +727,8 @@ public class StudentServiceImpl implements IStudentService {
 
 					Attendance updateAttendance = attendenceRepository.save(attendance);
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
-							workReport,LocalDateTime.now());
-					if(!attachment.getOriginalFilename().equals("")) {
+							workReport, LocalDateTime.now());
+					if (!attachment.getOriginalFilename().equals("")) {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
@@ -1055,7 +1053,8 @@ public class StudentServiceImpl implements IStudentService {
 			student.setFullName((String) row[0]);
 			student.setMobile((String) row[1]);
 			student.setProfilePic((String) row[2]);
-
+			student.setCurrentCourse((String) row[3]);
+            student.setStudentId((Integer)row[4]);
 			absentStudents.add(student);
 		}
 
@@ -1104,10 +1103,10 @@ public class StudentServiceImpl implements IStudentService {
 			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
 			leavesRequestResponse.setLeaveReason((String) row[8]);
 			leavesRequestResponse.setLeaveId((Integer) row[9]);
+			leavesRequestResponse.setLeaveTypeName((String) row[8]);
 			response.add(leavesRequestResponse);
 		}
 
-		// System.out.println(response);
 		return response;
 	}
 
@@ -1127,32 +1126,34 @@ public class StudentServiceImpl implements IStudentService {
 	public PageResponse<StudentResponse> getAllStudentData(Integer page, Integer size) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "studentId");
-		 Page<Student> student = studRepo.findAllByIsCompletedAndIsActive(false,true,pageable);
-	
-		 if(student.getNumberOfElements()==0) {
-			 return new PageResponse<>(Collections.emptyList(),student.getNumber(),student.getSize(),student.getTotalElements(),student.getTotalPages(),student.isLast());
-		 }
-		 List<StudentResponse> asList = Arrays.asList(mapper.map(student.getContent(), StudentResponse[].class));
-		 return new PageResponse<>(asList,student.getNumber(),student.getSize(),student.getTotalElements(),student.getTotalPages(),student.isLast());
+		Page<Student> student = studRepo.findAllByIsCompletedAndIsActive(false, true, pageable);
+
+		if (student.getNumberOfElements() == 0) {
+			return new PageResponse<>(Collections.emptyList(), student.getNumber(), student.getSize(),
+					student.getTotalElements(), student.getTotalPages(), student.isLast());
+		}
+		List<StudentResponse> asList = Arrays.asList(mapper.map(student.getContent(), StudentResponse[].class));
+		return new PageResponse<>(asList, student.getNumber(), student.getSize(), student.getTotalElements(),
+				student.getTotalPages(), student.isLast());
 	}
 
 	@Override
 	public List<StudentResponse> searchStudentByName(String fullName) {
 		// TODO Auto-generated method stub
-	   List<Student> findByFullNameContaining = studRepo.findAllByFullNameContaining(fullName);
+		List<Student> findByFullNameContaining = studRepo.findAllByFullNameContaining(fullName);
 		if (Objects.isNull(findByFullNameContaining)) {
-		throw new ResourceNotFoundException("Student was not found");
-	}
-	   List<StudentResponse> asList = Arrays.asList(mapper.map(findByFullNameContaining, StudentResponse[].class));
+			throw new ResourceNotFoundException("Student was not found");
+		}
+		List<StudentResponse> asList = Arrays.asList(mapper.map(findByFullNameContaining, StudentResponse[].class));
 		return asList;
 	}
 
 	@Override
 	public StudentResponse getStudentById(Integer studentId) {
 		// TODO Auto-generated method stub
-		 Student student = studRepo.findById(studentId).orElseThrow(()-> 
-		new ResourceNotFoundException("Student not found from given id"));
-		 return mapper.map(student, StudentResponse.class);
-	
+		Student student = studRepo.findById(studentId)
+				.orElseThrow(() -> new ResourceNotFoundException("Student not found from given id"));
+		return mapper.map(student, StudentResponse.class);
+
 	}
 }

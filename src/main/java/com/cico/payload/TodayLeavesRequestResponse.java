@@ -17,4 +17,5 @@ public class TodayLeavesRequestResponse {
 	private Integer leaveDuration;
 	private Integer leaveTypeId;
     private Integer leaveId;
+    private String leaveTypeName;
 }
