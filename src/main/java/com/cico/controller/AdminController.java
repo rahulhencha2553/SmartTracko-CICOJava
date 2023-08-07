@@ -36,6 +36,7 @@ public class AdminController {
 		return ResponseEntity.ok(service.adminLogin(adminId, password));
 	}
 
+
 	@PostMapping("/createAdmin")
 	public ResponseEntity<ApiResponse> createAdmin(@RequestParam("adminName") String adminName,
 			@RequestParam("adminEmail") String adminEmail, @RequestParam("password") String password) {
@@ -43,8 +44,8 @@ public class AdminController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	@GetMapping("/get")
-	public ResponseEntity<AdminResponse> getAdmin(@RequestParam(name=AppConstants.ADMIN_ID) Integer adminId) {
+	@GetMapping("/getAdmin")
+	public ResponseEntity<AdminResponse> getAdmin(@RequestParam(name=AppConstants.ADMIN_ID) String adminId) {
 		AdminResponse admin = service.getAdmin(adminId);
 		return ResponseEntity.ok(admin);
 	}

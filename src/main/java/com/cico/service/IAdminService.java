@@ -14,7 +14,7 @@ public interface IAdminService {
 
 	public ApiResponse createAdmin(String adminName, String adminEmail, String password);
 
-	public AdminResponse getAdmin(Integer adminId);
+	public AdminResponse getAdmin(String adminId);
 
 	public AdminResponse updateAdmin(Integer adminId, String adminName, String adminEmail, MultipartFile file);
 

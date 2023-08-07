@@ -28,7 +28,8 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	Student findByinUseDeviceId(String deviceId);
  
-	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse, s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
+
+	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.currentCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
 			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))  ")
 	List<Object[]> getTotalTodayAbsentStudent(@Param("todaysdate") LocalDate todaysdate);
 
@@ -39,10 +40,18 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT l.studentId ,l.leaveDate,l.leaveEndDate  FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	List<Object[]> getTotalStudentInLeaves();
 
-	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic ,s.applyForCourse, l.leaveTypeId,l.leaveDuration, l.leaveReason,l.leaveId\r\n"
-			+ "FROM Leaves l\r\n" + "INNER JOIN Student s ON l.studentId = s.studentId\r\n"
-			+ "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate   \r\n" + "")
-	List<Object[]> getTotalTodaysLeavesRequest();
+//	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic ,s.applyForCourse, l.leaveTypeId,l.leaveTypeName,l.leaveDuration, l.leaveReason,l.leaveId\r\n"
+//			+ "FROM Leaves l\r\n" + "INNER JOIN Student s ON l.studentId = s.studentId AND  \r\n"
+//			+ "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate   \r\n" + "")
+//	List<Object[]> getTotalTodaysLeavesRequest();
+	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic, s.applyForCourse, " +
+		       "l.leaveTypeId, l.leaveDuration, l.leaveReason, l.leaveId, lt.leaveTypeName " +
+		       "FROM Leaves l " +
+		       "INNER JOIN Student s ON l.studentId = s.studentId " +
+		       "INNER JOIN LeaveType lt ON l.leaveTypeId = lt.leaveTypeId " +
+		       "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate")
+		List<Object[]> getTotalTodaysLeavesRequest();
+
 
 	Page<Student> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
 
