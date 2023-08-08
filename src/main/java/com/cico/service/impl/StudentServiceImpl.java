@@ -229,10 +229,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student registerStudent(Student student) {
-<<<<<<< HEAD
-
-=======
->>>>>>> fcda5e9a99112a1a1418c881093c5f23f5bd3ec4
 		Student student1 = studRepo.save(student);
 		student1.setPassword(passwordEncoder.encode("123456"));
 		student1.setContactFather(student.getContactFather());
