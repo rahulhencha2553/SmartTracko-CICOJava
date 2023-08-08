@@ -405,7 +405,7 @@ public class StudentServiceImpl implements IStudentService {
 								attendanceData.setCheckOutLat(latitude);
 								attendanceData.setCheckOutLong(longitude);
 								String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
-								attendanceData.setCheckOutImage(imageName + studentImage.getOriginalFilename());
+								attendanceData.setCheckOutImage(imageName);
 								attendanceData.setWorkingHour(workingHours);
 								attendanceData.setCheckOutStatus("Approved");
 								attendanceData.setUpdatedDate(LocalDateTime.now());
