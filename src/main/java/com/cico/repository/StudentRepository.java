@@ -29,7 +29,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	Student findByinUseDeviceId(String deviceId);
  
 
-	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.currentCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
+	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
 			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))  ")
 	List<Object[]> getTotalTodayAbsentStudent(@Param("todaysdate") LocalDate todaysdate);
 

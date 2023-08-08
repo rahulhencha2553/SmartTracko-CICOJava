@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Student;
-import com.cico.payload.JobAlertResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentResponse;
