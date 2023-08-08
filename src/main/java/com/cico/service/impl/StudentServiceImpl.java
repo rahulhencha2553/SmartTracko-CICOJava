@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,7 +228,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student registerStudent(Student student) {
-		 
+
 		Student student1 = studRepo.save(student);
 		student1.setPassword(passwordEncoder.encode("123456"));
 		student1.setContactFather(student.getContactFather());
@@ -237,8 +238,6 @@ public class StudentServiceImpl implements IStudentService {
 		student1.setCreatedDate(LocalDateTime.now());
 		return studRepo.save(student1);
 	}
-	
-   
 
 	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
@@ -946,86 +945,86 @@ public class StudentServiceImpl implements IStudentService {
 	}
 
 	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
-
-		List<Integer> present = new ArrayList<>();
-		List<Integer> leaves = new ArrayList<>();
-		List<Integer> absent = new ArrayList<>();
-
-		// Get the first day of the month
-		LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-
-		// Get the last day of the month
-		LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
-
-		LocalDate currentDay = firstDayOfMonth;
-
-		LocalDate lastDateOfLeave = LocalDate.of(year, month, 1);
-
-		StudentCalenderResponse data = new StudentCalenderResponse();
-
-		LocalDate currentDate = LocalDate.now();
-
-		int currentMonthValue = currentDate.getMonthValue();
-
-		// checking given month is not greather then current month
-		if (month <= currentMonthValue && currentDate.getYear() == year) {
-
-			// counting total leaves
-			List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
-			for (Leaves list : leavesData) {
-
-				int dayOfMonth = list.getLeaveDate().getDayOfMonth();
-				currentDay = LocalDate.of(year, month, dayOfMonth);
-				int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
-				lastDateOfLeave = LocalDate.of(year, month, dayOfMonth2);
-
-				while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() == month) {
-					if (!present.contains(currentDay.getDayOfMonth())) {
-						leaves.add(currentDay.getDayOfMonth());
-					}
-					currentDay = currentDay.plusDays(1);
-				}
-			}
-			currentDay = firstDayOfMonth;
-
-			// getting total present
-			List<Attendance> studentAttendenceList = attendenceRepository.findAllByStudentId(id);
-			for (Attendance list : studentAttendenceList) {
-				LocalDate temp = list.getCheckInDate();
-				if (temp.getMonth().getValue() == month && temp.getYear() == year) {
-					present.add(temp.getDayOfMonth());
-				}
-			}
-
-			// getting total absent for current month and till today date
-			if (currentDate.getMonthValue() == month) {
-				while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
-						&& !currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth() - 1)
-							&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
-						absent.add(currentDay.getDayOfMonth());
-					}
-					currentDay = currentDay.plusDays(1);
-				}
-
-			} else {// getting absent for previous month from current month
-				while (!currentDay.isAfter(lastDayOfMonth)) {
-					if (!present.contains(currentDay.getDayOfMonth())
-							&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
-						absent.add(currentDay.getDayOfMonth());
-					}
-					currentDay = currentDay.plusDays(1);
-				}
-			}
-		}
-
-		data.setPresent(present);
-		data.setAbsent(absent);
-		data.setLeaves(leaves);
-
 		Map<String, Object> response = new HashMap<>();
-		response.put("StudentCalenderData", data);
+		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
+		if (year >= joinDate.getYear() && year <= LocalDate.now().getYear()) {
 
+			List<Integer> present = new ArrayList<>();
+			List<Integer> leaves = new ArrayList<>();
+			List<Integer> absent = new ArrayList<>();
+
+			// Get the first day of the month
+			LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
+
+			// Get the last day of the month
+			LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
+			LocalDate currentDay = firstDayOfMonth;
+			LocalDate lastDateOfLeave = LocalDate.of(year, month, 1);
+			StudentCalenderResponse data = new StudentCalenderResponse();
+			LocalDate currentDate = LocalDate.now();
+
+			if (LocalDate.now().getYear() != year || month <= LocalDate.now().getMonthValue()) {
+				// counting total leaves
+				List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
+				for (Leaves list : leavesData) {
+
+					int dayOfMonth = list.getLeaveDate().getDayOfMonth();
+					currentDay = LocalDate.of(year, month, dayOfMonth);
+					int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
+					lastDateOfLeave = LocalDate.of(year, month, dayOfMonth2);
+
+					while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() == month) {
+						if (!present.contains(currentDay.getDayOfMonth())) {
+							leaves.add(currentDay.getDayOfMonth());
+						}
+						currentDay = currentDay.plusDays(1);
+					}
+				}
+				currentDay = firstDayOfMonth;
+
+				// getting total present
+				List<Attendance> studentAttendenceList = attendenceRepository.findAllByStudentId(id);
+				for (Attendance list : studentAttendenceList) {
+					LocalDate temp = list.getCheckInDate();
+					if (temp.getMonth().getValue() == month && temp.getYear() == year) {
+						present.add(temp.getDayOfMonth());
+					}
+				}
+
+				// getting total absent for current month and till today date
+				if (currentDate.getMonthValue() == month && LocalDate.now().getYear() == year) {
+					while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
+							&& !currentDay.isAfter(lastDayOfMonth)) {
+						if (!present.contains(currentDay.getDayOfMonth())
+								&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+							absent.add(currentDay.getDayOfMonth());
+						}
+						currentDay = currentDay.plusDays(1);
+					}
+				} else {// getting absent for previous month from current month
+					if (month == joinDate.getMonth().getValue()) {
+						currentDay = joinDate;
+					}
+					while (!currentDay.isAfter(lastDayOfMonth)) {
+						if (!present.contains(currentDay.getDayOfMonth())
+								&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+							absent.add(currentDay.getDayOfMonth());
+						}
+						currentDay = currentDay.plusDays(1);
+					}
+				}
+			}
+
+			data.setPresent(present);
+			data.setAbsent(absent);
+			data.setLeaves(leaves);
+
+			response.put("StudentCalenderData", data);
+			response.put("status", true);
+		} else {
+         
+			response.put("status", false);
+		}
 		return response;
 	}
 
@@ -1040,7 +1039,7 @@ public class StudentServiceImpl implements IStudentService {
 		response.put("id", student.getStudentId());
 		return response;
 	}
-  
+
 	@Override
 	public Map<String, Object> getTotalTodayAbsentStudent() { // getting present and absent students
 
@@ -1060,7 +1059,7 @@ public class StudentServiceImpl implements IStudentService {
 			absentStudents.add(student);
 		}
 
-		Long totalPresentToday = studRepo.getTotalPresentToday(today);//present
+		Long totalPresentToday = studRepo.getTotalPresentToday(today);// present
 		response.put("totalPresent", totalPresentToday);
 		response.put("totalAbsent", absentStudents);
 		return response;
@@ -1097,7 +1096,7 @@ public class StudentServiceImpl implements IStudentService {
 			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
 			leavesRequestResponse.setLeaveDate((LocalDate) row[0]);
 			leavesRequestResponse.setLeaveEndDate((LocalDate) row[1]);
-			leavesRequestResponse.setStudentId((Integer) row[2]);   
+			leavesRequestResponse.setStudentId((Integer) row[2]);
 			leavesRequestResponse.setFullName((String) row[3]);
 			leavesRequestResponse.setProfilePic((String) row[4]);
 			leavesRequestResponse.setApplyForCourse((String) row[5]);
@@ -1162,8 +1161,8 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> getStudentProfileForWeb(Integer studentId) {
 		Student findByStudentId = studRepo.findByStudentId(studentId);
-		if(Objects.isNull(findByStudentId))
+		if (Objects.isNull(findByStudentId))
 			throw new ResourceNotFoundException("Student Not Found");
-		return new ResponseEntity<>(findByStudentId,HttpStatus.OK);
+		return new ResponseEntity<>(findByStudentId, HttpStatus.OK);
 	}
 }
