@@ -71,4 +71,8 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getStudentProfileForWeb(Integer studentId);
 
+	public Student updateStudent(Student student);
+
+	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId);
+
 }

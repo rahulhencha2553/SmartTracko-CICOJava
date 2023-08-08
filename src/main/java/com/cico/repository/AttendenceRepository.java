@@ -29,4 +29,5 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	public List<Attendance> findByStudentIdAndMonthNo(@Param("studentId") Integer studentId,@Param("monthNo") Integer monthNo);
 	
 	public List<Attendance>findAllByStudentId(Integer id);
+
 }

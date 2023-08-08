@@ -57,6 +57,13 @@ public class StudentController {
 		Student registerStudent = studentService.registerStudent(student);
 		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
 	}
+	
+	@PutMapping("/updateStudentApi")
+	public ResponseEntity<Student> updateStudent(@RequestBody Student student){
+		Student updateStudent = studentService.updateStudent(student);
+		return new ResponseEntity<Student>(updateStudent,HttpStatus.OK);
+		
+	}
 
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
@@ -216,8 +223,18 @@ public class StudentController {
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
 	
+	//get student data for web profile
 	@GetMapping("/getStudentForWebStudentProfile")
 	public ResponseEntity<?> getStudentProfileForWeb(@RequestParam("studentId") Integer studentId){
 		return studentService.getStudentProfileForWeb(studentId);
 	}
+	
+	
+	//
+	@GetMapping("/getStudentOverAllAttendanceAndLeavesAndAbsents")
+	public ResponseEntity<?> getStudentOverAllAttendanceData(@RequestParam("studentId") Integer studentId){
+		return studentService.getStudentOverAllAttendanceData(studentId);
+	}
+	
+	
 }
