@@ -30,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
-import com.cico.model.JobAlert;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
@@ -240,6 +239,8 @@ public class StudentServiceImpl implements IStudentService {
 		student1.setCreatedDate(LocalDateTime.now());
 		return studRepo.save(student1);
 	}
+	
+   
 
 	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
@@ -1041,9 +1042,9 @@ public class StudentServiceImpl implements IStudentService {
 		response.put("id", student.getStudentId());
 		return response;
 	}
-
+  
 	@Override
-	public Map<String, Object> getTotalTodayAbsentStudent() {
+	public Map<String, Object> getTotalTodayAbsentStudent() { // getting present and absent students
 
 		Map<String, Object> response = new HashMap<>();
 		LocalDate today = LocalDate.now();
@@ -1061,8 +1062,8 @@ public class StudentServiceImpl implements IStudentService {
 			absentStudents.add(student);
 		}
 
-		Long totalPresentToday = studRepo.getTotalPresentToday(today);
-		response.putIfAbsent("totalPresent", totalPresentToday);
+		Long totalPresentToday = studRepo.getTotalPresentToday(today);//present
+		response.put("totalPresent", totalPresentToday);
 		response.put("totalAbsent", absentStudents);
 		return response;
 	}
@@ -1098,7 +1099,7 @@ public class StudentServiceImpl implements IStudentService {
 			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
 			leavesRequestResponse.setLeaveDate((LocalDate) row[0]);
 			leavesRequestResponse.setLeaveEndDate((LocalDate) row[1]);
-			leavesRequestResponse.setStudentId((Integer) row[2]);
+			leavesRequestResponse.setStudentId((Integer) row[2]);   
 			leavesRequestResponse.setFullName((String) row[3]);
 			leavesRequestResponse.setProfilePic((String) row[4]);
 			leavesRequestResponse.setApplyForCourse((String) row[5]);
