@@ -58,6 +58,13 @@ public class StudentController {
 		Student registerStudent = studentService.registerStudent(student);
 		return new ResponseEntity<Student>(registerStudent, HttpStatus.OK);
 	}
+	
+	@PutMapping("/updateStudentApi")
+	public ResponseEntity<Student> updateStudent(@RequestBody Student student){
+		Student updateStudent = studentService.updateStudent(student);
+		return new ResponseEntity<Student>(updateStudent,HttpStatus.OK);
+		
+	}
 
 	@PostMapping("/studentDeviceIdApprovalApi")
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
