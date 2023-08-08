@@ -1104,7 +1104,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
 			leavesRequestResponse.setLeaveReason((String) row[8]);
 			leavesRequestResponse.setLeaveId((Integer) row[9]);
-			leavesRequestResponse.setLeaveTypeName((String) row[8]);
+			leavesRequestResponse.setLeaveTypeName((String) row[10]);
 			response.add(leavesRequestResponse);
 		}
 
