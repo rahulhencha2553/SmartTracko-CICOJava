@@ -224,8 +224,18 @@ public class StudentController {
 		return new ResponseEntity<Boolean>(status, HttpStatus.OK);
 	}
 	
+	//get student data for web profile
 	@GetMapping("/getStudentForWebStudentProfile")
 	public ResponseEntity<?> getStudentProfileForWeb(@RequestParam("studentId") Integer studentId){
 		return studentService.getStudentProfileForWeb(studentId);
 	}
+	
+	
+	//
+	@GetMapping("/getStudentOverAllAttendanceAndLeavesAndAbsents")
+	public ResponseEntity<?> getStudentOverAllAttendanceData(@RequestParam("studentId") Integer studentId){
+		return studentService.getStudentOverAllAttendanceData(studentId);
+	}
+	
+	
 }

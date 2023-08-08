@@ -73,4 +73,6 @@ public interface IStudentService {
 
 	public Student updateStudent(Student student);
 
+	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId);
+
 }
