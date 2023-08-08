@@ -37,6 +37,7 @@ import com.cico.model.QrManage;
 import com.cico.model.Student;
 import com.cico.model.StudentWorkReport;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.AttendanceLogResponse;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
@@ -228,16 +229,19 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student registerStudent(Student student) {
-
 		Student student1 = studRepo.save(student);
 		student1.setPassword(passwordEncoder.encode("123456"));
 		student1.setContactFather(student.getContactFather());
 		student1.setRole(Roles.STUDENT.toString());
 		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
 		student1.setProfilePic("default.png");
+		student1.setDeviceId("");
+		student1.setInUseDeviceId("");
 		student1.setCreatedDate(LocalDateTime.now());
 		return studRepo.save(student1);
 	}
+	
+   
 
 	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
@@ -1039,7 +1043,7 @@ public class StudentServiceImpl implements IStudentService {
 		response.put("id", student.getStudentId());
 		return response;
 	}
-
+  
 	@Override
 	public Map<String, Object> getTotalTodayAbsentStudent() { // getting present and absent students
 
@@ -1060,6 +1064,7 @@ public class StudentServiceImpl implements IStudentService {
 		}
 
 		Long totalPresentToday = studRepo.getTotalPresentToday(today);// present
+
 		response.put("totalPresent", totalPresentToday);
 		response.put("totalAbsent", absentStudents);
 		return response;
@@ -1096,7 +1101,7 @@ public class StudentServiceImpl implements IStudentService {
 			TodayLeavesRequestResponse leavesRequestResponse = new TodayLeavesRequestResponse();
 			leavesRequestResponse.setLeaveDate((LocalDate) row[0]);
 			leavesRequestResponse.setLeaveEndDate((LocalDate) row[1]);
-			leavesRequestResponse.setStudentId((Integer) row[2]);
+			leavesRequestResponse.setStudentId((Integer) row[2]);   
 			leavesRequestResponse.setFullName((String) row[3]);
 			leavesRequestResponse.setProfilePic((String) row[4]);
 			leavesRequestResponse.setApplyForCourse((String) row[5]);
@@ -1165,4 +1170,45 @@ public class StudentServiceImpl implements IStudentService {
 			throw new ResourceNotFoundException("Student Not Found");
 		return new ResponseEntity<>(findByStudentId, HttpStatus.OK);
 	}
+
+	@Override
+	public Student updateStudent(Student student) {
+		Student save = studRepo.save(student);
+		return save;
+	}
+
+	@Override
+	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId) {
+		List<AttendanceLogResponse> attendanceList = new ArrayList<>();
+		List<Attendance> findAllByStudentId = attendenceRepository.findAllByStudentId(studentId);
+		for (Attendance attendance : findAllByStudentId) {
+			AttendanceLogResponse logResponse = new AttendanceLogResponse();
+			logResponse.setDate(attendance.getCheckInDate());
+			logResponse.setCheckIn(attendance.getCheckInTime());
+			logResponse.setCheckOut(attendance.getCheckOutTime());
+			logResponse.setTimeIn(attendance.getWorkingHour());
+			if(attendance.getWorkingHour() >= 32400) {
+				logResponse.setStatus("FullDay");
+			}else {
+				logResponse.setStatus("HalfDay");;
+			}
+			attendanceList.add(logResponse);	
+		}	
+		
+		List<Leaves> leavesList = leaveRepository.getStudentAllLeavesAndApproved(studentId,1);
+		for (Leaves leaves : leavesList) {
+			AttendanceLogResponse logResponse = null;
+			LocalDate leavesDate = leaves.getLeaveDate();
+			for (int i = 1; i <= leaves.getLeaveDuration(); i++) {
+				logResponse = new AttendanceLogResponse();
+				logResponse.setDate(leavesDate);
+				logResponse.setStatus("OnLeave");
+				leavesDate = leavesDate.plusDays(1);
+				attendanceList.add(logResponse);
+			}
+		}
+		attendanceList.sort((o1, o2) ->o1.getDate().compareTo(o2.getDate()));
+		return new ResponseEntity<>(attendanceList,HttpStatus.OK);
+	}
+
 }
