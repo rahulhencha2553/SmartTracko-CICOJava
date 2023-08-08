@@ -1165,4 +1165,11 @@ public class StudentServiceImpl implements IStudentService {
 			throw new ResourceNotFoundException("Student Not Found");
 		return new ResponseEntity<>(findByStudentId,HttpStatus.OK);
 	}
+
+	@Override
+	public Student updateStudent(Student student) {
+		// TODO Auto-generated method stub
+		Student save = studRepo.save(student);
+		return save;
+	}
 }
