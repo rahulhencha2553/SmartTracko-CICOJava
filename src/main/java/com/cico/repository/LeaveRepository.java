@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cico.model.Leaves;
 
@@ -48,4 +49,7 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 	public int updateStudentLeaves(@Param("studentId") Integer studentId,@Param("status") Integer status, @Param("leaveId") Integer leaveId );
     
 	public Leaves findByStudentId(Integer StudentId);
+	
+	@Query("SELECT l from Leaves l WHERE l.studentId=:studentId AND l.leaveStatus=:active")
+	public List<Leaves> getStudentAllLeavesAndApproved(@Param("studentId") Integer studentId,@Param("active") Integer active);
 }
