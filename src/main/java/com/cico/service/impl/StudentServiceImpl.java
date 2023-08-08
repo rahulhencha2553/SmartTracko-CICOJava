@@ -405,7 +405,7 @@ public class StudentServiceImpl implements IStudentService {
 								attendanceData.setCheckOutLat(latitude);
 								attendanceData.setCheckOutLong(longitude);
 								String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
-								attendanceData.setCheckOutImage(imageName + studentImage.getOriginalFilename());
+								attendanceData.setCheckOutImage(imageName);
 								attendanceData.setWorkingHour(workingHours);
 								attendanceData.setCheckOutStatus("Approved");
 								attendanceData.setUpdatedDate(LocalDateTime.now());
@@ -1104,7 +1104,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesRequestResponse.setLeaveDuration((Integer) row[7]);
 			leavesRequestResponse.setLeaveReason((String) row[8]);
 			leavesRequestResponse.setLeaveId((Integer) row[9]);
-			leavesRequestResponse.setLeaveTypeName((String) row[8]);
+			leavesRequestResponse.setLeaveTypeName((String) row[10]);
 			response.add(leavesRequestResponse);
 		}
 
@@ -1172,4 +1172,5 @@ public class StudentServiceImpl implements IStudentService {
 		Student save = studRepo.save(student);
 		return save;
 	}
+
 }
