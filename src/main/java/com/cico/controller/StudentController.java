@@ -237,4 +237,10 @@ public class StudentController {
 	}
 	
 	
+	@GetMapping("/getMonthwiseAttendence")
+	public ResponseEntity<?> getMonthwiseAttendence(@RequestParam("month") Integer month){
+		return studentService.getMonthwiseAttendence(month);
+	}
+	
+	
 }
