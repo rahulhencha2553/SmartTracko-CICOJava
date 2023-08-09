@@ -80,5 +80,7 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getMonthwiseAttendence(Integer month);
 
+	public ResponseEntity<?> getStudentsAttendanceDataForTv();
+
 
 }
