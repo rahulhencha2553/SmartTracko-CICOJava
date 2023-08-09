@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -946,7 +946,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) {
+	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { //working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
 		if (year >= joinDate.getYear() && year <= LocalDate.now().getYear()) {
@@ -958,38 +958,35 @@ public class StudentServiceImpl implements IStudentService {
 			// Get the first day of the month
 			LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
 
-			// Get the last day of the month
-			LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
+			YearMonth yearMonth = YearMonth.of(year, month);
+			int lastDay = yearMonth.lengthOfMonth();
+			LocalDate lastDayOfMonth = LocalDate.of(year, month, lastDay);
 			LocalDate currentDay = firstDayOfMonth;
-			LocalDate lastDateOfLeave = LocalDate.of(year, month, 1);
 			StudentCalenderResponse data = new StudentCalenderResponse();
 			LocalDate currentDate = LocalDate.now();
 
 			if (LocalDate.now().getYear() != year || month <= LocalDate.now().getMonthValue()) {
 				// counting total leaves
-				List<Leaves> leavesData = this.leaveRepository.findAllByStudentId(id);
+				List<Leaves> leavesData = leaveRepository.findAllByStudentId(id);
 				for (Leaves list : leavesData) {
+					LocalDate startLeaveDate = list.getLeaveDate();
+					LocalDate endLeaveDate = list.getLeaveEndDate();
 
-					int dayOfMonth = list.getLeaveDate().getDayOfMonth();
-					currentDay = LocalDate.of(year, month, dayOfMonth);
-					int dayOfMonth2 = list.getLeaveEndDate().getDayOfMonth();
-					lastDateOfLeave = LocalDate.of(year, month, dayOfMonth2);
-
-					while (!currentDay.isAfter(lastDateOfLeave) && list.getLeaveDate().getMonth().getValue() == month) {
-						if (!present.contains(currentDay.getDayOfMonth())) {
-							leaves.add(currentDay.getDayOfMonth());
-						}
-						currentDay = currentDay.plusDays(1);
+					while (!startLeaveDate.isAfter(endLeaveDate) && startLeaveDate.getMonthValue() == month) {
+						leaves.add(startLeaveDate.getDayOfMonth());
+						startLeaveDate = startLeaveDate.plusDays(1);
 					}
 				}
+
 				currentDay = firstDayOfMonth;
 
 				// getting total present
-				List<Attendance> studentAttendenceList = attendenceRepository.findAllByStudentId(id);
-				for (Attendance list : studentAttendenceList) {
-					LocalDate temp = list.getCheckInDate();
-					if (temp.getMonth().getValue() == month && temp.getYear() == year) {
-						present.add(temp.getDayOfMonth());
+				// Get total present
+				List<Attendance> studentAttendanceList = attendenceRepository.findAllByStudentId(id);
+				for (Attendance attendance : studentAttendanceList) {
+					LocalDate attendanceDate = attendance.getCheckInDate();
+					if (attendanceDate.getMonthValue() == month && attendanceDate.getYear() == year) {
+						present.add(attendanceDate.getDayOfMonth());
 					}
 				}
 
@@ -1004,7 +1001,7 @@ public class StudentServiceImpl implements IStudentService {
 						currentDay = currentDay.plusDays(1);
 					}
 				} else {// getting absent for previous month from current month
-					if (month == joinDate.getMonth().getValue()) {
+					if (month == joinDate.getMonth().getValue() && (year == joinDate.getYear())) {
 						currentDay = joinDate;
 					}
 					while (!currentDay.isAfter(lastDayOfMonth)) {
@@ -1024,11 +1021,12 @@ public class StudentServiceImpl implements IStudentService {
 			response.put("StudentCalenderData", data);
 			response.put("status", true);
 		} else {
-         
+
 			response.put("status", false);
 		}
 		return response;
 	}
+
 
 	@Override
 	public Map<String, Object> getStudentData(Integer studentId) {
@@ -1184,15 +1182,16 @@ public class StudentServiceImpl implements IStudentService {
 			logResponse.setCheckIn(attendance.getCheckInTime());
 			logResponse.setCheckOut(attendance.getCheckOutTime());
 			logResponse.setTimeIn(attendance.getWorkingHour());
-			if(attendance.getWorkingHour() >= 32400) {
+			if (attendance.getWorkingHour() >= 32400) {
 				logResponse.setStatus("FullDay");
-			}else {
-				logResponse.setStatus("HalfDay");;
+			} else {
+				logResponse.setStatus("HalfDay");
+				;
 			}
-			attendanceList.add(logResponse);	
-		}	
-		
-		List<Leaves> leavesList = leaveRepository.getStudentAllLeavesAndApproved(studentId,1);
+			attendanceList.add(logResponse);
+		}
+
+		List<Leaves> leavesList = leaveRepository.getStudentAllLeavesAndApproved(studentId, 1);
 		for (Leaves leaves : leavesList) {
 			AttendanceLogResponse logResponse = null;
 			LocalDate leavesDate = leaves.getLeaveDate();
@@ -1204,8 +1203,8 @@ public class StudentServiceImpl implements IStudentService {
 				attendanceList.add(logResponse);
 			}
 		}
-		attendanceList.sort((o1, o2) ->o1.getDate().compareTo(o2.getDate()));
-		return new ResponseEntity<>(attendanceList,HttpStatus.OK);
+		attendanceList.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
+		return new ResponseEntity<>(attendanceList, HttpStatus.OK);
 	}
 
 }
