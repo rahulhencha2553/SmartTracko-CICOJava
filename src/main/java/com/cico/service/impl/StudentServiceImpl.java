@@ -1257,7 +1257,6 @@ public class StudentServiceImpl implements IStudentService {
 			student.setProfilePic((String) row[2]);
 			student.setApplyForCourse((String) row[3]);
 			student.setStudentId((Integer) row[4]);
-			System.out.println("**************"+student);
 			studentsPresentAndEarlyCheckout .add(student);
 		 }	
 		}else {
