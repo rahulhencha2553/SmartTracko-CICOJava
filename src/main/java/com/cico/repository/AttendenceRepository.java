@@ -30,11 +30,20 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	
 	public List<Attendance>findAllByStudentId(Integer id);
 
+
+	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  IN ("
+			+ "SELECT a.studentId FROM Attendance a WHERE a.checkInDate = :currentDate)")
+	public List<Object[]> getTodaysPresents(@Param("currentDate")LocalDate currentDate);
+
+	
+	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  IN ("
+			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:currentDate) AND a.workingHour <=32400)")
+	public List<Object[]> getTodaysEarlyCheckouts(@Param("currentDate")LocalDate currentDate);
+
 	@Query("SELECT COUNT(a) FROM Attendance a WHERE MONTH(a.checkInDate) = :month")
 	public Long countPresentStudentsByMonth(@Param("month") Integer month);
 
 	@Query("SELECT COUNT(l) FROM Leaves l WHERE MONTH(l.leaveDate) = :month and DAY(l.leaveDate)!=7 and l.leaveDayType='Full Day'")
 	public Long countLeaveStudentsByMonth(@Param("month") Integer month);
-	
-	
+
 }
