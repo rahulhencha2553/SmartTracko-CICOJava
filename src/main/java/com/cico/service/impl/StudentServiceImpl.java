@@ -73,6 +73,8 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
+	
+
 	@Autowired
 	private LeaveRepository leaveRepository;
 
@@ -1205,6 +1207,72 @@ public class StudentServiceImpl implements IStudentService {
 		}
 		attendanceList.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
 		return new ResponseEntity<>(attendanceList, HttpStatus.OK);
+	}
+	
+	
+	  public static int countSundays(int month) {
+	        int totalDays = LocalDate.of(LocalDate.now().getYear(), month, 1).lengthOfMonth();
+	        int sundays = 0;
+
+	        for (int day = 1; day <= totalDays; day++) {
+	            LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, day);
+	            if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+	                sundays++;
+	            }
+	        }
+
+	        return sundays;
+	    }
+	
+		@Override
+		public ResponseEntity<?> getMonthwiseAttendence(Integer month) {
+			Map<String, Long> map = new HashMap();
+
+			Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
+			Long onLeaveStudents = attendenceRepository.countLeaveStudentsByMonth(month);
+			Long totalStudents = studRepo.countTotalStudents();
+
+			Long absentStudents = totalStudents - (presentStudents + onLeaveStudents);
+
+			map.put("Present", presentStudents);
+			map.put("Absent", absentStudents);
+			map.put("OnLeave", onLeaveStudents);
+
+			return new ResponseEntity(map, HttpStatus.OK);
+
+	}
+
+	@Override
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key) {
+		System.out.println(key);
+		List<Student> studentsPresentAndEarlyCheckout = new ArrayList<>();
+		if(key.equals("Present")) {
+			System.out.println("inside present");
+		 List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
+		 System.out.println(todaysPresents);
+		 for (Object[] row : todaysPresents) {
+			Student student = new Student();
+			student.setFullName((String) row[0]);
+			student.setMobile((String) row[1]);
+			student.setProfilePic((String) row[2]);
+			student.setApplyForCourse((String) row[3]);
+			student.setStudentId((Integer) row[4]);
+			System.out.println("**************"+student);
+			studentsPresentAndEarlyCheckout .add(student);
+		 }	
+		}else {
+			List<Object[]> todaysEarlyCheckouts = attendenceRepository.getTodaysEarlyCheckouts(LocalDate.now());
+			for (Object[] row : todaysEarlyCheckouts) {
+				Student student = new Student();
+				student.setFullName((String) row[0]);
+				student.setMobile((String) row[1]);
+				student.setProfilePic((String) row[2]);
+				student.setApplyForCourse((String) row[3]);
+				student.setStudentId((Integer) row[4]);
+				studentsPresentAndEarlyCheckout .add(student);
+			}
+		}	
+		return new ResponseEntity<>(studentsPresentAndEarlyCheckout,HttpStatus.OK);
 	}
 
 }
