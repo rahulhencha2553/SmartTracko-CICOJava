@@ -1208,4 +1208,37 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(attendanceList,HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key) {
+		System.out.println(key);
+		List<Student> studentsPresentAndEarlyCheckout = new ArrayList<>();
+		if(key.equals("Present")) {
+			System.out.println("inside present");
+		 List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
+		 System.out.println(todaysPresents);
+		 for (Object[] row : todaysPresents) {
+			Student student = new Student();
+			student.setFullName((String) row[0]);
+			student.setMobile((String) row[1]);
+			student.setProfilePic((String) row[2]);
+			student.setApplyForCourse((String) row[3]);
+			student.setStudentId((Integer) row[4]);
+			System.out.println("**************"+student);
+			studentsPresentAndEarlyCheckout .add(student);
+		 }	
+		}else {
+			List<Object[]> todaysEarlyCheckouts = attendenceRepository.getTodaysEarlyCheckouts(LocalDate.now());
+			for (Object[] row : todaysEarlyCheckouts) {
+				Student student = new Student();
+				student.setFullName((String) row[0]);
+				student.setMobile((String) row[1]);
+				student.setProfilePic((String) row[2]);
+				student.setApplyForCourse((String) row[3]);
+				student.setStudentId((Integer) row[4]);
+				studentsPresentAndEarlyCheckout .add(student);
+			}
+		}	
+		return new ResponseEntity<>(studentsPresentAndEarlyCheckout,HttpStatus.OK);
+	}
+
 }

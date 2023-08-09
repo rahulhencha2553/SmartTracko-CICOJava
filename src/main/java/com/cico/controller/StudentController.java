@@ -237,4 +237,10 @@ public class StudentController {
 	}
 	
 	
+	@GetMapping("/getTodaysPresentsAndEarlyCheckouts")
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(@RequestParam("key") String key){
+		return studentService.getTodaysPresentsAndEarlyCheckouts(key);
+	}
+	
+	
 }
