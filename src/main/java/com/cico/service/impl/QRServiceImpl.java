@@ -71,7 +71,6 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?>  QRLogin(String qrKey, String token) {
-		qrKey = "CICO#"+qrKey;
 		String[] split = qrKey.split("#");
 		if(split[0].equals("CICO")){
 			QrManage findByUuid = qrManageRepository.findByUuid(split[1]);
