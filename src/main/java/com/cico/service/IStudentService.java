@@ -75,4 +75,6 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId);
 
+	public ResponseEntity<?> getMonthwiseAttendence(Integer month);
+
 }

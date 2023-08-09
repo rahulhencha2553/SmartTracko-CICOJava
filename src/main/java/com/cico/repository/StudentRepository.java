@@ -57,6 +57,9 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	//@Query("SELECT s FROM Student s WHERE s.fullName LIKE %?1%")
 	List<Student> findAllByFullNameContaining(String fullName);
+	
+	@Query("select count(s) from Student s where s.isCompleted=0")
+	Long countTotalStudents();
 
 
 }
