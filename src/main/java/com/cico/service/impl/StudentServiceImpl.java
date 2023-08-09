@@ -47,6 +47,7 @@ import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
 import com.cico.payload.StudentLoginResponse;
 import com.cico.payload.StudentResponse;
+import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
 import com.cico.repository.LeaveRepository;
@@ -1081,6 +1082,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesResponse.setProfilePic(studentData.get("profilePic").toString());
 			leavesResponse.setApplyForCourse(studentData.get("course").toString());
 			leavesResponse.setName(studentData.get("studentName").toString());
+			leavesResponse.setStudentId(id);
 			leavesResponse.setLeaveDate((LocalDate) row[1]);
 			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
 			response.add(leavesResponse);
@@ -1226,7 +1228,7 @@ public class StudentServiceImpl implements IStudentService {
 	
 		@Override
 		public ResponseEntity<?> getMonthwiseAttendence(Integer month) {
-			Map<String, Long> map = new HashMap();
+			Map<String, Long> map = new HashMap<>();
 
 			Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
 			Long onLeaveStudents = attendenceRepository.countLeaveStudentsByMonth(month);
@@ -1238,7 +1240,7 @@ public class StudentServiceImpl implements IStudentService {
 			map.put("Absent", absentStudents);
 			map.put("OnLeave", onLeaveStudents);
 
-			return new ResponseEntity(map, HttpStatus.OK);
+			return new ResponseEntity<>(map, HttpStatus.OK);
 
 	}
 
@@ -1272,6 +1274,30 @@ public class StudentServiceImpl implements IStudentService {
 			}
 		}	
 		return new ResponseEntity<>(studentsPresentAndEarlyCheckout,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getStudentsAttendanceDataForTv() {
+		Map<String, Object> response = new HashMap<>();
+		List<Object[]> dataForTv = studRepo.getStudentAttendanceDataForTv();
+		List<StudentTvResponse> tvResponse = new ArrayList<>();
+		for (Object[] row : dataForTv) {
+			StudentTvResponse studentTvResponse = new StudentTvResponse();
+			studentTvResponse.setUserId((String)row[0]);
+			studentTvResponse.setFullName((String) row[1]);
+			studentTvResponse.setProfilePic((String) row[2]);
+			studentTvResponse.setCheckInDate((LocalDate) row[3]);
+			studentTvResponse.setCheckOutDate((LocalDate) row[4]);
+			studentTvResponse.setCheckInTime((LocalTime) row[5]);
+			studentTvResponse.setCheckOutTime((LocalTime) row[6]);
+			studentTvResponse.setCheckInImage((String) row[7]);
+			studentTvResponse.setCheckOutImage((String) row[8]);
+			tvResponse.add(studentTvResponse);		
+			}
+		response.put(AppConstants.MESSAGE,AppConstants.SUCCESS);
+		response.put("studentData", tvResponse);
+		return new ResponseEntity<>(response,HttpStatus.OK);
+		
 	}
 
 }

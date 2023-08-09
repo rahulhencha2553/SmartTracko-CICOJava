@@ -12,4 +12,5 @@ public class OnLeavesResponse {
 	private LocalDate leaveEndDate;
 	private String applyForCourse;
 	private String name;
+	private Integer studentId;
 }
