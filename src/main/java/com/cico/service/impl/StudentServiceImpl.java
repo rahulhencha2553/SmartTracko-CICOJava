@@ -46,6 +46,7 @@ import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
 import com.cico.payload.StudentLoginResponse;
+import com.cico.payload.StudentPresentAndEarlyCheckOut;
 import com.cico.payload.StudentResponse;
 import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
@@ -1236,9 +1237,32 @@ public class StudentServiceImpl implements IStudentService {
 	}
 	
 	
-	  public static int countSundays(int month) {
-	        int totalDays = LocalDate.of(LocalDate.now().getYear(), month, 1).lengthOfMonth();
+	 public static Map<String,Integer> countTotalDaysInMonth(int month) {
+		  Integer totalDays;
+		  if(month==(LocalDate.now().getMonthValue())) 
+	         totalDays = LocalDate.now().getDayOfMonth();
+		  
+		  
+		  else
+			  
+		  {
+			  if (month < 1 || month > 12) {
+		            throw new IllegalArgumentException("Month should be between 1 and 12");
+		        }
+
+		        // Get the current year
+		        int currentYear = YearMonth.now().getYear();
+
+		        // Create a YearMonth object for the given month and current year
+		        YearMonth yearMonth = YearMonth.of(currentYear, month);
+
+		        // Get the total number of days in the month
+		         totalDays = yearMonth.lengthOfMonth();
+		  }
+			  
 	        int sundays = 0;
+	        
+	        System.out.println(totalDays);
 
 	        for (int day = 1; day <= totalDays; day++) {
 	            LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, day);
@@ -1246,8 +1270,10 @@ public class StudentServiceImpl implements IStudentService {
 	                sundays++;
 	            }
 	        }
-
-	        return sundays;
+               Map<String, Integer> map=new HashMap<>();
+               map.put("TotalDays", totalDays-sundays);
+               map.put("Sundays", sundays);
+	        return map;
 	    }
 	
 		@Override
@@ -1255,10 +1281,16 @@ public class StudentServiceImpl implements IStudentService {
 			Map<String, Long> map = new HashMap<>();
 
 			Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
-			Long onLeaveStudents = attendenceRepository.countLeaveStudentsByMonth(month);
+			Long onLeaveStudents = leaveRepository.countLeaveStudentsByMonth(month);
 			Long totalStudents = studRepo.countTotalStudents();
+			
+			System.out.println(totalStudents);
+			
+			Map<String, Integer> map2 = countTotalDaysInMonth(month);
+			Integer sundays=map2.get("Sundays");
+			Integer totalDays=map2.get("TotalDays");
 
-			Long absentStudents = totalStudents - (presentStudents + onLeaveStudents);
+			Long absentStudents = (totalStudents*totalDays) - (presentStudents + onLeaveStudents+(sundays*totalStudents));
 
 			map.put("Present", presentStudents);
 			map.put("Absent", absentStudents);
@@ -1267,33 +1299,36 @@ public class StudentServiceImpl implements IStudentService {
 			return new ResponseEntity<>(map, HttpStatus.OK);
 
 	}
+		
 
 	@Override
 	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key) {
 		System.out.println(key);
-		List<Student> studentsPresentAndEarlyCheckout = new ArrayList<>();
+		List<StudentPresentAndEarlyCheckOut> studentsPresentAndEarlyCheckout = new ArrayList<>();
 		if(key.equals("Present")) {
 			System.out.println("inside present");
 		 List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
 		 System.out.println(todaysPresents);
 		 for (Object[] row : todaysPresents) {
-			Student student = new Student();
+			StudentPresentAndEarlyCheckOut student = new StudentPresentAndEarlyCheckOut();
 			student.setFullName((String) row[0]);
 			student.setMobile((String) row[1]);
 			student.setProfilePic((String) row[2]);
 			student.setApplyForCourse((String) row[3]);
 			student.setStudentId((Integer) row[4]);
+			student.setCheckInTime((LocalTime) row[5]);
 			studentsPresentAndEarlyCheckout .add(student);
 		 }	
 		}else {
 			List<Object[]> todaysEarlyCheckouts = attendenceRepository.getTodaysEarlyCheckouts(LocalDate.now());
 			for (Object[] row : todaysEarlyCheckouts) {
-				Student student = new Student();
+				StudentPresentAndEarlyCheckOut student = new StudentPresentAndEarlyCheckOut();
 				student.setFullName((String) row[0]);
 				student.setMobile((String) row[1]);
 				student.setProfilePic((String) row[2]);
 				student.setApplyForCourse((String) row[3]);
 				student.setStudentId((Integer) row[4]);
+				student.setCheckInTime((LocalTime) row[5]);				
 				studentsPresentAndEarlyCheckout .add(student);
 			}
 		}	
@@ -1323,5 +1358,4 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(response,HttpStatus.OK);
 		
 	}
-
 }
