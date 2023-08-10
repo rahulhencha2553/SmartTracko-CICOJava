@@ -75,4 +75,12 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId);
 
+
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key);
+
+	public ResponseEntity<?> getMonthwiseAttendence(Integer month);
+
+	public ResponseEntity<?> getStudentsAttendanceDataForTv();
+
+
 }

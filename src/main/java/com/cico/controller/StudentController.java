@@ -235,6 +235,21 @@ public class StudentController {
 	public ResponseEntity<?> getStudentOverAllAttendanceData(@RequestParam("studentId") Integer studentId){
 		return studentService.getStudentOverAllAttendanceData(studentId);
 	}
+		
+
+	@GetMapping("/getTodaysPresentsAndEarlyCheckouts")
+	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(@RequestParam("key") String key){
+		return studentService.getTodaysPresentsAndEarlyCheckouts(key);
+	}
+
+	@GetMapping("/getMonthwiseAttendence")
+	public ResponseEntity<?> getMonthwiseAttendence(@RequestParam("month") Integer month){
+		return studentService.getMonthwiseAttendence(month);
+	}
 	
+	@GetMapping("/getStudentsAttendanceDataForTv")
+	public ResponseEntity<?> getStudentsAttendanceDataForTv(){
+		return studentService.getStudentsAttendanceDataForTv();
+	}
 	
 }
