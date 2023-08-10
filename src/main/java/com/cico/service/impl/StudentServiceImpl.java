@@ -67,6 +67,8 @@ public class StudentServiceImpl implements IStudentService {
 
 	public static final String ANDROID = "Android";
 	public static final String IOS = "iOS";
+	public static final Integer TIME_PERIOD_NINE_HOURS = 9*60*60; //working hours
+	
 
 	@Autowired
 	private StudentRepository studRepo;
@@ -425,8 +427,10 @@ public class StudentServiceImpl implements IStudentService {
 								}
 								studentWorkReport.setWorkReport(workReport);
 								studentWorkReport.setCreatedDate(LocalDateTime.now());
-
-								StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+								StudentWorkReport findByAttendanceIdWorkReport = workReportRepository.findByAttendanceId(attendanceData.getAttendanceId());
+								if(Objects.isNull(findByAttendanceIdWorkReport)) {
+									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+								}
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
@@ -587,8 +591,10 @@ public class StudentServiceImpl implements IStudentService {
 					}
 					studentWorkReport.setWorkReport(workReport);
 					studentWorkReport.setCreatedDate(LocalDateTime.now());
-
-					StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+					StudentWorkReport findByAttendanceIdWorkReport = workReportRepository.findByAttendanceId(attendanceData.getAttendanceId());
+					if(Objects.isNull(findByAttendanceIdWorkReport)) {
+						StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+					}
 					if (Objects.nonNull(saveAttdance)) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 						return new ResponseEntity<>(response, HttpStatus.OK);
@@ -737,7 +743,11 @@ public class StudentServiceImpl implements IStudentService {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
-					workReportRepository.save(studentWorkReport);
+					
+					StudentWorkReport findByAttendanceIdWorkReport = workReportRepository.findByAttendanceId(attendance.getAttendanceId());
+					if(Objects.isNull(findByAttendanceIdWorkReport)) {
+						workReportRepository.save(studentWorkReport);
+					}
 
 					if (updateAttendance != null) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -1172,8 +1182,22 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student updateStudent(Student student) {
-		Student save = studRepo.save(student);
-		return save;
+		Student studentData = studRepo.findByUserIdAndIsActive(student.getUserId(), true).get();
+		if(Objects.nonNull(studentData)) {
+			studentData.setFullName(student.getFullName());
+			studentData.setMobile(student.getMobile());
+			studentData.setMothersName(student.getMothersName());
+			studentData.setFathersName(student.getFathersName());
+			studentData.setLocalAddress(student.getLocalAddress());
+			studentData.setParmanentAddress(student.getParmanentAddress());
+			studentData.setCurrentCourse(student.getCurrentCourse());
+			studentData.setCollege(student.getCollege());
+			studentData.setApplyForCourse(student.getApplyForCourse());
+			studentData.setJoinDate(student.getJoinDate());
+			Student save = studRepo.save(studentData);
+			return save;
+		}
+		return null;
 	}
 
 	@Override
@@ -1185,13 +1209,13 @@ public class StudentServiceImpl implements IStudentService {
 			logResponse.setDate(attendance.getCheckInDate());
 			logResponse.setCheckIn(attendance.getCheckInTime());
 			logResponse.setCheckOut(attendance.getCheckOutTime());
-			logResponse.setTimeIn(attendance.getWorkingHour());
-			if (attendance.getWorkingHour() >= 32400) {
-				logResponse.setStatus("FullDay");
-			} else {
-				logResponse.setStatus("HalfDay");
-				;
-			}
+				logResponse.setTimeIn(attendance.getWorkingHour());
+				if (attendance.getWorkingHour() >= TIME_PERIOD_NINE_HOURS) {
+					logResponse.setStatus("FullDay");
+				} else {
+					logResponse.setStatus("HalfDay");
+					;
+				}
 			attendanceList.add(logResponse);
 		}
 

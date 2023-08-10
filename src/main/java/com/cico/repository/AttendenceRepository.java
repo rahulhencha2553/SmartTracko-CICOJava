@@ -25,10 +25,11 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND a.checkInDate between :startDate AND :endDate AND a.checkInTime IS NOT NULL AND a.checkOutTime IS NOT NULL")
 	public Page<Attendance> findAttendanceHistory(Integer studentId, LocalDate startDate, LocalDate endDate, PageRequest of);
 	
-	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND MONTH(a.checkInDate)=:monthNo")
+	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND MONTH(a.checkInDate)=:monthNo AND a.checkOutTime IS NOT NULL")
 	public List<Attendance> findByStudentIdAndMonthNo(@Param("studentId") Integer studentId,@Param("monthNo") Integer monthNo);
 	
-	public List<Attendance>findAllByStudentId(Integer id);
+	@Query("SELECT a FROM Attendance a WHERE a.studentId=:id And a.checkInTime IS NOT NULL And a.checkOutTime IS NOT NULL")
+	public List<Attendance>findAllByStudentId(@Param("id") Integer id);
 
 
 	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  IN ("
