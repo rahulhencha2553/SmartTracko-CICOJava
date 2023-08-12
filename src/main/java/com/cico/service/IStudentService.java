@@ -80,5 +80,11 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getMonthwiseAttendence(Integer month);
 
+	public ResponseEntity<?> getStudentsAttendanceDataForTv();
+
+	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(Integer year);
+
+	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId);
+
 
 }

@@ -71,20 +71,24 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?>  QRLogin(String qrKey, String token) {
+		qrKey = "CICO#"+qrKey;
 		String[] split = qrKey.split("#");
+		
 		if(split[0].equals("CICO")){
 			QrManage findByUuid = qrManageRepository.findByUuid(split[1]);
 			if(Objects.isNull(findByUuid)) {
 				
 				String username = util.getUsername(token);
-				findByUuid = new QrManage(username,split[1]);
-				QrManage qrManage = qrManageRepository.save(findByUuid);
+				if(Objects.isNull(qrManageRepository.findByUserId(username))) {
+					findByUuid = new QrManage(username,split[1]);
+					QrManage qrManage = qrManageRepository.save(findByUuid);
+				}
 				JwtResponse message = ClientLogin(token);
 				executor.submit(() -> {
 					message.setToken(token);
 					jobEnd(split[1], message.getToken());
 				});
-					return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+				return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
 			}
 		}
 		return new ResponseEntity<> (new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
@@ -102,7 +106,7 @@ public class QRServiceImpl implements IQRService {
 		return jwtResponse;
 	}
 
-	private void jobEnd(String qrKey, String message) {
+	public void jobEnd(String qrKey, String message) {
 		messageSendingOperations.convertAndSend("/queue/messages-" + qrKey, message);
 	}
 

@@ -5,12 +5,15 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -47,7 +50,9 @@ import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
 import com.cico.payload.StudentLoginResponse;
+import com.cico.payload.StudentPresentAndEarlyCheckOut;
 import com.cico.payload.StudentResponse;
+import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
 import com.cico.repository.LeaveRepository;
@@ -67,14 +72,13 @@ public class StudentServiceImpl implements IStudentService {
 
 	public static final String ANDROID = "Android";
 	public static final String IOS = "iOS";
+	public static final Integer TIME_PERIOD_NINE_HOURS = 9 * 60 * 60; // working hours
 
 	@Autowired
 	private StudentRepository studRepo;
 
 	@Autowired
 	private QrManageRepository qrManageRepository;
-
-	
 
 	@Autowired
 	private LeaveRepository leaveRepository;
@@ -91,8 +95,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private JwtUtil util;
 
-	@Autowired
-	private HelperService helperService;
 
 	@Autowired
 	private IFileService fileService;
@@ -111,6 +113,8 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+	
+
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -425,9 +429,12 @@ public class StudentServiceImpl implements IStudentService {
 								}
 								studentWorkReport.setWorkReport(workReport);
 								studentWorkReport.setCreatedDate(LocalDateTime.now());
-
-								StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
-								if (Objects.nonNull(saveAttendenceCheckOutData)) {
+								StudentWorkReport findByAttendanceIdWorkReport = workReportRepository
+										.findByAttendanceId(attendanceData.getAttendanceId());
+								if (Objects.isNull(findByAttendanceIdWorkReport)) {
+									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+								}
+								if (Objects.nonNull(saveAttendenceCheckOutData)) {;
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
@@ -587,8 +594,11 @@ public class StudentServiceImpl implements IStudentService {
 					}
 					studentWorkReport.setWorkReport(workReport);
 					studentWorkReport.setCreatedDate(LocalDateTime.now());
-
-					StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+					StudentWorkReport findByAttendanceIdWorkReport = workReportRepository
+							.findByAttendanceId(attendanceData.getAttendanceId());
+					if (Objects.isNull(findByAttendanceIdWorkReport)) {
+						StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
+					}
 					if (Objects.nonNull(saveAttdance)) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 						return new ResponseEntity<>(response, HttpStatus.OK);
@@ -737,7 +747,12 @@ public class StudentServiceImpl implements IStudentService {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
-					workReportRepository.save(studentWorkReport);
+
+					StudentWorkReport findByAttendanceIdWorkReport = workReportRepository
+							.findByAttendanceId(attendance.getAttendanceId());
+					if (Objects.isNull(findByAttendanceIdWorkReport)) {
+						workReportRepository.save(studentWorkReport);
+					}
 
 					if (updateAttendance != null) {
 						response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -949,7 +964,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { //working code
+	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { // working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
 		if (year >= joinDate.getYear() && year <= LocalDate.now().getYear()) {
@@ -1030,7 +1045,6 @@ public class StudentServiceImpl implements IStudentService {
 		return response;
 	}
 
-
 	@Override
 	public Map<String, Object> getStudentData(Integer studentId) {
 		Student student = studRepo.findById(studentId)
@@ -1082,6 +1096,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesResponse.setProfilePic(studentData.get("profilePic").toString());
 			leavesResponse.setApplyForCourse(studentData.get("course").toString());
 			leavesResponse.setName(studentData.get("studentName").toString());
+			leavesResponse.setStudentId(id);
 			leavesResponse.setLeaveDate((LocalDate) row[1]);
 			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
 			leavesResponse.setStudentId(id);
@@ -1173,8 +1188,22 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student updateStudent(Student student) {
-		Student save = studRepo.save(student);
-		return save;
+		Student studentData = studRepo.findByUserIdAndIsActive(student.getUserId(), true).get();
+		if (Objects.nonNull(studentData)) {
+			studentData.setFullName(student.getFullName());
+			studentData.setMobile(student.getMobile());
+			studentData.setMothersName(student.getMothersName());
+			studentData.setFathersName(student.getFathersName());
+			studentData.setLocalAddress(student.getLocalAddress());
+			studentData.setParmanentAddress(student.getParmanentAddress());
+			studentData.setCurrentCourse(student.getCurrentCourse());
+			studentData.setCollege(student.getCollege());
+			studentData.setApplyForCourse(student.getApplyForCourse());
+			studentData.setJoinDate(student.getJoinDate());
+			Student save = studRepo.save(studentData);
+			return save;
+		}
+		return null;
 	}
 
 	@Override
@@ -1187,7 +1216,7 @@ public class StudentServiceImpl implements IStudentService {
 			logResponse.setCheckIn(attendance.getCheckInTime());
 			logResponse.setCheckOut(attendance.getCheckOutTime());
 			logResponse.setTimeIn(attendance.getWorkingHour());
-			if (attendance.getWorkingHour() >= 32400) {
+			if (attendance.getWorkingHour() >= TIME_PERIOD_NINE_HOURS) {
 				logResponse.setStatus("FullDay");
 			} else {
 				logResponse.setStatus("HalfDay");
@@ -1211,70 +1240,165 @@ public class StudentServiceImpl implements IStudentService {
 		attendanceList.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
 		return new ResponseEntity<>(attendanceList, HttpStatus.OK);
 	}
-	
-	
-	  public static int countSundays(int month) {
-	        int totalDays = LocalDate.of(LocalDate.now().getYear(), month, 1).lengthOfMonth();
-	        int sundays = 0;
 
-	        for (int day = 1; day <= totalDays; day++) {
-	            LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, day);
-	            if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-	                sundays++;
-	            }
-	        }
+	public static Map<String, Integer> countTotalDaysInMonth(int month) {
+		Integer totalDays;
+		if (month == (LocalDate.now().getMonthValue()))
+			totalDays = LocalDate.now().getDayOfMonth();
 
-	        return sundays;
-	    }
-	
-		@Override
-		public ResponseEntity<?> getMonthwiseAttendence(Integer month) {
-			Map<String, Long> map = new HashMap();
+		else
 
-			Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
-			Long onLeaveStudents = attendenceRepository.countLeaveStudentsByMonth(month);
-			Long totalStudents = studRepo.countTotalStudents();
+		{
+			if (month < 1 || month > 12) {
+				throw new IllegalArgumentException("Month should be between 1 and 12");
+			}
 
-			Long absentStudents = totalStudents - (presentStudents + onLeaveStudents);
+			// Get the current year
+			int currentYear = YearMonth.now().getYear();
 
-			map.put("Present", presentStudents);
-			map.put("Absent", absentStudents);
-			map.put("OnLeave", onLeaveStudents);
+			// Create a YearMonth object for the given month and current year
+			YearMonth yearMonth = YearMonth.of(currentYear, month);
 
-			return new ResponseEntity(map, HttpStatus.OK);
+			// Get the total number of days in the month
+			totalDays = yearMonth.lengthOfMonth();
+		}
+
+		int sundays = 0;
+
+		System.out.println(totalDays);
+
+		for (int day = 1; day <= totalDays; day++) {
+			LocalDate date = LocalDate.of(LocalDate.now().getYear(), month, day);
+			if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+				sundays++;
+			}
+		}
+		Map<String, Integer> map = new HashMap<>();
+		map.put("TotalDays", totalDays - sundays);
+		map.put("Sundays", sundays);
+		return map;
+	}
+
+	@Override
+	public ResponseEntity<?> getMonthwiseAttendence(Integer month) {
+		Map<String, Long> map = new HashMap<>();
+
+		Long presentStudents = attendenceRepository.countPresentStudentsByMonth(month);
+		Long onLeaveStudents = leaveRepository.countLeaveStudentsByMonth(month);
+		Long totalStudents = studRepo.countTotalStudents();
+
+		System.out.println(totalStudents);
+
+		Map<String, Integer> map2 = countTotalDaysInMonth(month);
+		Integer sundays = map2.get("Sundays");
+		Integer totalDays = map2.get("TotalDays");
+
+		Long absentStudents = (totalStudents * totalDays)
+				- (presentStudents + onLeaveStudents + (sundays * totalStudents));
+
+		map.put("Present", presentStudents);
+		map.put("Absent", absentStudents);
+		map.put("OnLeave", onLeaveStudents);
+
+		return new ResponseEntity<>(map, HttpStatus.OK);
 
 	}
 
 	@Override
 	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(String key) {
 		System.out.println(key);
-		List<Student> studentsPresentAndEarlyCheckout = new ArrayList<>();
-		if(key.equals("Present")) {
+		List<StudentPresentAndEarlyCheckOut> studentsPresentAndEarlyCheckout = new ArrayList<>();
+		if (key.equals("Present")) {
 			System.out.println("inside present");
-		 List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
-		 System.out.println(todaysPresents);
-		 for (Object[] row : todaysPresents) {
-			Student student = new Student();
-			student.setFullName((String) row[0]);
-			student.setMobile((String) row[1]);
-			student.setProfilePic((String) row[2]);
-			student.setApplyForCourse((String) row[3]);
-			student.setStudentId((Integer) row[4]);
-			studentsPresentAndEarlyCheckout .add(student);
-		 }	
-		}else {
-			List<Object[]> todaysEarlyCheckouts = attendenceRepository.getTodaysEarlyCheckouts(LocalDate.now());
-			for (Object[] row : todaysEarlyCheckouts) {
-				Student student = new Student();
+			List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
+			System.out.println(todaysPresents);
+			for (Object[] row : todaysPresents) {
+				StudentPresentAndEarlyCheckOut student = new StudentPresentAndEarlyCheckOut();
 				student.setFullName((String) row[0]);
 				student.setMobile((String) row[1]);
 				student.setProfilePic((String) row[2]);
 				student.setApplyForCourse((String) row[3]);
 				student.setStudentId((Integer) row[4]);
-				studentsPresentAndEarlyCheckout .add(student);
+				student.setCheckInTime((LocalTime) row[5]);
+				studentsPresentAndEarlyCheckout.add(student);
 			}
-		}	
-		return new ResponseEntity<>(studentsPresentAndEarlyCheckout,HttpStatus.OK);
+		} else {
+			List<Object[]> todaysEarlyCheckouts = attendenceRepository.getTodaysEarlyCheckouts(LocalDate.now());
+			for (Object[] row : todaysEarlyCheckouts) {
+				StudentPresentAndEarlyCheckOut student = new StudentPresentAndEarlyCheckOut();
+				student.setFullName((String) row[0]);
+				student.setMobile((String) row[1]);
+				student.setProfilePic((String) row[2]);
+				student.setApplyForCourse((String) row[3]);
+				student.setStudentId((Integer) row[4]);
+				student.setCheckInTime((LocalTime) row[5]);
+				studentsPresentAndEarlyCheckout.add(student);
+			}
+		}
+		return new ResponseEntity<>(studentsPresentAndEarlyCheckout, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getStudentsAttendanceDataForTv() {
+		Map<String, Object> response = new HashMap<>();
+		List<Object[]> dataForTv = studRepo.getStudentAttendanceDataForTv();
+		List<StudentTvResponse> tvResponse = new ArrayList<>();
+		for (Object[] row : dataForTv) {
+			StudentTvResponse studentTvResponse = new StudentTvResponse();
+			studentTvResponse.setUserId((String) row[0]);
+			studentTvResponse.setFullName((String) row[1]);
+			studentTvResponse.setProfilePic((String) row[2]);
+			studentTvResponse.setCheckInDate((LocalDate) row[3]);
+			studentTvResponse.setCheckOutDate((LocalDate) row[4]);
+			studentTvResponse.setCheckInTime((LocalTime) row[5]);
+			studentTvResponse.setCheckOutTime((LocalTime) row[6]);
+			studentTvResponse.setCheckInImage((String) row[7]);
+			studentTvResponse.setCheckOutImage((String) row[8]);
+			tvResponse.add(studentTvResponse);
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+		response.put("studentData", tvResponse);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
+	}
+
+	@Override
+	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(Integer year) {
+		List<Object[]> monthwiseAdmissionCount = studRepo.getMonthwiseAdmissionCountForYear(year);
+		List<Long> onlyCount = new ArrayList<>();
+		List<String> months = new ArrayList<>();
+
+		for (Object[] object : monthwiseAdmissionCount) {
+			int monthNumber = ((Number) object[0]).intValue();
+			String monthName = Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+			Long admissionCount = ((Long) object[1]);
+			onlyCount.add(admissionCount);
+			months.add(monthName);
+		}
+		Map<String, Object> response = new HashMap<>();
+		response.put("months", months);
+		response.put("count", onlyCount);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId) {
+		Map<String, Object> response = new HashMap<>();
+		List<Object[]> presentForYear = attendenceRepository.getMonthWisePresentForYear(year, studentId);
+		List<Object[]> leaveForYear = leaveRepository.getMonthWiseLeavesForYear(year, studentId);
+		List<Long> prensentCount = new ArrayList<>();
+		List<Long> leavesCount = new ArrayList<>();
+		List<Long> absentCount = new ArrayList<>();
+		for (Object[] object : presentForYear) {
+			prensentCount.add((Long) object[1]);
+		}
+		for (Object[] object : leaveForYear) {
+			leavesCount.add((Long) object[1]);
+		}
+
+		response.put("presents", prensentCount);
+		response.put("leaves", leavesCount);
+		response.put("absent", absentCount);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 }

@@ -52,4 +52,11 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 	
 	@Query("SELECT l from Leaves l WHERE l.studentId=:studentId AND l.leaveStatus=:active")
 	public List<Leaves> getStudentAllLeavesAndApproved(@Param("studentId") Integer studentId,@Param("active") Integer active);
+	
+	@Query("SELECT COUNT(l) FROM Leaves l WHERE MONTH(l.leaveDate) = :month and DAY(l.leaveDate)!=7 and l.leaveDayType='Full Day'")
+	public Long countLeaveStudentsByMonth(@Param("month") Integer month);
+
+	@Query("SELECT MONTH(l.leaveDate) AS month, SUM(l.leaveDuration) AS total_leave_days  FROM  Leaves l WHERE YEAR(l.leaveDate) =:year AND l.studentId=:studentId AND l.leaveDayType='Full Day' AND l.leaveStatus=1 GROUP BY MONTH(l.leaveDate)")
+	public List<Object[]> getMonthWiseLeavesForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
+	
 }
