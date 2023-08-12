@@ -55,7 +55,7 @@ public class FileServiceImpl implements IFileService{
 	
 	@Override
 	public InputStream getImages(String fileName,String destination){
-		System.out.println(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
+		//System.out.println(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
 		try {
 			return new FileInputStream(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
 		} catch (FileNotFoundException e) {
@@ -70,7 +70,7 @@ public class FileServiceImpl implements IFileService{
 	
 	@Override
 	public InputStream getAttachment(String attachment){
-		System.out.println(System.getProperty("user.dir")+workReportUploadPath+attachment);
+		//System.out.println(System.getProperty("user.dir")+workReportUploadPath+attachment);
 		try {
 			return new FileInputStream(System.getProperty("user.dir")+workReportUploadPath + File.separator +attachment);
 		} catch (FileNotFoundException e) {

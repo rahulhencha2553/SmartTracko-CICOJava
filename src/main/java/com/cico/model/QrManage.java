@@ -37,6 +37,7 @@ public class QrManage {
 		super();
 		this.userId = userId;
 		this.uuid = uuid;
+		this.loginAt = LocalDateTime.now();
 	}
 
 	

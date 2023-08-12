@@ -40,10 +40,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT l.studentId ,l.leaveDate,l.leaveEndDate  FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	List<Object[]> getTotalStudentInLeaves();
 
-//	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic ,s.applyForCourse, l.leaveTypeId,l.leaveTypeName,l.leaveDuration, l.leaveReason,l.leaveId\r\n"
-//			+ "FROM Leaves l\r\n" + "INNER JOIN Student s ON l.studentId = s.studentId AND  \r\n"
-//			+ "WHERE l.leaveStatus = 0 AND CURRENT_DATE() < l.leaveDate   \r\n" + "")
-//	List<Object[]> getTotalTodaysLeavesRequest();
+
 	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic, s.applyForCourse, " +
 		       "l.leaveTypeId, l.leaveDuration, l.leaveReason, l.leaveId, lt.leaveTypeName " +
 		       "FROM Leaves l " +
@@ -55,7 +52,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	Page<Student> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
 
-	//@Query("SELECT s FROM Student s WHERE s.fullName LIKE %?1%")
 	List<Student> findAllByFullNameContaining(String fullName);
 	
 	@Query("select count(s) from Student s where s.isCompleted=0")
@@ -64,8 +60,15 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT s.userId, s.fullName, s.profilePic, a.checkInDate, a.checkOutDate, a.checkInTime, a.checkOutTime, a.checkInImage, a.checkOutImage " +
 		       "FROM Student s " +
 		       "INNER JOIN Attendance a ON a.studentId = s.studentId " +
-		       "WHERE s.isCompleted = 0 AND a.checkInDate = CURRENT_DATE")
-		List<Object[]> getStudentAttendanceDataForTv();
+		       "WHERE s.isCompleted = 0 AND a.checkInDate = CURRENT_DATE "+
+		       "ORDER BY a.workingHour DESC")
+	List<Object[]> getStudentAttendanceDataForTv();
+	
+	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
+			+ "WHERE YEAR(s.joinDate) = :year GROUP BY MONTH(s.joinDate)")
+	List<Object[]> getMonthwiseAdmissionCountForYear(Integer year);
+
+	
 
 
 

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Repository;
 
 import com.cico.model.Attendance;
@@ -54,7 +55,9 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	@Query("SELECT COUNT(a) FROM Attendance a WHERE MONTH(a.checkInDate) = :month")
 	public Long countPresentStudentsByMonth(@Param("month") Integer month);
 
-	
+	@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
+			+ "WHERE YEAR(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
+	List<Object[]> getMonthWisePresentForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
 
 	
 }
