@@ -41,6 +41,7 @@ import com.cico.payload.AttendanceLogResponse;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
+import com.cico.payload.LeaveResponse;
 import com.cico.payload.MispunchResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
@@ -1003,7 +1004,7 @@ public class StudentServiceImpl implements IStudentService {
 						currentDay = currentDay.plusDays(1);
 					}
 				} else {// getting absent for previous month from current month
-					if (month == joinDate.getMonth().getValue() && (year == joinDate.getYear())) {
+					if (month <=joinDate.getMonth().getValue() && (year <= joinDate.getYear())) {
 						currentDay = joinDate;
 					}
 					while (!currentDay.isAfter(lastDayOfMonth)) {
@@ -1083,6 +1084,8 @@ public class StudentServiceImpl implements IStudentService {
 			leavesResponse.setName(studentData.get("studentName").toString());
 			leavesResponse.setLeaveDate((LocalDate) row[1]);
 			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
+			leavesResponse.setStudentId(id);
+			
 			response.add(leavesResponse);
 		}
 		return response;

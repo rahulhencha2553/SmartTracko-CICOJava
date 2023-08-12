@@ -241,6 +241,7 @@ public class StudentController {
 	@GetMapping("/getTodaysPresentsAndEarlyCheckouts")
 	public ResponseEntity<?> getTodaysPresentsAndEarlyCheckouts(@RequestParam("key") String key){
 		return studentService.getTodaysPresentsAndEarlyCheckouts(key);
+	}
 
 	@GetMapping("/getMonthwiseAttendence")
 	public ResponseEntity<?> getMonthwiseAttendence(@RequestParam("month") Integer month){
