@@ -252,5 +252,15 @@ public class StudentController {
 		return studentService.getStudentsAttendanceDataForTv();
 	}
 	
+	@GetMapping("/getMonthwiseAdmissionCountForYear")
+	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(@RequestParam("year") Integer year){
+		return studentService.getMonthwiseAdmissionCountForYear(year);
+	}
+	
+	@GetMapping("/getStudentPresentsAbsentsAndLeavesYearWise")
+	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(@RequestParam("year") Integer year,@RequestParam("studentId") Integer studentId){
+		return studentService.getStudentPresentsAbsentsAndLeavesYearWise(year,studentId);
+	}
+	
 	
 }
