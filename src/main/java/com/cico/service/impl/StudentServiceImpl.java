@@ -1398,4 +1398,11 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<?> allStudent() {
+		// TODO Auto-generated method stub
+	   List<Student> findAll = studRepo.findAll();
+	   return new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
 }
