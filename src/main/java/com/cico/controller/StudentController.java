@@ -262,5 +262,9 @@ public class StudentController {
 		return studentService.getStudentPresentsAbsentsAndLeavesYearWise(year,studentId);
 	}
 	
+	@GetMapping("/allStudent")
+	public ResponseEntity<?> allStudent(){
+		return studentService.allStudent();
+	}
 	
 }
