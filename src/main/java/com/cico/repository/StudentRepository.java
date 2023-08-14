@@ -27,7 +27,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	Optional<Student> findByEmail(String email);
 
 	Student findByinUseDeviceId(String deviceId);
- 
 
 	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
 			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))  ")
@@ -36,10 +35,8 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT COUNT(A.studentId) FROM Attendance A WHERE A.checkInDate = :todaysdate")
 	Long getTotalPresentToday(@Param("todaysdate") LocalDate todaysdate);
 
-
 	@Query("SELECT l.studentId ,l.leaveDate,l.leaveEndDate  FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
 	List<Object[]> getTotalStudentInLeaves();
-
 
 	@Query("SELECT l.leaveDate, l.leaveEndDate, s.studentId, s.fullName, s.profilePic, s.applyForCourse, " +
 		       "l.leaveTypeId, l.leaveDuration, l.leaveReason, l.leaveId, lt.leaveTypeName " +
@@ -53,7 +50,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	Page<Student> findAllByIsCompletedAndIsActive(Boolean isCompleted, Boolean isActive, Pageable pageable);
 
 	List<Student> findAllByFullNameContaining(String fullName);
-	
+
 	@Query("select count(s) from Student s where s.isCompleted=0")
 	Long countTotalStudents();
 
@@ -67,9 +64,5 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
 			+ "WHERE YEAR(s.joinDate) = :year GROUP BY MONTH(s.joinDate)")
 	List<Object[]> getMonthwiseAdmissionCountForYear(Integer year);
-
-	
-
-
 
 }

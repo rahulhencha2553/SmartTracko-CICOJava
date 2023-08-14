@@ -44,6 +44,7 @@ import com.cico.payload.AttendanceLogResponse;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
+import com.cico.payload.LeaveResponse;
 import com.cico.payload.MispunchResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
@@ -1098,6 +1099,8 @@ public class StudentServiceImpl implements IStudentService {
 			leavesResponse.setStudentId(id);
 			leavesResponse.setLeaveDate((LocalDate) row[1]);
 			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
+			leavesResponse.setStudentId(id);
+			
 			response.add(leavesResponse);
 		}
 		return response;
