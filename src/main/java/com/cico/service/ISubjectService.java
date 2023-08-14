@@ -4,12 +4,14 @@ package com.cico.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
+
 import com.cico.model.Subject;
 
 
 public interface ISubjectService {
 
-	void addSubject(String subjectName);
+	ResponseEntity<?> addSubject(String subjectName,Integer imageId);
 
 	void addChapterToSubject(Integer subjectId, String chapterName,String content);
 

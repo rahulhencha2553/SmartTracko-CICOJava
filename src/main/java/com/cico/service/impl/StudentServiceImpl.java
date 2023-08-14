@@ -964,7 +964,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { // working code
+	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { //working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
 		if (year >= joinDate.getYear() && year <= LocalDate.now().getYear()) {
@@ -1019,7 +1019,7 @@ public class StudentServiceImpl implements IStudentService {
 						currentDay = currentDay.plusDays(1);
 					}
 				} else {// getting absent for previous month from current month
-					if (month <=joinDate.getMonth().getValue() && (year <= joinDate.getYear())) {
+					if (month <= joinDate.getMonth().getValue() && (year <= joinDate.getYear())) {
 						currentDay = joinDate;
 					}
 					while (!currentDay.isAfter(lastDayOfMonth)) {
