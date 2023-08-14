@@ -26,9 +26,8 @@ public class SubjectController {
 	private ISubjectService subjectService;
 	
 	@PostMapping("/addSubject")
-	public ResponseEntity<String> addSubject(@RequestParam("subjectName") String subjectName){
-	subjectService.addSubject(subjectName);	
-	return ResponseEntity.ok("Subject Added");
+	public ResponseEntity<?> addSubject(@RequestParam("subjectName") String subjectName,@RequestParam("imageId") Integer imageId){
+		return subjectService.addSubject(subjectName,imageId);	
 	}
 	
 	@PostMapping("/addChapterToSubject")
