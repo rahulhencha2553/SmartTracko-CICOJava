@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceAlreadyExistException;
@@ -14,29 +16,41 @@ import com.cico.model.Chapter;
 import com.cico.model.Subject;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.SubjectRepository;
+import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.ISubjectService;
+import com.cico.util.AppConstants;
 
 
 @Service
 public class SubjectServiceImpl implements ISubjectService { 
 
 	@Autowired
-	SubjectRepository subRepo;
+	private SubjectRepository subRepo;
 
 	@Autowired
-	ChapterRepository chapterRepo;
+	private ChapterRepository chapterRepo;
+	
+	@Autowired
+	private TechnologyStackRepository technologyStackRepository;
 
 	@Override
-	public void addSubject(String subjectName) {
+	public ResponseEntity<?> addSubject(String subjectName,Integer imageId) {
+		Map<String, Object> response = new HashMap<>();
 		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName, false);
 		if (Objects.nonNull(subject))
 			throw new ResourceAlreadyExistException("Subject already exist");
 
 		subject = new Subject();
 		subject.setSubjectName(subjectName);
-
-		subRepo.save(subject);
-
+		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
+		Subject save = subRepo.save(subject);
+		if(Objects.nonNull(save)) {
+			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+			response.put("subject", save);
+			return new ResponseEntity<>(response,HttpStatus.CREATED);
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 
 	@Override
@@ -74,8 +88,8 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<Chapter> chapters = subject.getChapters();
 
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
-		Map<String, Object> map = new HashMap();
-		map.put("Subject", subject);
+		Map<String, Object> map = new HashMap<>();
+		map.put("subject", subject);
 		map.put("Chapter Count", size);
 		map.put("Completed Chapter Count", completedCount);
 

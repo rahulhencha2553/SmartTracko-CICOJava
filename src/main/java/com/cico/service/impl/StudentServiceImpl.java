@@ -964,7 +964,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
-	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { // working code
+	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { //working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
 		if (year >= joinDate.getYear() && year <= LocalDate.now().getYear()) {
@@ -1429,4 +1429,13 @@ public class StudentServiceImpl implements IStudentService {
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
+
+	@Override
+	public ResponseEntity<?> allStudent() {
+		// TODO Auto-generated method stub
+	   List<Student> findAll = studRepo.findAllByOrderByStudentIdDesc();
+	   return new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -64,9 +65,15 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
 			+ "WHERE YEAR(s.joinDate) = :year GROUP BY MONTH(s.joinDate)")
 	List<Object[]> getMonthwiseAdmissionCountForYear(Integer year);
+
 	
 	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
 			+ "WHERE YEAR(s.joinDate) = :year   GROUP BY MONTH(s.joinDate)")
 	List<Object[]> getAbsent(Integer year);
    
+=======
+
+//	   @Query("SELECT s FROM Student s ORDER BY s.someAttribute DESC")
+//	    List<Student> findAllOrderedDesc();
+	 List<Student> findAllByOrderByStudentIdDesc();
 }

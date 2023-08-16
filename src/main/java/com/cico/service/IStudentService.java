@@ -86,5 +86,7 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId);
 
+	public ResponseEntity<?> allStudent();
+
 
 }
