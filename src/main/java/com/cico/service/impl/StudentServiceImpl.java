@@ -1404,7 +1404,7 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> allStudent() {
 		// TODO Auto-generated method stub
-	   List<Student> findAll = studRepo.findAll();
+	   List<Student> findAll = studRepo.findAllByOrderByStudentIdDesc();
 	   return new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 
