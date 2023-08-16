@@ -12,6 +12,7 @@ import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Repository;
 
 import com.cico.model.Attendance;
+import com.cico.payload.MonthWiseAttendanceDTO;
 
 @Repository
 public interface AttendenceRepository extends JpaRepository<Attendance, Integer> {
@@ -58,6 +59,30 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
 			+ "WHERE YEAR(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
 	List<Object[]> getMonthWisePresentForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
-
 	
+	//@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
+//			+ "WHERE MONTH(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
+//	 @Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
+//			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))  ")
+	
+//	
+//	@Query("SELECT NEW com.cico.payload.MonthWiseAttendanceDTO(MONTH(a.checkInDate), COUNT(a.attendanceId)) "
+//	        + "FROM Attendance a WHERE YEAR(a.checkInDate) = :year AND a.studentId = :studentId GROUP BY MONTH(a.checkInDate)")
+//	List<MonthWiseAttendanceDTO> getMonthWisePresentForYear(@Param("year") Integer year, @Param("studentId") Integer studentId);
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
