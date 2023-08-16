@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import org.aspectj.weaver.patterns.HasMemberTypePatternForPerThisMatching;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,7 @@ import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
 import com.cico.payload.LeaveResponse;
 import com.cico.payload.MispunchResponse;
+import com.cico.payload.MonthWiseAttendanceDTO;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
@@ -95,7 +97,6 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private JwtUtil util;
 
-
 	@Autowired
 	private IFileService fileService;
 
@@ -113,8 +114,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
-	
-
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -434,7 +433,8 @@ public class StudentServiceImpl implements IStudentService {
 								if (Objects.isNull(findByAttendanceIdWorkReport)) {
 									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								}
-								if (Objects.nonNull(saveAttendenceCheckOutData)) {;
+								if (Objects.nonNull(saveAttendenceCheckOutData)) {
+									;
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
@@ -1010,6 +1010,9 @@ public class StudentServiceImpl implements IStudentService {
 
 				// getting total absent for current month and till today date
 				if (currentDate.getMonthValue() == month && LocalDate.now().getYear() == year) {
+					if (month == joinDate.getMonth().getValue() && (year == joinDate.getYear())) {
+						currentDay = joinDate;
+					}
 					while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
 							&& !currentDay.isAfter(lastDayOfMonth)) {
 						if (!present.contains(currentDay.getDayOfMonth())
@@ -1100,7 +1103,7 @@ public class StudentServiceImpl implements IStudentService {
 			leavesResponse.setLeaveDate((LocalDate) row[1]);
 			leavesResponse.setLeaveEndDate((LocalDate) row[2]);
 			leavesResponse.setStudentId(id);
-			
+
 			response.add(leavesResponse);
 		}
 		return response;
@@ -1383,23 +1386,50 @@ public class StudentServiceImpl implements IStudentService {
 
 	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
+
+		Map<Integer, Long> leavesCount = new HashMap<Integer, Long>();
+		Map<Integer, Long> absentCount = new HashMap<Integer, Long>();
+		Map<Integer, Long> present = new HashMap<Integer, Long>();
+
 		List<Object[]> presentForYear = attendenceRepository.getMonthWisePresentForYear(year, studentId);
 		List<Object[]> leaveForYear = leaveRepository.getMonthWiseLeavesForYear(year, studentId);
-		List<Long> prensentCount = new ArrayList<>();
-		List<Long> leavesCount = new ArrayList<>();
-		List<Long> absentCount = new ArrayList<>();
+
 		for (Object[] object : presentForYear) {
-			prensentCount.add((Long) object[1]);
-		}
-		for (Object[] object : leaveForYear) {
-			leavesCount.add((Long) object[1]);
+			present.put((Integer) object[0], (Long) object[1]);
 		}
 
-		response.put("presents", prensentCount);
+		for (Object[] object : leaveForYear) {
+			leavesCount.put((Integer) object[0], (Long) object[1]);
+		}
+        
+		
+		
+//		for(int i=1;i<=12;i++) {
+//			LocalDate firstDayOfMonth = LocalDate.of(year, i, 1);
+//			YearMonth yearMonth = YearMonth.of(year, i);
+//			int lastDay = yearMonth.lengthOfMonth();
+//			LocalDate lastDayOfMonth = LocalDate.of(year, i, lastDay);
+//			LocalDate currentDay = firstDayOfMonth;
+//			LocalDate currentDate = LocalDate.now();
+//			 
+//			
+//			while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
+//					&& !currentDay.isAfter(lastDayOfMonth)) {
+//				if (!present.contains(currentDay.getDayOfMonth())
+//						&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+//					absent.add(currentDay.getDayOfMonth());
+//				}
+//				currentDay = currentDay.plusDays(1);
+//			}
+//		} 
+		// counting absent
+		response.put("presents", present);
 		response.put("leaves", leavesCount);
-		response.put("absent", absentCount);
+//		response.put("absent", absentCount);
+
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+
 
 	@Override
 	public ResponseEntity<?> allStudent() {
