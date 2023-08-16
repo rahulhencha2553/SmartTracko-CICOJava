@@ -64,5 +64,9 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
 			+ "WHERE YEAR(s.joinDate) = :year GROUP BY MONTH(s.joinDate)")
 	List<Object[]> getMonthwiseAdmissionCountForYear(Integer year);
-
+	
+	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
+			+ "WHERE YEAR(s.joinDate) = :year   GROUP BY MONTH(s.joinDate)")
+	List<Object[]> getAbsent(Integer year);
+   
 }
