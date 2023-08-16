@@ -41,7 +41,7 @@ public class Chapter {
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Exam> exams;
 	
-	private Boolean isDeleted;
+	private Boolean isDeleted=false;
 	private Boolean isActive=true;
 	
 	private Boolean isCompleted;

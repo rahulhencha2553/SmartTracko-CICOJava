@@ -88,8 +88,8 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<Chapter> chapters = subject.getChapters();
 
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
-		Map<String, Object> map = new HashMap();
-		map.put("Subject", subject);
+		Map<String, Object> map = new HashMap<>();
+		map.put("subject", subject);
 		map.put("Chapter Count", size);
 		map.put("Completed Chapter Count", completedCount);
 
