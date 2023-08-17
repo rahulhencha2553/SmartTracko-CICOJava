@@ -24,4 +24,6 @@ public interface ICourseService {
 
 	public Boolean deleteCourseById(Integer courseId);
 
+	public ResponseEntity<?> findAllCourses();
+
 }
