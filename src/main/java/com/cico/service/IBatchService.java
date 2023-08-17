@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.cico.model.Batch;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.BatchRequest;
 
 
 public interface IBatchService {
@@ -19,6 +20,8 @@ public interface IBatchService {
 	
 	ApiResponse updateBatchStatus(Integer batchId);
 
-	Batch createBatch(Integer technologyStackId, String batchName, String batchStartDate, String batchEndDate);
+	ApiResponse createBatch(BatchRequest request);
+
+	ApiResponse updateBatch(Batch batch);
 
 }

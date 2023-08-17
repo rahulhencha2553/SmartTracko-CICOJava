@@ -1,7 +1,9 @@
 package com.cico.model;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,22 +21,25 @@ public class Batch {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int batchId;
+	private Integer batchId;
 	private String batchName;
 	private LocalDate batchStartDate;
-	private LocalDate batchEndDate;
+	private LocalTime batchTiming;
+	
+	@Column(columnDefinition = "longtext")
+	private String batchDetails;
 	
 	@ManyToOne
 	private TechnologyStack technologyStack;
 	
-	private boolean isDeleted;
+	private boolean isDeleted=false;
 	private boolean isActive=true;
-	public Batch(String batchName, LocalDate batchStartDate, LocalDate batchEndDate, TechnologyStack technologyStack) {
+	public Batch(String batchName, LocalDate batchStartDate, LocalTime batchTiming,String batchDetails) {
 		super();
 		this.batchName = batchName;
 		this.batchStartDate = batchStartDate;
-		this.batchEndDate = batchEndDate;
-		this.technologyStack = technologyStack;
+		this.batchTiming = batchTiming;
+		this.batchDetails = batchDetails;
 	}
 
 }

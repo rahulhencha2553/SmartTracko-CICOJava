@@ -72,7 +72,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	List<Object[]> getAbsent(Integer year);
    
 
-
 //	   @Query("SELECT s FROM Student s ORDER BY s.someAttribute DESC")
 //	    List<Student> findAllOrderedDesc();
 	 List<Student> findAllByOrderByStudentIdDesc();

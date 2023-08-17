@@ -66,7 +66,7 @@ public class CourseController {
 		if (deleteCourseById != null)
 			return ResponseEntity.ok(new ApiResponse(Boolean.TRUE, AppConstants.DELETE_SUCCESS, HttpStatus.OK));
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(new ApiResponse(Boolean.FALSE, "Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR));
+				.body(new ApiResponse(Boolean.FALSE, AppConstants.SOMETHING_WENT_WRONG , HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 
 }

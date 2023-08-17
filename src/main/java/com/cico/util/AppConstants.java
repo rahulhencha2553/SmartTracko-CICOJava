@@ -62,6 +62,8 @@ public class AppConstants {
 	
 	public static final String INVALID_ID = "INVALID ID";
 	
+	public static final String SOMETHING_WENT_WRONG = "Something went wrong";
+	
 	
 	
 }

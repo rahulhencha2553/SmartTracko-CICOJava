@@ -1,7 +1,10 @@
 package com.cico.service.impl;
 
-import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
+import javax.persistence.criteria.Predicate.BooleanOperator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,8 +12,11 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Batch;
+import com.cico.model.Course;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.BatchRequest;
 import com.cico.repository.BatchRepository;
+import com.cico.repository.CourseRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
 import com.cico.util.AppConstants;
@@ -22,15 +28,28 @@ public class BatchServiceImpl implements IBatchService {
 	public static final String BATCH_NOT_FOUND="BATCH NOT FOUND";
 	
 	@Autowired
-    BatchRepository batchRepository;
+	private BatchRepository batchRepository;
+	
 	@Autowired
 	private TechnologyStackRepository repository;
+	
+	@Autowired
+	private CourseRepository courseRepository;
+	
+	
 	@Override
-	public Batch createBatch(Integer technologyStackId, String batchName, String batchStartDate, String batchEndDate) {
-		// TODO Auto-generated method stub
-		Batch batch=new Batch(batchName, LocalDate.parse(batchStartDate), LocalDate.parse(batchEndDate), null);
-		batch.setTechnologyStack(repository.findById(technologyStackId).get());
-		return batchRepository.save(batch);
+	public ApiResponse createBatch(BatchRequest request) {
+		Course course = courseRepository.findById(request.getCourseId()).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		Batch batch=new Batch(request.getBatchName(), request.getBatchStartDate(), request.getBatchTiming(), request.getBatchDetails());
+		batch.setTechnologyStack(repository.findById(request.getTechnologyStack()).get());
+		List<Batch> batches = course.getBatches();
+		batches.add(batch);
+		course.setBatches(batches);
+		Course course2 = courseRepository.save(course);
+		if(Objects.nonNull(course2))
+			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS , HttpStatus.CREATED);
+		return new ApiResponse(Boolean.FALSE,AppConstants.FAILED,HttpStatus.OK);
+		
 	}
 	
 
@@ -78,6 +97,16 @@ public class BatchServiceImpl implements IBatchService {
 		batchRepository.save(batch);
 		return new ApiResponse(Boolean.TRUE,AppConstants.SUCCESS,HttpStatus.OK);
 
+	}
+
+
+	@Override
+	public ApiResponse updateBatch(Batch batch) {
+		Batch save = batchRepository.save(batch);
+		if(Objects.nonNull(save))
+			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+		
+		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 
 	
