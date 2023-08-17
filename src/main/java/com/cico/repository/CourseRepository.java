@@ -1,5 +1,7 @@
 package com.cico.repository;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -20,4 +22,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	public int deleteCourse(@Param("courseId") Integer courseId);
 
 	public Page<Course> findAllByIsDeleted(boolean b,PageRequest p);
+	
+	@Query("SELECT c From Course c JOIN FETCH c.batches b Where c.courseId=:courseId AND b.isDeleted = 0")
+	public Optional<Course> findById(@Param("courseId") Integer courseId);
 }

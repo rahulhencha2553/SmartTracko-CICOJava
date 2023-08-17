@@ -71,7 +71,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 			+ "WHERE YEAR(s.joinDate) = :year   GROUP BY MONTH(s.joinDate)")
 	List<Object[]> getAbsent(Integer year);
    
-=======
 
 //	   @Query("SELECT s FROM Student s ORDER BY s.someAttribute DESC")
 //	    List<Student> findAllOrderedDesc();
