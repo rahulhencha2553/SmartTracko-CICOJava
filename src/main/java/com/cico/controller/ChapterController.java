@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,20 +19,27 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 @RestController
 @RequestMapping("/chapter")
+@CrossOrigin("*")
 public class ChapterController {
 	
 	@Autowired
 	private IChapterService chapterService;
 	
-//	@PostMapping("/addChapter")
-//	public ResponseEntity<String> addChapter(@RequestParam("chapterName") String chapterName, @RequestParam("content") String content){
-//		chapterService.addChapter(chapterName,content);	
-//	return ResponseEntity.ok("Chapter Added");
-//	}
+	@PostMapping("/addChapter")
+	public ResponseEntity<String> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName){
+		chapterService.addChapter(subjectId,chapterName);	
+	return ResponseEntity.ok("Chapter Added");
+	}
+	
 	
 	@PostMapping("/addExamToChapter")
 	public ResponseEntity<String> addExamToChapter(@RequestParam("subjectId") Integer subjectId,@RequestParam("examName")String examName){
 		chapterService.addExamToChapter( subjectId,  examName);	
+	return ResponseEntity.ok("Exam Added");
+	}
+	@PostMapping("/addContentToChapter")
+	public ResponseEntity<String>addContentToChapter(@RequestParam("chapterId")Integer chapterId,@RequestParam("title")String title,@RequestParam("subTitle")String subTitle,@RequestParam("content")String content){
+	chapterService.addContentToChapter(chapterId,title,subTitle,content);
 	return ResponseEntity.ok("Exam Added");
 	}
 	
@@ -61,8 +69,8 @@ public class ChapterController {
 	}
 	
 	@GetMapping("/getAllChapters")
-	public ResponseEntity<List<Chapter>> getAllChapters(){
-		List<Chapter> chapters=chapterService.getAllChapters();	
+	public ResponseEntity<List<Chapter>> getAllChapters(@RequestParam("subjectId")Integer subjectId){
+		List<Chapter> chapters=chapterService.getAllChapters(subjectId);	
 	return ResponseEntity.ok(chapters);
 	}
 	

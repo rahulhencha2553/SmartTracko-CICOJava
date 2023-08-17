@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Subject;
+import com.cico.payload.SubjectResponse;
 import com.cico.service.ISubjectService;
 
 
@@ -33,8 +34,8 @@ public class SubjectController {
 	}
 	
 	@PostMapping("/addChapterToSubject")
-	public ResponseEntity<String> addChapterToSubject(@RequestParam("subjectId") Integer subjectId,@RequestParam("chapterName") String chapterName, @RequestParam("content") String content){
-	subjectService.addChapterToSubject(subjectId,chapterName,content);	
+	public ResponseEntity<String> addChapterToSubject(@RequestParam("subjectId") Integer subjectId,@RequestParam("chapterName") String chapterName){
+	subjectService.addChapterToSubject(subjectId,chapterName);	
 	return ResponseEntity.ok("Chapter Added");
 	}
 	
@@ -64,8 +65,8 @@ public class SubjectController {
 	}
 	
 	@GetMapping("/getAllSubjects")
-	public ResponseEntity<List<Subject>> getAllSubjects(){
-		List<Subject> subjects=subjectService.getAllSubjects();	
+	public ResponseEntity<List<SubjectResponse>> getAllSubjects(){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjects();
 	return ResponseEntity.ok(subjects);
 	}
 	

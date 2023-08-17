@@ -6,9 +6,9 @@ import com.cico.model.Chapter;
 
 public interface IChapterService {
 
-	//void addChapter(String chapterName, String content);
+	void addChapter(Integer subjectId,String chapterName);
 
-	void addExamToChapter(Integer chapterId, String examName);
+	void addExamToChapter(Integer subjectId, String examName);
 
 	void updateChapter(Chapter chapter);
 
@@ -18,8 +18,10 @@ public interface IChapterService {
 
 	void updateChapterStatus(Integer chapterId);
 
-	List<Chapter> getAllChapters();
+	List<Chapter> getAllChapters(Integer subjectId);
 
 	List<Chapter> getChaptersBySubject(Integer subjectId);
+
+	void addContentToChapter(Integer chapterId, String title, String subTitle, String content);
 
 }

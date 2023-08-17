@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -17,31 +18,36 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Question {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer questionId;
-	
+
 	@Column(unique = true)
 	@NonNull
-	private String question;
-	
+	private String questionContent;
+
 	@ElementCollection
-    @CollectionTable
-    @NonNull
+	@CollectionTable
+	@NonNull
 	private List<String> options;
-	
+
 	@JsonIgnore
 	private String correctOption;
 	private String selectedOption;
-	
+
+	@ManyToOne
+	private Exam chapterExam;
+	@ManyToOne
+	private Chapter chapter;
 	private String questionImage;
-	private Boolean isDeleted;
+	private Boolean isDeleted= false;
 	private Boolean isActive = true;
 }

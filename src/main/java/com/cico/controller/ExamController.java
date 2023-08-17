@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,16 +20,17 @@ import com.cico.service.IExamService;
 
 @RestController
 @RequestMapping("/exam")
+@CrossOrigin("*")
 public class ExamController {
 	
 	@Autowired
 	private IExamService examService;
 	
-//	@PostMapping("/addExam")
-//	public ResponseEntity<String> addExam(@RequestParam("examName") String examName){
+	@PostMapping("/addExam")
+	public ResponseEntity<String> addExam(@RequestParam("examName") String examName){
 //		examService.addExam(examName);	
-//	return ResponseEntity.ok("Exam Added");
-//	}
+	return ResponseEntity.ok("Exam Added");
+	}
 	
 	@PostMapping("/addQuestionsToExam")
 	public ResponseEntity<String> addQuestionsToExam(@RequestParam("examId") Integer examId, 
@@ -46,7 +48,7 @@ public class ExamController {
 	
 	@GetMapping("/getExamById")
 	public ResponseEntity<Exam> getExamById(@RequestParam("examId") Integer examId){
-	Exam exam=examService.getExamById(examId);	
+		Exam exam=examService.getExamById(examId);	
 	return ResponseEntity.ok(exam);
 	}
 	

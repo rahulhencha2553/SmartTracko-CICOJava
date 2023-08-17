@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
-import com.cico.model.Chapter;
 import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.repository.ChapterRepository;
@@ -55,7 +54,7 @@ public class ExamServiceImpl implements IExamService {
 		Exam exam = examRepo.findByExamIdAndIsDeleted(examId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
 
-		Question questionObj = questionRepo.findByQuestionAndIsDeleted(question, false);
+		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(question, false);
 		if (Objects.nonNull(questionObj))
 			throw new ResourceAlreadyExistException("Question already exist");
 
@@ -126,13 +125,14 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public List<Exam> getExamsByChapter(Integer chapterId) {
-		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
-				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-
-		if (chapter.getExams().isEmpty())
-			throw new ResourceNotFoundException("No exam available for Chapter : " + chapter.getChapterName());
-
-		return chapter.getExams();
+//		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
+//				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+//
+//		if (chapter.getExams().isEmpty())
+//			throw new ResourceNotFoundException("No exam available for Chapter : " + chapter.getChapterName());
+//
+//		return chapter.getExams();
+		return null;
 
 	}
 
