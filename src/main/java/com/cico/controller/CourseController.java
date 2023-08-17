@@ -46,6 +46,10 @@ public class CourseController {
 		return ResponseEntity.ok(allCourses);
 	}
 
+	@GetMapping("/findAllCourse")
+	public ResponseEntity<?> finAllCourses(){
+		return courseService.findAllCourses();
+	}
 	@PutMapping("/updateCourseApi")
 	public ResponseEntity<Course> updateCourse(@RequestParam("courseId") Integer courseId,
 			@RequestParam("technologyStackId") Integer technologyStackId, @RequestParam("courseName") String courseName,

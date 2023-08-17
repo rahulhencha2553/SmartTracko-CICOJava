@@ -121,4 +121,11 @@ public class CourseServiceImpl implements ICourseService {
 		return false;
 	}
 
+	@Override
+	public ResponseEntity<?> findAllCourses() {
+		// TODO Auto-generated method stub
+		List<Course> findAll = courseRepository.findAll();
+		return  new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
 }

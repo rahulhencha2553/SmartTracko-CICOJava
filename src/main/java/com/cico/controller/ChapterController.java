@@ -30,8 +30,8 @@ public class ChapterController {
 //	}
 	
 	@PostMapping("/addExamToChapter")
-	public ResponseEntity<String> addExamToChapter(@RequestParam("chapterId") Integer chapterId,@RequestParam("examName")String examName){
-		chapterService.addExamToChapter( chapterId,  examName);	
+	public ResponseEntity<String> addExamToChapter(@RequestParam("subjectId") Integer subjectId,@RequestParam("examName")String examName){
+		chapterService.addExamToChapter( subjectId,  examName);	
 	return ResponseEntity.ok("Exam Added");
 	}
 	
