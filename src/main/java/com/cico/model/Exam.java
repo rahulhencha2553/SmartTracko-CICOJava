@@ -8,7 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,19 +24,25 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Exam {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer examId;
-	
+
 	@Column(unique = true)
 	@NonNull
 	private String examName;
-	
+
 	private Float score;
-	
+	private String examImage;
+
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Question> questions;
+	
+	@OneToOne
+	private Chapter chapter;
+
 	private Boolean isDeleted;
-	private Boolean isActive=true;
+	private Boolean isActive = true;
 
 }

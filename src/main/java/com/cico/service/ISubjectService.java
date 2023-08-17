@@ -7,13 +7,14 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 import com.cico.model.Subject;
+import com.cico.payload.SubjectResponse;
 
 
 public interface ISubjectService {
 
 	ResponseEntity<?> addSubject(String subjectName,Integer imageId);
 
-	void addChapterToSubject(Integer subjectId, String chapterName,String content);
+	void addChapterToSubject(Integer subjectId, String chapterName);
 
 	void updateSubject(Subject subject);
 
@@ -23,6 +24,6 @@ public interface ISubjectService {
 
 	void updateSubjectStatus(Integer subjectId);
 
-	List<Subject> getAllSubjects();
+	List<SubjectResponse> getAllSubjects();
 
 }

@@ -32,6 +32,7 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 		TechnologyStack technologyStack = new TechnologyStack(technologyName, fileName);
 		technologyStack.setCreatedDate(LocalDateTime.now());
 		technologyStack.setIsDeleted(false);
+		technologyStack.setUpdatedDate(LocalDateTime.now());
 		TechnologyStack technologyStack2 = technologyStackRepository.save(technologyStack);
 		if (Objects.nonNull(technologyStack2)) {
 			return technologyStack;

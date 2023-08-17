@@ -2,15 +2,17 @@ package com.cico.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cico.model.Question;
 
 public interface IQuestionService {
 
-	//void addQuestion(String question, List<String> options, MultipartFile image);
+	void addQuestion(Integer chapterId,String questionContent, List<String> option, MultipartFile image, String correctOption);
 
 	void updateQuestion(Question question);
 
-	Question getQuestionById(Integer questionId);
+	List<Question> getQuestionByChapterId(Integer questionId);
 
 	void deleteQuestion(Integer questionId);
 
