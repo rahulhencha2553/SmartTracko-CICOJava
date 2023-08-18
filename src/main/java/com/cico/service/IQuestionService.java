@@ -22,4 +22,6 @@ public interface IQuestionService {
 
 	List<Question> getQuestionsByExam(Integer examId);
 
+	Question getQuestionById(Integer questionId); //running
+
 }

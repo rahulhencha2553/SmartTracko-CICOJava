@@ -23,5 +23,6 @@ public class ChapterContent {
 	@Column(columnDefinition = "longtext")
 	private String content;
 	private Integer chapterId;
+	private  Boolean isDeleted=false;
 	
 }
