@@ -2,17 +2,16 @@ package com.cico.service.impl;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
-import com.cico.model.Exam;
 import com.cico.model.Subject;
+import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.SubjectRepository;
@@ -29,13 +28,17 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Autowired
 	SubjectRepository subjectRepo;
+	@Autowired
+	ChapterContentRepository chapterContentRepository;
+	
+	@Autowired
+	FileServiceImpl fileServiceImpl;
+//	@Value("${}")
+//	private String filePath;
 
 	@Override
-	public void addChapter(Integer subjectId, String chapterName) {
-		Chapter chapter = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
-		if (Objects.nonNull(chapter))
-			throw new ResourceAlreadyExistException("Chapter already exist");
-		chapter = new Chapter();
+	public Subject addChapter(Integer subjectId, String chapterName,MultipartFile image) {
+		Chapter chapter = new Chapter();
 		chapter.setChapterName(chapterName);
 		chapter.setSubject(subjectRepo.findById(subjectId).get());
 		chapter.setIsCompleted(false);
@@ -43,7 +46,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Subject subject = subjectRepo.findById(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 		subject.setChapters(Arrays.asList(obj));
-		subjectRepo.save(subject);
+		return subjectRepo.save(subject);
 	}
 
 	@Override
@@ -57,11 +60,12 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public void updateChapter(Chapter chapter) {
-		chapterRepo.findByChapterIdAndIsDeleted(chapter.getChapterId(), false)
+	public  Chapter updateChapter(Integer chapterId,Integer subjectId,String chapterName) {
+	    Subject subject = subjectRepo.findById(subjectId).get();
+	  Chapter chapter=chapterRepo.findByChapterIdAndsubjectIdAndIsDeleted(chapterId,subject, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-		chapterRepo.save(chapter);
-
+	    chapter.setChapterName(chapterName);
+		 return chapterRepo.save(chapter);
 	}
 
 	@Override
@@ -102,7 +106,7 @@ public class ChapterServiceImpl implements IChapterService {
 		if (chapters.isEmpty())
 			new ResourceNotFoundException("No chapter available");
 		return chapters;
-	//	return null;
+		// return null;
 	}
 
 	@Override
@@ -117,7 +121,7 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public void addContentToChapter(Integer chapterId, String title, String subTitle, String content) {
+	public Chapter addContentToChapter(Integer chapterId, String title, String subTitle, String content) {
 		Chapter chapter = chapterRepo.findById(chapterId)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 		List<ChapterContent> chapters = chapter.getChapterContent();
@@ -127,7 +131,40 @@ public class ChapterServiceImpl implements IChapterService {
 		chapterContent.setSubTitle(subTitle);
 		chapterContent.setTitle(title);
 		chapters.add(chapterContent);
-		chapterRepo.save(chapter);
+		return chapterRepo.save(chapter);
+	}
+
+	@Override
+	public ChapterContent updateChapterContent(Integer chapterId, String title, String subTitle, String content,
+			Integer contentId) {
+		ChapterContent chapterContent = new ChapterContent();
+
+		ChapterContent chapter = chapterContentRepository.findByChapterIdAndId(chapterId, contentId);
+
+		if (title != null)
+			chapter.setTitle(title);
+		else
+			chapter.setTitle(chapter.getTitle());
+		if (subTitle != null)
+			chapter.setSubTitle(subTitle);
+		else
+			chapter.setSubTitle(chapter.getSubTitle());
+		if (content != null)
+			chapter.setContent(content);
+		else
+			chapter.setContent(chapter.getContent());
+
+		return this.chapterContentRepository.save(chapter);
+	}
+
+	@Override
+	public ChapterContent getChapterContent(Integer chapterId, Integer chapterContentId) {
+		return this.chapterContentRepository.findByChapterIdAndId(chapterId, chapterContentId);
+	}
+
+	@Override
+	public void deleteChapterContent(Integer chapterId, Integer contentId) {
+		  this.chapterContentRepository.updateContent(chapterId,contentId);
 	}
 
 }

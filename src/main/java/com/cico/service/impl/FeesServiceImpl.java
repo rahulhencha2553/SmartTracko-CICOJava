@@ -46,8 +46,10 @@ public class FeesServiceImpl implements IFeesService {
 		Fees fees=new Fees(null, null, finalFees, LocalDate.parse(date));
 		Fees findByStudent = feesRepository.findByStudent(studentRepository.findByStudentId(studentId));
 		if(Objects.isNull(findByStudent)) {
+
 		fees.setStudent(studentRepository.findById(studentId).get());
-		fees.setCourse(courseRepository.findById(courseId).get());
+		fees.setCourse(courseRepository.findByCourseId(courseId).get());
+		fees.setRemainingFees(finalFees);
 		fees.setCreatedDate(LocalDate.now());
 		fees.setUpdatedDate(LocalDate.now());
 		return  feesRepository.save(fees);

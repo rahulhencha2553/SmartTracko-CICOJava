@@ -20,5 +20,8 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
     List<Chapter> findAllSubjectIdAndIsDeleted(@Param("subject")Subject subject, @Param("b") Boolean b);
 	
 	List<Chapter>findAllBySubject(Subject subject);
+	
+	@Query("SELECT c FROM Chapter c WHERE c.subject =:subject AND c.chapterId = :chapterId AND c.isDeleted = :b")
+	Optional<Chapter> findByChapterIdAndsubjectIdAndIsDeleted(@Param("chapterId")Integer chapterId,@Param("subject")Subject subject, @Param("b") Boolean b);
 
 }

@@ -29,7 +29,7 @@ public class Fees {
 	@OneToOne
 	private Course course;
 	private Double finalFees;
-	private Double feesPay;
+	private Double feesPaid;
 	private Double remainingFees;
 	public Fees(Student student, Course course, Double finalFees, LocalDate date) {
 		super();

@@ -2,7 +2,6 @@ package com.cico.service.impl;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -113,6 +112,11 @@ public class QuestionServiceImpl implements IQuestionService {
 			throw new ResourceNotFoundException("No question available for Exam : " + exam.getExamName());
 
 		return exam.getQuestions();
+	}
+
+	@Override
+	public Question getQuestionById(Integer questionId) {
+		 return this.questionRepo.findById(questionId).orElseThrow(()-> new ResourceNotFoundException("Question not found with this id "+questionId));
 	}
 
 }

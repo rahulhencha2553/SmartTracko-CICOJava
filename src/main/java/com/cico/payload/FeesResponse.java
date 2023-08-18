@@ -23,7 +23,7 @@ public class FeesResponse {
 
 	private Course course;
 	private Double finalFees;
-	private Double feesPay;
+	private Double feesPaid;
 	private Double remainingFees;
 	private LocalDate date;
 	private LocalDate createdDate;

@@ -2,15 +2,19 @@ package com.cico.service;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cico.model.Chapter;
+import com.cico.model.ChapterContent;
+import com.cico.model.Subject;
 
 public interface IChapterService {
 
-	void addChapter(Integer subjectId,String chapterName);
+	Subject addChapter(Integer subjectId,String chapterName,MultipartFile image);
 
 	void addExamToChapter(Integer subjectId, String examName);
 
-	void updateChapter(Chapter chapter);
+	Chapter updateChapter(Integer chapterId,Integer subjectId,String chapterName);
 
 	Chapter getChapterById(Integer chapterId);
 
@@ -22,6 +26,12 @@ public interface IChapterService {
 
 	List<Chapter> getChaptersBySubject(Integer subjectId);
 
-	void addContentToChapter(Integer chapterId, String title, String subTitle, String content);
+	Chapter addContentToChapter(Integer chapterId, String title, String subTitle, String content);
+
+	ChapterContent updateChapterContent(Integer chapterId, String title, String subTitle, String content,Integer contentId);
+
+	ChapterContent getChapterContent(Integer chapterId, Integer chapterContentId);
+
+	void deleteChapterContent(Integer chapterId, Integer contentId);
 
 }

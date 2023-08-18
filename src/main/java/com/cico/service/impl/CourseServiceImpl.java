@@ -63,7 +63,7 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public Course findCourseById(Integer courseId) {
-		Optional<Course> findById = courseRepository.findById(courseId);
+		Optional<Course> findById = courseRepository.findByCourseId(courseId);
 		if (!findById.isPresent()) {
 			throw new ResourceNotFoundException("Course is not found from given Id");
 		}
