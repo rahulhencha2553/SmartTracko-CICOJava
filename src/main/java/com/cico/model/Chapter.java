@@ -36,6 +36,7 @@ public class Chapter {
 	@NonNull
 	private String chapterName;
 	private String chapterScore;
+	private String chapterImage;
 	@ManyToOne
 	private Subject subject;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

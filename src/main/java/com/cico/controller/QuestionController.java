@@ -26,46 +26,53 @@ public class QuestionController {
 
 	@Autowired
 	IQuestionService questionService;
-	
+
 	@PostMapping("/addQuestion")
-	public ResponseEntity<String> addQuestion(@RequestParam("chapterId")Integer chapterId,@RequestParam("questionContent") String questionContent, @RequestParam("options") List<String> options,
-			@RequestParam("image") MultipartFile image,@RequestParam("correctOption")String correctOption ){
-		questionService.addQuestion(chapterId,questionContent,options,image,correctOption);	
-	return ResponseEntity.ok("Question Added");
+	public ResponseEntity<String> addQuestion(@RequestParam("chapterId") Integer chapterId,
+			@RequestParam("questionContent") String questionContent, @RequestParam("options") List<String> options,
+			@RequestParam("image") MultipartFile image, @RequestParam("correctOption") String correctOption) {
+		questionService.addQuestion(chapterId, questionContent, options, image, correctOption);
+		return ResponseEntity.ok("Question Added");
 	}
 
-	@PutMapping("/updateQuestion")
-	public ResponseEntity<String> updateQuestion(@RequestBody Question question){
-		questionService.updateQuestion(question);	
-	return ResponseEntity.ok("Question Updated");
+	@PutMapping("/updateQuestionById")
+	public ResponseEntity<String> updateQuestion(@RequestBody Question question) {
+		questionService.updateQuestion(question);
+		return ResponseEntity.ok("Question Updated");
 	}
-	
-	@GetMapping("/getQuestionByChapterId")
-	public ResponseEntity<List<Question>> getQuestionById(@RequestParam("chapterId") Integer chapterId){
-	List<Question>question=	questionService.getQuestionByChapterId(chapterId);
-	return ResponseEntity.ok(question);
+
+	@GetMapping("/getAllQuestionByChapterId") // k
+	public ResponseEntity<List<Question>> getAllQuestionById(@RequestParam("chapterId") Integer chapterId) {
+		List<Question> question = questionService.getQuestionByChapterId(chapterId);
+		return ResponseEntity.ok(question);
 	}
-	
-	@DeleteMapping("/deleteQuestionById")
-	public ResponseEntity<String> deleteQuestion(@RequestParam("questionId") Integer questionId){
-		questionService.deleteQuestion(questionId);	
-	return ResponseEntity.ok("Question Deleted");
+
+	@GetMapping("/getQuestionById") // k
+	public ResponseEntity<Question> getQuestionById(@RequestParam("questionId") Integer questionId) {
+		Question question = questionService.getQuestionById(questionId);
+		return ResponseEntity.ok(question);
 	}
-	
+
+	@PutMapping("/deleteQuestionById")
+	public ResponseEntity<String> deleteQuestion(@RequestParam("questionId") Integer questionId) {
+		questionService.deleteQuestion(questionId);
+		return ResponseEntity.ok("Question Deleted");
+	}
+
 	@PutMapping("/updateQuestionStatus")
-	public ResponseEntity<String> updateQuestionStatus(@RequestParam("questionId") Integer questionId){
-		questionService.updateQuestionStatus(questionId);	
-	return ResponseEntity.ok("Question Updated");
+	public ResponseEntity<String> updateQuestionStatus(@RequestParam("questionId") Integer questionId) {
+		questionService.updateQuestionStatus(questionId);
+		return ResponseEntity.ok("Question Updated");
 	}
-	
+
 	@GetMapping("/getAllQuestions")
-	public ResponseEntity<List<Question>> getAllQuestions(){
-		List<Question> questions=questionService.getAllQuestions();	
-	return ResponseEntity.ok(questions);
+	public ResponseEntity<List<Question>> getAllQuestions() {
+		List<Question> questions = questionService.getAllQuestions();
+		return ResponseEntity.ok(questions);
 	}
-	
+
 	@GetMapping("/getQuestionsByExam")
-	public ResponseEntity<List<Question>> getQuestionsByExam(@RequestParam("examId") Integer examId){
+	public ResponseEntity<List<Question>> getQuestionsByExam(@RequestParam("examId") Integer examId) {
 		List<Question> questions = questionService.getQuestionsByExam(examId);
 		return ResponseEntity.ok(questions);
 	}
