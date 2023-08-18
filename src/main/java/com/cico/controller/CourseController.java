@@ -50,14 +50,11 @@ public class CourseController {
 	public ResponseEntity<?> finAllCourses(){
 		return courseService.findAllCourses();
 	}
+	
 	@PutMapping("/updateCourseApi")
-	public ResponseEntity<Course> updateCourse(@RequestParam("courseId") Integer courseId,
-			@RequestParam("technologyStackId") Integer technologyStackId, @RequestParam("courseName") String courseName,
-			@RequestParam("courseFees") String courseFees, @RequestParam("duration") String duration,
-			@RequestParam("sortDescription") String sortDescription) {
-		Course course = courseService.updateCourse(courseId, technologyStackId, courseName, courseFees, duration,
-				sortDescription);
-		return ResponseEntity.status(HttpStatus.CREATED).body(course);
+	public ResponseEntity<?> updateCourse(@RequestBody Course course) {
+		ApiResponse updateCourse = courseService.updateCourse(course);
+		return ResponseEntity.status(HttpStatus.CREATED).body(updateCourse);
 	}
 
 	@PutMapping("/deleteCourseByIdApi")

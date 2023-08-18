@@ -29,6 +29,7 @@ public class TechnologyStackServiceImpl implements ITechnologyStackService {
 	public TechnologyStack createTechnologyStack(String technologyName, MultipartFile file) {
 
 		String fileName = fileService.uploadFileInFolder(file, filePath);
+		System.out.println(technologyName);
 		TechnologyStack technologyStack = new TechnologyStack(technologyName, fileName);
 		technologyStack.setCreatedDate(LocalDateTime.now());
 		technologyStack.setIsDeleted(false);
