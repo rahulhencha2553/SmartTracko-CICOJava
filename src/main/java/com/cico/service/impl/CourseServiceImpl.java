@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Course;
 import com.cico.model.Subject;
+import com.cico.payload.ApiResponse;
 import com.cico.payload.CourseRequest;
 import com.cico.payload.PageResponse;
 import com.cico.repository.CourseRepository;
@@ -78,39 +79,11 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public Course updateCourse(Integer courseId, Integer technologyStackId, String courseName, String courseFees,
-			String duration, String sortDescription) {
-		Course course=new Course();
-		Optional<Course> findById = courseRepository.findById(courseId);
-		course=findById.get();
-		if(technologyStackId!=null) {
-			course.setTechnologyStack(repository.findById(technologyStackId).get());
-		}else {
-			course.setTechnologyStack(course.getTechnologyStack());
-		}
-		if(!courseName.isEmpty()) {
-			course.setCourseName(courseName);	
-		}else {
-			course.setCourseName(course.getCourseName());
-		}
-		if(!courseFees.isEmpty()) {
-			course.setCourseFees(courseFees);	
-		}else {
-			course.setCourseFees(course.getCourseFees());
-		}
-		if(!duration.isEmpty()) {
-			course.setDuration(duration);	
-		}else {
-			course.setDuration(course.getDuration());
-		}
-		if(!sortDescription.isEmpty()) {
-			course.setSortDescription(sortDescription);	
-		}else {
-			course.setSortDescription(course.getSortDescription());
-		}
-		course.setCreatedDate(course.getCreatedDate());
-		course.setUpdatedDate(LocalDate.now());
-		return courseRepository.save(course);
+	public ApiResponse updateCourse(Course course) {
+		Course save = courseRepository.save(course);
+		if(Objects.nonNull(save))
+			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 
 	@Override
