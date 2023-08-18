@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Fees;
+import com.cico.model.FeesPay;
+import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
+import com.cico.service.IFeesPayService;
 import com.cico.service.IFeesService;
 import com.cico.util.AppConstants;
 
@@ -25,6 +28,8 @@ import com.cico.util.AppConstants;
 public class FeesController {
 	@Autowired
 	private IFeesService feesService;
+	@Autowired
+	private IFeesPayService feesPayService;
 
 	@PostMapping("/createStudentFees")
 	public ResponseEntity<Fees> createStudentFees(@RequestParam("studentId") Integer studentId,@RequestParam("courseId") Integer courseId,@RequestParam("finalFees") Double finalFees,@RequestParam("date") String date)
@@ -66,4 +71,17 @@ public class FeesController {
 		return feesService.feesCompleteList(page,size);
 	}
 	
+	@PostMapping("/feesPay")
+	public ResponseEntity<FeesPay> feesPay(@RequestParam("feesId") Integer feesId,@RequestParam("feesPayAmount") Double feesPayAmount,@RequestParam("payDate") String payDate,@RequestParam("recieptNo") String recieptNo,@RequestParam("description") String description)
+	{
+		FeesPay feesPay = feesPayService.feesPayService(feesId,feesPayAmount,payDate,recieptNo,description);
+		return ResponseEntity.status(HttpStatus.CREATED).body(feesPay);
+	}
+	
+	@GetMapping("/feesPayList")
+	public PageResponse<FeesResponse> feesPayList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size)
+	{
+		return feesPayService.feesPayList(page,size);
+	}
 }
