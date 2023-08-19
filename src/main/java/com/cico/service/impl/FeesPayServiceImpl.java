@@ -41,17 +41,21 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		
      	Fees findByFeesId = feesRepository.findByFeesId(feesId);
 		
-     	if(findByFeesId.getRemainingFees()!=0) {
-     		
+     	if(findByFeesId.getRemainingFees()!=0) {	
 		feesPay.setFees(feesRepository.findById(feesId).get());
 		feesPay.setFeesPayAmount(feesPayAmount);
 		Fees fees=feesPay.getFees();
 		fees.setRemainingFees(fees.getRemainingFees()-feesPay.getFeesPayAmount()); 
 		fees.setFeesPaid(fees.getFinalFees()-fees.getRemainingFees());
 		feesRepository.save(fees);
+		if(findByFeesId.getRemainingFees()==0) {
+			feesRepository.updateIsCompleted(feesId);
+     	}
 		return feesPayRepository.save(feesPay);
      	}
-		throw new ResourceNotFoundException("No Dues Found");
+     	
+     	throw new ResourceNotFoundException("Fees Not Found");
+		
 	}
 
 	@Override
