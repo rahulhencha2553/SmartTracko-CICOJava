@@ -22,4 +22,6 @@ public interface IFeesService {
 
 	public PageResponse<FeesResponse> feesCompleteList(Integer page, Integer size);
 
+	public Fees updateFees(Fees fees);
+
 }

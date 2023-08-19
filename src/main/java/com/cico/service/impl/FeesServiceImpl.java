@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +51,7 @@ public class FeesServiceImpl implements IFeesService {
 		fees.setStudent(studentRepository.findById(studentId).get());
 		fees.setCourse(courseRepository.findByCourseId(courseId).get());
 		fees.setRemainingFees(finalFees);
+		fees.setFeesPaid(0.0);
 		fees.setCreatedDate(LocalDate.now());
 		fees.setUpdatedDate(LocalDate.now());
 		return  feesRepository.save(fees);
@@ -109,6 +111,19 @@ public class FeesServiceImpl implements IFeesService {
 		}
 		List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesResponse[].class));
 		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+	}
+
+	@Override
+	public Fees updateFees(Fees fees) {
+		Fees feesData = feesRepository.findByFeesId(fees.getFeesId());
+		if(Objects.nonNull(feesData)) {
+			feesData.setFinalFees(fees.getFinalFees());
+			feesData.setRemainingFees(fees.getRemainingFees());
+			feesData.setFeesPaid(fees.getFeesPaid());
+			Fees save = feesRepository.save(feesData);
+			return save;
+		}
+		return null;
 	}
 	
 	
