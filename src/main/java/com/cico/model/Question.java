@@ -2,9 +2,7 @@ package com.cico.model;
 
 import java.util.List;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -34,12 +32,11 @@ public class Question {
 	@NonNull
 	private String questionContent;
 
-	@ElementCollection
-	@CollectionTable
-	@NonNull
-	private List<String> options;
-
-	@JsonIgnore
+	private String option1;
+	private String option2;
+	private String option3;
+	private String option4;
+	
 	private String correctOption;
 	private String selectedOption;
 
@@ -48,6 +45,6 @@ public class Question {
 	@ManyToOne
 	private Chapter chapter;
 	private String questionImage;
-	private Boolean isDeleted= false;
+	private Boolean isDeleted = false;
 	private Boolean isActive = true;
 }
