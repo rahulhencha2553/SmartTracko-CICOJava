@@ -37,37 +37,72 @@ public class QuestionServiceImpl implements IQuestionService {
 	private String IMG_UPLOAD_DIR;
 
 	@Override
-	public void addQuestion(Integer chapterId,String questionContent, List<String> option, MultipartFile image, String correctOption) {
+	public Question addQuestion(Integer chapterId, String questionContent, String option1, String option2,
+			String option3, String option4, MultipartFile image, String correctOption) {
 		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(questionContent, false);
 		if (Objects.nonNull(questionObj))
 			throw new ResourceAlreadyExistException("Question already exist");
-				
+
 		questionObj = new Question();
 		questionObj.setQuestionContent(questionContent);
-		questionObj.setOptions(option);
+		questionObj.setOption1(option1);
+		questionObj.setOption2(option2);
+		questionObj.setOption3(option3);
+		questionObj.setOption4(option4);
 		questionObj.setCorrectOption(correctOption);
-		questionObj.setQuestionImage(image.getOriginalFilename());
+		// questionObj.setQuestionImage(image.getOriginalFilename());
 		Chapter chapter = chapterRepository.findById(chapterId).get();
 		questionObj.setChapter(chapter);
-		String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
-		questionObj.setQuestionImage(file);
-		questionRepo.save(questionObj);
+//		String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+//		questionObj.setQuestionImage(file);
+		return questionRepo.save(questionObj);
+
 	}
 
 	@Override
-	public void updateQuestion(Question question) {
-		questionRepo.findByQuestionIdAndIsDeleted(question.getQuestionId(), false)
+	public Question updateQuestion(Integer chapterId, Integer questionId, String questionContent, String option1,
+			String option2, String option3, String option4, String correctOption) {
+
+		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-		questionRepo.save(question);
+		if (questionContent != null)
+			question.setQuestionContent(questionContent);
+		else
+			question.setQuestionContent(question.getQuestionContent());
+		if (option1 != null)
+			question.setOption1(option1);
+		else
+			question.setOption1(question.getOption1());
+		if (option2 != null)
+			question.setOption2(option2);
+		else
+			question.setOption2(question.getOption2());
+		if (option3 != null)
+			question.setOption3(option3);
+		else
+			question.setOption3(question.getOption3());
+		if (option4 != null)
+			question.setOption4(option4);
+		else
+			question.setOption4(question.getOption4());
+
+		if (correctOption != null)
+			question.setCorrectOption(correctOption);
+		else
+			question.setCorrectOption(question.getCorrectOption());
+
+		Chapter chapter = chapterRepository.findById(chapterId).get();
+		question.setChapter(chapter);
+		return questionRepo.save(question);
 
 	}
 
 	@Override
 	public List<Question> getQuestionByChapterId(Integer chapterId) {
-		 Chapter chapter = chapterRepository.findById(chapterId).get();
-		  List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
-		  return questions;
-			
+		Chapter chapter = chapterRepository.findById(chapterId).get();
+		List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
+		return questions;
+
 	}
 
 	@Override
@@ -116,7 +151,8 @@ public class QuestionServiceImpl implements IQuestionService {
 
 	@Override
 	public Question getQuestionById(Integer questionId) {
-		 return this.questionRepo.findById(questionId).orElseThrow(()-> new ResourceNotFoundException("Question not found with this id "+questionId));
+		return this.questionRepo.findById(questionId)
+				.orElseThrow(() -> new ResourceNotFoundException("Question not found with this id " + questionId));
 	}
 
 }

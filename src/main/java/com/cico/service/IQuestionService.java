@@ -8,9 +8,9 @@ import com.cico.model.Question;
 
 public interface IQuestionService {
 
-	void addQuestion(Integer chapterId,String questionContent, List<String> option, MultipartFile image, String correctOption);
+	Question addQuestion(Integer chapterId,String questionContent,String option1,String option2, String option3,String option4,MultipartFile image, String correctOption);
 
-	void updateQuestion(Question question);
+	Question updateQuestion(Integer chapterId,Integer questionId,String questionContent,String option1,String option2, String option3,String option4, String correctOption);
 
 	List<Question> getQuestionByChapterId(Integer questionId);
 

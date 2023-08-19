@@ -51,27 +51,27 @@ public class ExamServiceImpl implements IExamService {
 
 	@Override
 	public void addQuestionsToExam(Integer examId, String question, List<String> options, MultipartFile image) {
-		Exam exam = examRepo.findByExamIdAndIsDeleted(examId, false)
-				.orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
-
-		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(question, false);
-		if (Objects.nonNull(questionObj))
-			throw new ResourceAlreadyExistException("Question already exist");
-
-		questionObj = new Question(question, options);
-
-		if (image != null) {
-			questionObj.setQuestionImage(image.getOriginalFilename());
-			fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
-		}
-
-		List<Question> questions2 = exam.getQuestions();
-
-		questions2.add(questionObj);
-
-		exam.setQuestions(questions2);
-
-		examRepo.save(exam);
+//		Exam exam = examRepo.findByExamIdAndIsDeleted(examId, false)
+//				.orElseThrow(() -> new ResourceNotFoundException("Exam not found"));
+//
+//		Question questionObj = questionRepo.findByQuestionContentAndIsDeleted(question, false);
+//		if (Objects.nonNull(questionObj))
+//			throw new ResourceAlreadyExistException("Question already exist");
+//
+//		questionObj = new Question(question, options);
+//
+//		if (image != null) {
+//			questionObj.setQuestionImage(image.getOriginalFilename());
+//			fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+//		}
+//
+//		List<Question> questions2 = exam.getQuestions();
+//
+//		questions2.add(questionObj);
+//
+//		exam.setQuestions(questions2);
+//
+//		examRepo.save(exam);
 
 	}
 

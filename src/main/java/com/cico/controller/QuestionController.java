@@ -3,9 +3,9 @@ package com.cico.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,9 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Question;
 import com.cico.service.IQuestionService;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
 @RestController
 @RequestMapping("/question")
 @CrossOrigin("*")
@@ -27,18 +24,27 @@ public class QuestionController {
 	@Autowired
 	IQuestionService questionService;
 
-	@PostMapping("/addQuestion")
-	public ResponseEntity<String> addQuestion(@RequestParam("chapterId") Integer chapterId,
-			@RequestParam("questionContent") String questionContent, @RequestParam("options") List<String> options,
-			@RequestParam("image") MultipartFile image, @RequestParam("correctOption") String correctOption) {
-		questionService.addQuestion(chapterId, questionContent, options, image, correctOption);
-		return ResponseEntity.ok("Question Added");
+	@PostMapping("/addQuestionToChapter")
+	public ResponseEntity<Question> addQuestion(@RequestParam("chapterId") Integer chapterId,
+			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
+			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
+			@RequestParam("option4") String option4,
+			@RequestParam(name = "image", required = false) MultipartFile image,
+			@RequestParam("correctOption") String correctOption) {
+		Question question = questionService.addQuestion(chapterId, questionContent, option1, option2, option3, option4,
+				image, correctOption);
+		return new ResponseEntity<Question>(question, HttpStatus.OK);
 	}
 
-	@PutMapping("/updateQuestionById")
-	public ResponseEntity<String> updateQuestion(@RequestBody Question question) {
-		questionService.updateQuestion(question);
-		return ResponseEntity.ok("Question Updated");
+	@PutMapping("/updateQuestionById")// k
+	public ResponseEntity<Question> updateQuestion(@RequestParam("chapterId") Integer chapterId,
+			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
+			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
+			@RequestParam("option4") String option4,
+			@RequestParam("questionId")Integer questionId,
+			@RequestParam("correctOption") String correctOption) {
+		Question updateQuestion = questionService.updateQuestion(chapterId,questionId,questionContent,option1,option2,option3,option4,correctOption);
+		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
 	}
 
 	@GetMapping("/getAllQuestionByChapterId") // k
@@ -56,7 +62,7 @@ public class QuestionController {
 	@PutMapping("/deleteQuestionById")
 	public ResponseEntity<String> deleteQuestion(@RequestParam("questionId") Integer questionId) {
 		questionService.deleteQuestion(questionId);
-		return ResponseEntity.ok("Question Deleted");
+		return new ResponseEntity<String>("SUCCESS",HttpStatus.OK);
 	}
 
 	@PutMapping("/updateQuestionStatus")
