@@ -3,9 +3,12 @@ package com.cico.repository;
 import java.time.LocalDate;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.access.method.P;
@@ -59,6 +62,12 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
 			+ "WHERE YEAR(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
 	List<Object[]> getMonthWisePresentForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
+
+	
+	@Transactional
+	@Modifying
+	@Query("DELETE FROM Attendance a WHERE a.studentId=:id AND a.checkInDate=:now")
+	public void deleteAttendanceToday(@Param("id") Integer id, @Param("now") LocalDate now);
 	
 	//@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
 //			+ "WHERE MONTH(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
