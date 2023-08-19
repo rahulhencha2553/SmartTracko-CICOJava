@@ -263,6 +263,7 @@ public class StudentServiceImpl implements IStudentService {
 							System.out.println("1 CASE");
 							studentByUserId.setInUseDeviceId(deviceId);
 							studentByUserId.setFcmId(fcmId);
+							studentByUserId.setDeviceType(deviceType);
 							studentByUserId.setIsDeviceApproved("Approved");
 							Student student = studRepo.save(studentByUserId);
 							studentResponse.setStudentData(student);
@@ -422,7 +423,7 @@ public class StudentServiceImpl implements IStudentService {
 
 								StudentWorkReport studentWorkReport = new StudentWorkReport();
 								studentWorkReport.setAttendanceId(saveAttendenceCheckOutData.getAttendanceId());
-								if (!attachment.getOriginalFilename().equals("")) {
+								if (Objects.nonNull(attachment)&&(!attachment.getOriginalFilename().equals(""))) {
 									String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 									studentWorkReport.setAttachment(workImageName);
 								}
@@ -588,7 +589,7 @@ public class StudentServiceImpl implements IStudentService {
 
 					StudentWorkReport studentWorkReport = new StudentWorkReport();
 					studentWorkReport.setAttendanceId(saveAttdance.getAttendanceId());
-					if (!attachment.getOriginalFilename().equals("")) {
+					if (Objects.nonNull(attachment)&&(!attachment.getOriginalFilename().equals(""))) {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
@@ -743,7 +744,7 @@ public class StudentServiceImpl implements IStudentService {
 					Attendance updateAttendance = attendenceRepository.save(attendance);
 					StudentWorkReport studentWorkReport = new StudentWorkReport(0, attendance.getAttendanceId(),
 							workReport, LocalDateTime.now());
-					if (!attachment.getOriginalFilename().equals("")) {
+					if (Objects.nonNull(attachment)&&(!attachment.getOriginalFilename().equals(""))) {
 						String workImageName = fileService.uploadFileInFolder(attachment, WORK_UPLOAD_DIR);
 						studentWorkReport.setAttachment(workImageName);
 					}
@@ -1211,6 +1212,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> getStudentOverAllAttendanceData(Integer studentId) {
+		Map<String, Object> response = new HashMap<>();
 		List<AttendanceLogResponse> attendanceList = new ArrayList<>();
 		List<Attendance> findAllByStudentId = attendenceRepository.findAllByStudentId(studentId);
 		for (Attendance attendance : findAllByStudentId) {
@@ -1227,6 +1229,7 @@ public class StudentServiceImpl implements IStudentService {
 			}
 			attendanceList.add(logResponse);
 		}
+		
 
 		List<Leaves> leavesList = leaveRepository.getStudentAllLeavesAndApproved(studentId, 1);
 		for (Leaves leaves : leavesList) {
@@ -1240,8 +1243,11 @@ public class StudentServiceImpl implements IStudentService {
 				attendanceList.add(logResponse);
 			}
 		}
-		attendanceList.sort((o1, o2) -> o1.getDate().compareTo(o2.getDate()));
-		return new ResponseEntity<>(attendanceList, HttpStatus.OK);
+		response.put("presentsCount",findAllByStudentId.size());
+		response.put("leavesCount",leavesList.size());
+		attendanceList.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+		response.put("attendanceList",attendanceList);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	public static Map<String, Integer> countTotalDaysInMonth(int month) {
@@ -1436,6 +1442,12 @@ public class StudentServiceImpl implements IStudentService {
 		// TODO Auto-generated method stub
 	   List<Student> findAll = studRepo.findAllByOrderByStudentIdDesc();
 	   return new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteTodayAttendance(Integer id) {
+		attendenceRepository.deleteAttendanceToday(id,LocalDate.now());
+		return new ResponseEntity<>(AppConstants.DELETE_SUCCESS,HttpStatus.OK);
 	}
 
 }

@@ -2,6 +2,7 @@ package com.cico.service.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -21,11 +22,13 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.cico.model.Attendance;
 import com.cico.model.QrManage;
 import com.cico.model.Student;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.JwtResponse;
 import com.cico.payload.QRResponse;
+import com.cico.repository.AttendenceRepository;
 import com.cico.repository.QrManageRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.security.JwtUtil;
@@ -52,6 +55,9 @@ public class QRServiceImpl implements IQRService {
 	
 	@Value("${cico.key}")
 	private String qrSecretKey;
+	
+	@Autowired
+	private AttendenceRepository attendenceRepository;
 
 	@Autowired
 	private SimpMessageSendingOperations messageSendingOperations;
@@ -71,7 +77,7 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?>  QRLogin(String qrKey, String token) {
-		qrKey = "CICO#"+qrKey;
+		
 		String[] split = qrKey.split("#");
 		
 		if(split[0].equals("CICO")){
@@ -113,9 +119,13 @@ public class QRServiceImpl implements IQRService {
 	
 	public ResponseEntity<?> getLinkedDeviceData(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
+		Integer studentId = Integer.parseInt(
+				util.getHeader(headers.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
+		Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(studentId, LocalDate.now());
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
 		Map<String, Object> response = new HashMap<>();
 		response.put("loginDevice", findByUserId);
+		response.put("attendance", attendance);
 		response.put("loginAt",findByUserId != null ? findByUserId.getLoginAt().toString().replace('T',' '):"");
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 		return new ResponseEntity<>(response,HttpStatus.OK);

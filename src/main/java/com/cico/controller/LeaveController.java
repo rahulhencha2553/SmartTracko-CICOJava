@@ -47,9 +47,9 @@ public class LeaveController {
 	}
 
 	@GetMapping("/getStudentLeaves")
-	public ResponseEntity<?> getStudentLeaves(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+	public ResponseEntity<?> getStudentLeaves(@RequestParam("studentId") Integer studentId,
 			@RequestParam(name="page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page, @RequestParam(name="size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
-		return leaveService.getStudentLeaves(header, page, size);
+		return leaveService.getStudentLeaves(studentId, page, size);
 	}
 
 	@PostMapping("/deleteStudentLeave")
@@ -67,9 +67,9 @@ public class LeaveController {
 	}
 
 	@GetMapping("/studentLeaveMonthFilter")
-	public ResponseEntity<?> studentLeaveMonthFilter(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+	public ResponseEntity<?> studentLeaveMonthFilter(@RequestParam("studentId")Integer studentId,
 			@RequestParam("monthNo") Integer monthNo) {
-		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilter(header, monthNo);
+		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilter(studentId, monthNo);
 		return studentLeaveMonthFilter;
 	}
 	

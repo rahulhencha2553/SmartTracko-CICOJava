@@ -12,12 +12,12 @@ public interface ILeaveService {
 	public ResponseEntity<?> addStudentLeave(HttpHeaders header, Integer leaveTypeId, String leaveStartDate, String leaveEndDate,
 			String leaveReason, String leaveDayType, String halfDayType);
 
-	public ResponseEntity<?> getStudentLeaves(HttpHeaders header,Integer page, Integer size);
+	public ResponseEntity<?> getStudentLeaves(Integer studentId,Integer page, Integer size);
 
 	public Map<String, Object> deleteStudentLeave(HttpHeaders header, Integer leaveId);
 
 	public Map<String, Object> retractStudentLeave(HttpHeaders header, Integer leaveId);
 
-	public ResponseEntity<?> studentLeaveMonthFilter(HttpHeaders header, Integer monthNo);
+	public ResponseEntity<?> studentLeaveMonthFilter(Integer studentId, Integer monthNo);
 
 }

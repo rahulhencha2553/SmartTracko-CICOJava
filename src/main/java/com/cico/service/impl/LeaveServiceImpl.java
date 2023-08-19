@@ -156,16 +156,10 @@ public class LeaveServiceImpl implements ILeaveService {
 	}
 
 	@Override
-	public ResponseEntity<?> getStudentLeaves(HttpHeaders header, Integer page, Integer size) {
+	public ResponseEntity<?> getStudentLeaves(Integer studentId, Integer page, Integer size) {
 		Map<String, Object> response = new HashMap<>();
-		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
-		Integer studentId = Integer.parseInt(
-				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
-
-		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
 		List<LeaveResponse> leavesResponse = new ArrayList<>();
 
-		if (validateToken) {
 			Page<Leaves> StudentLeaves = leavesRepository.findStudentLeaves(studentId,
 					PageRequest.of(page, size, Sort.by(Direction.DESC, "leaveId")));
 
@@ -173,8 +167,7 @@ public class LeaveServiceImpl implements ILeaveService {
 				LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
 				responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
 				leavesResponse.add(responseData);
-				System.out.println("22222222222222222222222222222" + leavesResponse);
-				System.out.println("\n");
+				
 			}
 
 			int totalLeaves = leavesRepository.countByStudentId(studentId);
@@ -189,9 +182,6 @@ public class LeaveServiceImpl implements ILeaveService {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-		}
-		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override
@@ -259,18 +249,10 @@ public class LeaveServiceImpl implements ILeaveService {
 	}
 
 	@Override
-	public ResponseEntity<?> studentLeaveMonthFilter(HttpHeaders header, Integer monthNo) {
+	public ResponseEntity<?> studentLeaveMonthFilter(Integer studentId, Integer monthNo) {
 		Map<String, Object> response = new HashMap<>();
-		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
-		Integer studentId = Integer.parseInt(
-				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
-
-		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
 		List<LeaveResponse> leavesResponse = new ArrayList<>();
-
-		if (validateToken) {
 			  Page<Leaves> StudentLeaves = leavesRepository.findByStudentIdAndMonthNo(studentId, monthNo,PageRequest.of(0, 30, Sort.by(Direction.DESC, "leaveId")));
-			  	System.out.println("444444444444444444444444444444"+StudentLeaves.getContent());
 			for (Leaves leaves : StudentLeaves.getContent()) {
 				LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
 				responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
@@ -289,9 +271,6 @@ public class LeaveServiceImpl implements ILeaveService {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
-		}
-		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
-		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override

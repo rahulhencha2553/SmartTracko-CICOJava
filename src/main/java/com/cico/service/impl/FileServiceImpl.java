@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -57,7 +58,7 @@ public class FileServiceImpl implements IFileService{
 	public InputStream getImages(String fileName,String destination){
 		//System.out.println(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
 		try {
-			return new FileInputStream(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
+				return new FileInputStream(System.getProperty("user.dir")+globalImagesPath+destination+File.separator+fileName);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

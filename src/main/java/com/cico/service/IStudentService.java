@@ -88,5 +88,7 @@ public interface IStudentService {
 
 	public ResponseEntity<?> allStudent();
 
+	public ResponseEntity<?> deleteTodayAttendance(Integer id);
+
 
 }
