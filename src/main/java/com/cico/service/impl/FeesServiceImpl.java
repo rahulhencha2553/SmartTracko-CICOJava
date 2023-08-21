@@ -5,13 +5,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -124,6 +128,16 @@ public class FeesServiceImpl implements IFeesService {
 			return save;
 		}
 		return null;
+	}
+
+	@Override
+	public ResponseEntity<?> getFeesCollectionMonthAndYearWise(int year) {
+		 Map<Integer,Double>response = new HashMap<>();
+         List<Object[]> totalFeesPaidByMonthAndYear = feesRepository.getTotalFeesPaidByMonth(year);
+		 for(Object[] row :totalFeesPaidByMonthAndYear) {
+			 response.put((Integer)row[0],(Double)row[1]);
+		 }
+		 return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
 	

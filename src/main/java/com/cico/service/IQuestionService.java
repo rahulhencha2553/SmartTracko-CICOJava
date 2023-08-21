@@ -10,9 +10,9 @@ public interface IQuestionService {
 
 	Question addQuestion(Integer chapterId,String questionContent,String option1,String option2, String option3,String option4,MultipartFile image, String correctOption);
 
-	Question updateQuestion(Integer chapterId,Integer questionId,String questionContent,String option1,String option2, String option3,String option4, String correctOption);
+	Question updateQuestion(Integer chapterId,Integer questionId,String questionContent,String option1,String option2, String option3,String option4, String correctOption,MultipartFile image);
 
-	List<Question> getQuestionByChapterId(Integer questionId);
+	List<Question> getAllQuestionByChapterId(Integer chapterId);
 
 	void deleteQuestion(Integer questionId);
 

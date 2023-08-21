@@ -1374,19 +1374,12 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(Integer year) {
 		List<Object[]> monthwiseAdmissionCount = studRepo.getMonthwiseAdmissionCountForYear(year);
-		List<Long> onlyCount = new ArrayList<>();
-		List<String> months = new ArrayList<>();
-
+		Map<Integer, Long> response = new HashMap<>();
 		for (Object[] object : monthwiseAdmissionCount) {
 			int monthNumber = ((Number) object[0]).intValue();
-			String monthName = Month.of(monthNumber).getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
 			Long admissionCount = ((Long) object[1]);
-			onlyCount.add(admissionCount);
-			months.add(monthName);
+			response.put(monthNumber,admissionCount);
 		}
-		Map<String, Object> response = new HashMap<>();
-		response.put("months", months);
-		response.put("count", onlyCount);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
@@ -1400,16 +1393,16 @@ public class StudentServiceImpl implements IStudentService {
 		List<Object[]> presentForYear = attendenceRepository.getMonthWisePresentForYear(year, studentId);
 		List<Object[]> leaveForYear = leaveRepository.getMonthWiseLeavesForYear(year, studentId);
 
-		for (Object[] object : presentForYear) {
+		for (Object[] object : presentForYear)
 			present.put((Integer) object[0], (Long) object[1]);
-		}
 
-		for (Object[] object : leaveForYear) {
+		for (Object[] object : leaveForYear) 
 			leavesCount.put((Integer) object[0], (Long) object[1]);
-		}
+		
+		
         
-		
-		
+//		LocalDate joinDate = studRepo.findById(studentId).get().getJoinDate();
+//		
 //		for(int i=1;i<=12;i++) {
 //			LocalDate firstDayOfMonth = LocalDate.of(year, i, 1);
 //			YearMonth yearMonth = YearMonth.of(year, i);
@@ -1421,7 +1414,7 @@ public class StudentServiceImpl implements IStudentService {
 //			
 //			while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
 //					&& !currentDay.isAfter(lastDayOfMonth)) {
-//				if (!present.contains(currentDay.getDayOfMonth())
+//				if (!present.hash(currentDay.getDayOfMonth())
 //						&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 //					absent.add(currentDay.getDayOfMonth());
 //				}

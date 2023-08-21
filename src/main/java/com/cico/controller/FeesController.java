@@ -1,6 +1,7 @@
 package com.cico.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import com.cico.service.IFeesPayService;
 import com.cico.service.IFeesService;
 import com.cico.util.AppConstants;
 
+import io.swagger.models.Response;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
@@ -94,5 +96,9 @@ public class FeesController {
 		Fees updateFees = feesService.updateFees(fees);
 		return new ResponseEntity<>(updateFees,HttpStatus.OK);
 	}
-
+   @GetMapping("/getFeesCollectionMonthAndYearWise")
+   public ResponseEntity<?>getFeesCollectionMonthAndYearWise(@RequestParam("year")Integer year){
+	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getFeesCollectionMonthAndYearWise(year);
+     return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
+   }
 }
