@@ -32,6 +32,7 @@ public class FeesPay {
 	private String description;
 	private LocalDateTime createDate;
 	private LocalDateTime updatedDate;
+	
 	public FeesPay(Double feesPayAmount, LocalDate payDate, String recieptNo, String description) {
 		super();
 		this.feesPayAmount = feesPayAmount;

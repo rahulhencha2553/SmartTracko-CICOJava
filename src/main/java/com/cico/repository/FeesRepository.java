@@ -49,4 +49,7 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 		List<Object[]> getTotalFeesPaidByMonth(@Param("year") int year);
 
 
+	@Query("SELECT f From Fees f where f.student.studentId =:studentId")
+	Fees findFeesByStudentId(@Param("studentId") Integer studentId);
+
 }
