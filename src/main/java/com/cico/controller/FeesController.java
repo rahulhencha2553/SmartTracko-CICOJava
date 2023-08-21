@@ -9,20 +9,19 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Fees;
 import com.cico.model.FeesPay;
-import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.IFeesPayService;
 import com.cico.service.IFeesService;
 import com.cico.util.AppConstants;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 
 
 @RestController
@@ -93,6 +92,11 @@ public class FeesController {
 	{
 		Fees updateFees = feesService.updateFees(fees);
 		return new ResponseEntity<>(updateFees,HttpStatus.OK);
+	}
+	
+	@GetMapping("/getAllTransectionsByStudentId")
+	public ResponseEntity<?> getAllTransectionsOfStudent(@RequestParam("studentId") Integer studentId){
+		return feesPayService.getAllTransectionByStudentId(studentId);
 	}
 
 }

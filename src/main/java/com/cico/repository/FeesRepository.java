@@ -43,4 +43,7 @@ public interface FeesRepository extends JpaRepository<Fees, Integer>{
 	public int  updateIsCompleted(@Param("feesId") Integer feesId);
 //	Fees findByFeesId(Integer feesId);
 
+	@Query("SELECT f From Fees f where f.student.studentId =:studentId")
+	Fees findFeesByStudentId(@Param("studentId") Integer studentId);
+
 }
