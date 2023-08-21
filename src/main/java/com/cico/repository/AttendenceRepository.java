@@ -11,11 +11,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Repository;
 
 import com.cico.model.Attendance;
-import com.cico.payload.MonthWiseAttendanceDTO;
 
 @Repository
 public interface AttendenceRepository extends JpaRepository<Attendance, Integer> {
@@ -35,10 +33,6 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 	
 	@Query("SELECT a FROM Attendance a WHERE a.studentId=:id And a.checkInTime IS NOT NULL And a.checkOutTime IS NOT NULL")
 	public List<Attendance>findAllByStudentId(@Param("id") Integer id);
-
-
-//	@Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  IN ("
-//			+ "SELECT a.studentId FROM Attendance a WHERE a.checkInDate = :currentDate)")
 	
 	@Query("SELECT s.fullName, s.mobile, s.profilePic, s.applyForCourse, s.studentId, a.checkInTime "
 	        + "FROM Student s "
@@ -63,21 +57,10 @@ public Attendance findByStudentIdAndCheckInDate(Integer studentId,LocalDate date
 			+ "WHERE YEAR(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
 	List<Object[]> getMonthWisePresentForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
 
-	
 	@Transactional
 	@Modifying
 	@Query("DELETE FROM Attendance a WHERE a.studentId=:id AND a.checkInDate=:now")
 	public void deleteAttendanceToday(@Param("id") Integer id, @Param("now") LocalDate now);
-	
-	//@Query("SELECT MONTH(a.checkInDate) AS month, COUNT(a.attendanceId) AS count FROM Attendance a "
-//			+ "WHERE MONTH(a.checkInDate) = :year AND a.studentId=:studentId GROUP BY MONTH(a.checkInDate)")
-//	 @Query("SELECT s.fullName, s.mobile ,s.profilePic ,s.applyForCourse , s.studentId FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
-//			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = DATE(:todaysdate))  ")
-	
-//	
-//	@Query("SELECT NEW com.cico.payload.MonthWiseAttendanceDTO(MONTH(a.checkInDate), COUNT(a.attendanceId)) "
-//	        + "FROM Attendance a WHERE YEAR(a.checkInDate) = :year AND a.studentId = :studentId GROUP BY MONTH(a.checkInDate)")
-//	List<MonthWiseAttendanceDTO> getMonthWisePresentForYear(@Param("year") Integer year, @Param("studentId") Integer studentId);
 
 }
 

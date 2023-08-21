@@ -48,5 +48,8 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 		       "GROUP BY MONTH(f.date) ")
 		List<Object[]> getTotalFeesPaidByMonth(@Param("year") int year);
 
+  
+		@Query("SELECT SUM(f.finalFees) AS totalfees, SUM(f.remainingFees) AS pending, SUM(f.feesPaid) AS collected FROM Fees f")
+		public List<Object[]> getTotalFeeCollection();
 
 }

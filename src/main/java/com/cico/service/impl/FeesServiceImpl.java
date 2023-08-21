@@ -139,7 +139,15 @@ public class FeesServiceImpl implements IFeesService {
 		 }
 		 return new ResponseEntity<>(response,HttpStatus.OK);
 	}
-	
-	
 
+	@Override
+	public ResponseEntity<?> getTotalfeesCollection() {
+	 Map<String,Object>feeResponse = new HashMap<>();
+	 List< Object[] > row = feesRepository.getTotalFeeCollection();
+	     feeResponse.put("Collected", row.get(0)[0]); 
+	   feeResponse.put("reamaining",row.get(0)[1]);
+	     feeResponse.put("feesPaid", row.get(0)[2]);
+	    return new ResponseEntity<>(feeResponse,HttpStatus.OK);
+	}  
+	
 }

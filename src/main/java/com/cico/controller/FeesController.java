@@ -101,4 +101,9 @@ public class FeesController {
 	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getFeesCollectionMonthAndYearWise(year);
      return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
    }
+   @GetMapping("/getTotalFeesCollection")
+   public ResponseEntity<?>getTotalfeesCollection(){
+	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getTotalfeesCollection();
+     return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
+   }
 }
