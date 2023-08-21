@@ -28,7 +28,7 @@ public class Question {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer questionId;
 
-	@Column(unique = true)
+	@Column(unique = true,columnDefinition = "longtext")
 	@NonNull
 	private String questionContent;
 
