@@ -1,6 +1,5 @@
 package com.cico.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cico.model.LeaveType;
-import com.cico.model.Leaves;
-import com.cico.payload.LeaveResponse;
-import com.cico.payload.PageResponse;
 import com.cico.service.ILeaveService;
 import com.cico.util.AppConstants;
 
@@ -45,9 +40,15 @@ public class LeaveController {
 		return leaveService.addStudentLeave(header, leaveTypeId, leaveStartDate,
 				leaveEndDate, leaveReason, leaveDayType, halfDayType);
 	}
-
+	
 	@GetMapping("/getStudentLeaves")
-	public ResponseEntity<?> getStudentLeaves(@RequestParam("studentId") Integer studentId,
+	public ResponseEntity<?> getStudentLeavesByToken(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+			@RequestParam(name="page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page, @RequestParam(name="size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
+		return leaveService.getStudentLeavesByToken(header, page, size);
+	}
+
+	@GetMapping("/getStudentLeavesById")
+	public ResponseEntity<?> getStudentLeavesById(@RequestParam("studentId") Integer studentId,
 			@RequestParam(name="page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page, @RequestParam(name="size",defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
 		return leaveService.getStudentLeaves(studentId, page, size);
 	}
@@ -66,10 +67,17 @@ public class LeaveController {
 		return ResponseEntity.ok(retractStudentLeave);
 	}
 
-	@GetMapping("/studentLeaveMonthFilter")
-	public ResponseEntity<?> studentLeaveMonthFilter(@RequestParam("studentId")Integer studentId,
+	@GetMapping("/studentLeaveMonthFilterById")
+	public ResponseEntity<?> studentLeaveMonthFilterById(@RequestParam("studentId")Integer studentId,
 			@RequestParam("monthNo") Integer monthNo) {
-		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilter(studentId, monthNo);
+		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilterById(studentId, monthNo);
+		return studentLeaveMonthFilter;
+	}
+	
+	@GetMapping("/studentLeaveMonthFilter")
+	public ResponseEntity<?> studentLeaveMonthFilterByToken(@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
+			@RequestParam("monthNo") Integer monthNo) {
+		 ResponseEntity<?> studentLeaveMonthFilter = leaveService.studentLeaveMonthFilterByToken(header, monthNo);
 		return studentLeaveMonthFilter;
 	}
 	

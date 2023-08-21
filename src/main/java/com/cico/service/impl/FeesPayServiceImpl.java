@@ -11,17 +11,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Fees;
 import com.cico.model.FeesPay;
-import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.repository.FeesPayRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.service.IFeesPayService;
+
 
 @Service
 public class FeesPayServiceImpl implements IFeesPayService {
@@ -71,5 +73,14 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		
 		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(),fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
+
+	@Override
+	public ResponseEntity<?> getAllTransectionByStudentId(Integer studentId) {
+		Fees fees = feesRepository.findFeesByStudentId(studentId);
+		List<FeesPay> findByFees = feesPayRepository.findByFees(fees);
+		return new ResponseEntity<>(findByFees,HttpStatus.OK);
+	}
 	
 }
+
+
