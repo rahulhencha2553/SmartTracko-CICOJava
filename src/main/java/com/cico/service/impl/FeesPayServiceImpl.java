@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Fees;
 import com.cico.model.FeesPay;
+import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.repository.FeesPayRepository;
@@ -40,7 +42,6 @@ public class FeesPayServiceImpl implements IFeesPayService {
 			String description) {
 		
 		FeesPay feesPay=new FeesPay(feesPayAmount,LocalDate.parse(payDate) , recieptNo, description);
-		
      	Fees findByFeesId = feesRepository.findByFeesId(feesId);
 		
      	if(findByFeesId.getRemainingFees()!=0) {	
@@ -77,8 +78,14 @@ public class FeesPayServiceImpl implements IFeesPayService {
 	@Override
 	public ResponseEntity<?> getAllTransectionByStudentId(Integer studentId) {
 		Fees fees = feesRepository.findFeesByStudentId(studentId);
+		List<FeesPayResponse> payResponse = new ArrayList<>();
 		List<FeesPay> findByFees = feesPayRepository.findByFees(fees);
-		return new ResponseEntity<>(findByFees,HttpStatus.OK);
+		
+		for (FeesPay feesPay : findByFees) {
+			 payResponse.add(mapper.map(feesPay, FeesPayResponse.class));
+		}
+		
+		return new ResponseEntity<>(payResponse,HttpStatus.OK);
 	}
 	
 }
