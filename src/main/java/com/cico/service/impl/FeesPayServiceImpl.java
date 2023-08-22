@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
@@ -22,6 +25,7 @@ import com.cico.payload.PageResponse;
 import com.cico.repository.FeesPayRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.service.IFeesPayService;
+
 
 @Service
 public class FeesPayServiceImpl implements IFeesPayService {
@@ -38,7 +42,6 @@ public class FeesPayServiceImpl implements IFeesPayService {
 			String description) {
 		
 		FeesPay feesPay=new FeesPay(feesPayAmount,LocalDate.parse(payDate) , recieptNo, description);
-		
      	Fees findByFeesId = feesRepository.findByFeesId(feesId);
 		
      	if(findByFeesId.getRemainingFees()!=0) {	
@@ -71,5 +74,20 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		
 		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(),fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 	}
+
+	@Override
+	public ResponseEntity<?> getAllTransectionByStudentId(Integer studentId) {
+		Fees fees = feesRepository.findFeesByStudentId(studentId);
+		List<FeesPayResponse> payResponse = new ArrayList<>();
+		List<FeesPay> findByFees = feesPayRepository.findByFees(fees);
+		
+		for (FeesPay feesPay : findByFees) {
+			 payResponse.add(mapper.map(feesPay, FeesPayResponse.class));
+		}
+		
+		return new ResponseEntity<>(payResponse,HttpStatus.OK);
+	}
 	
 }
+
+

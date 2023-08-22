@@ -183,6 +183,43 @@ public class LeaveServiceImpl implements ILeaveService {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 	}
+	
+	@Override
+	public ResponseEntity<?> getStudentLeavesByToken(HttpHeaders header, Integer page, Integer size) {
+		Map<String, Object> response = new HashMap<>();
+		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
+		Integer studentId = Integer.parseInt(
+				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
+
+		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
+		List<LeaveResponse> leavesResponse = new ArrayList<>();
+
+		if (validateToken) {
+			Page<Leaves> StudentLeaves = leavesRepository.findStudentLeaves(studentId,
+					PageRequest.of(page, size, Sort.by(Direction.DESC, "leaveId")));
+
+			for (Leaves leaves : StudentLeaves.getContent()) {
+				LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
+				responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
+				leavesResponse.add(responseData);
+			}
+
+			int totalLeaves = leavesRepository.countByStudentId(studentId);
+			if (Objects.nonNull(StudentLeaves)) {
+				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				response.put("leavesData",
+						new PageResponse<>(leavesResponse, StudentLeaves.getNumber(), StudentLeaves.getSize(),
+								StudentLeaves.getTotalElements(), StudentLeaves.getTotalPages(),
+								StudentLeaves.isLast()));
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			} else {
+				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+	}
 
 	@Override
 	public Map<String, Object> deleteStudentLeave(HttpHeaders header, Integer leaveId) {
@@ -249,7 +286,7 @@ public class LeaveServiceImpl implements ILeaveService {
 	}
 
 	@Override
-	public ResponseEntity<?> studentLeaveMonthFilter(Integer studentId, Integer monthNo) {
+	public ResponseEntity<?> studentLeaveMonthFilterById(Integer studentId, Integer monthNo) {
 		Map<String, Object> response = new HashMap<>();
 		List<LeaveResponse> leavesResponse = new ArrayList<>();
 			  Page<Leaves> StudentLeaves = leavesRepository.findByStudentIdAndMonthNo(studentId, monthNo,PageRequest.of(0, 30, Sort.by(Direction.DESC, "leaveId")));
@@ -271,6 +308,42 @@ public class LeaveServiceImpl implements ILeaveService {
 				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
+	}
+	
+	
+	@Override
+	public ResponseEntity<?> studentLeaveMonthFilterByToken(HttpHeaders header, Integer monthNo) {
+		Map<String, Object> response = new HashMap<>();
+		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
+		Integer studentId = Integer.parseInt(
+				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
+
+		boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), username);
+		List<LeaveResponse> leavesResponse = new ArrayList<>();
+
+		if (validateToken) {
+			  Page<Leaves> StudentLeaves = leavesRepository.findByStudentIdAndMonthNo(studentId, monthNo,PageRequest.of(0, 30, Sort.by(Direction.DESC, "leaveId")));
+			for (Leaves leaves : StudentLeaves.getContent()) {
+				LeaveResponse responseData = mapper.map(leaves, LeaveResponse.class);
+				responseData.setLeaveType(leaveTypeRepository.findById(leaves.getLeaveTypeId()).get());
+				leavesResponse.add(responseData);
+			}
+
+			int totalLeaves = leavesRepository.countByStudentId(studentId);
+			if (Objects.nonNull(StudentLeaves)) {
+				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+				response.put("leavesData",
+						new PageResponse<>(leavesResponse, StudentLeaves.getNumber(), StudentLeaves.getSize(),
+								StudentLeaves.getTotalElements(), StudentLeaves.getTotalPages(),
+								StudentLeaves.isLast()));
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			} else {
+				response.put(AppConstants.MESSAGE, AppConstants.FAILED);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+		}
+		response.put(AppConstants.MESSAGE, AppConstants.UNAUTHORIZED);
+		return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override

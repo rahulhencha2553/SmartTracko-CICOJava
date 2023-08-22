@@ -21,11 +21,11 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 
 	Page<Fees> findAllByIsCompleted(boolean b, Pageable pageable);
 
-	@Query("SELECT f FROM Fees f WHERE f.student IN (SELECT s FROM Student s WHERE s.fullName LIKE %:fullName%)")
-	List<Fees> findByStudentFullNameContaining(@Param("fullName") String fullName);
+	@Query("SELECT f FROM Fees f WHERE f.student.fullName LIKE %:fullName% AND f.isCompleted =:isCompleted")
+	List<Fees> findByStudentFullNameContaining(@Param("fullName") String fullName,@Param("isCompleted") Boolean isCompleted);
 
-	@Query("SELECT f FROM Fees f WHERE f.date BETWEEN :startDate AND :endDate")
-	List<Fees> findFeesByGivenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+	@Query("SELECT f FROM Fees f WHERE f.date BETWEEN :startDate AND :endDate AND f.isCompleted =:isCompleted")
+	List<Fees> findFeesByGivenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,@Param("isCompleted") Boolean isCompleted);
 
 	Fees findByFeesId(Integer feesId);
 
@@ -42,14 +42,17 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 	@Query("UPDATE Fees f SET f.isCompleted =1 where f.feesId =:feesId  ")
 	public int updateIsCompleted(@Param("feesId") Integer feesId);
 
-	@Query("SELECT MONTH(f.date) AS month, SUM(f.feesPaid) AS totalPaid " +
-		       "FROM Fees f " +
-		       "WHERE YEAR(f.date) = :year " +
-		       "GROUP BY MONTH(f.date) ")
+	@Query("SELECT MONTH(f.payDate) AS month, SUM(f.feesPayAmount) AS totalPaid " +
+		       "FROM FeesPay f " +
+		       "WHERE YEAR(f.payDate) = :year " +
+		       "GROUP BY MONTH(f.payDate) ")
 		List<Object[]> getTotalFeesPaidByMonth(@Param("year") int year);
 
   
 		@Query("SELECT SUM(f.finalFees) AS totalfees, SUM(f.remainingFees) AS pending, SUM(f.feesPaid) AS collected FROM Fees f")
 		public List<Object[]> getTotalFeeCollection();
+
+	@Query("SELECT f From Fees f where f.student.studentId =:studentId")
+	Fees findFeesByStudentId(@Param("studentId") Integer studentId);
 
 }

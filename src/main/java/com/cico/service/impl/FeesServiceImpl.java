@@ -84,9 +84,14 @@ public class FeesServiceImpl implements IFeesService {
 	}
 
 	@Override
-	public List<FeesResponse> searchByName(String fullName) {
-
-          List<Fees> findByStudent = feesRepository.findByStudentFullNameContaining(fullName);
+	public List<FeesResponse> searchByName(String fullName,String status) {
+		List<Fees> findByStudent =  null ;
+		if(AppConstants.COMPLETED.equals(status)) {
+			findByStudent = feesRepository.findByStudentFullNameContaining(fullName,true);
+		}else{
+			findByStudent = feesRepository.findByStudentFullNameContaining(fullName,false);
+		}
+           
           if(Objects.isNull(findByStudent)) {
         	  throw new ResourceNotFoundException("Student not found");
           }
@@ -95,9 +100,13 @@ public class FeesServiceImpl implements IFeesService {
 	}
 
 	@Override
-	public List<FeesResponse> findFeesByDates(String startDate, String endDate) {
-
-        List<Fees> findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate));
+	public List<FeesResponse> findFeesByDates(String startDate, String endDate,String status) {
+        List<Fees> findFeesByGivenDates = null;
+        if(AppConstants.COMPLETED.equals(status)) {
+        	findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate),true);
+        }else {
+        	findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate),false);        	
+        }
         if(Objects.isNull(findFeesByGivenDates)) {
       	  throw new ResourceNotFoundException("Fees is not found from given Dates");
         }
