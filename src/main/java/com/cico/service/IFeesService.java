@@ -20,9 +20,9 @@ public interface IFeesService {
 
 	public FeesResponse findByFeesId(Integer feesId);
 
-	public List<FeesResponse> searchByName(String fullName);
+	public List<FeesResponse> searchByName(String fullName,String status);
 
-	public List<FeesResponse> findFeesByDates(String startDate, String endDate);
+	public List<FeesResponse> findFeesByDates(String startDate, String endDate,String status);
 
 	public PageResponse<FeesResponse> feesCompleteList(Integer page, Integer size);
 

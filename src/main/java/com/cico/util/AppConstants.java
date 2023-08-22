@@ -33,6 +33,10 @@ public class AppConstants {
 	
 	public static final String MESSAGE = "message";
 	
+	public static final String COMPLETED = "Completed";
+	
+	public static final String PENDING = "Pending";
+	
 	
 	public static final String NOT_CHECKED_IN = "NOT CHECKED IN";
 	
