@@ -43,7 +43,7 @@ public class QuestionController {
 			@RequestParam("option4") String option4,
 			@RequestParam("questionId")Integer questionId,
 			@RequestParam("correctOption") String correctOption,
-			@RequestParam("image")MultipartFile image
+			@RequestParam(name = "image" ,required = false)MultipartFile image
 			) {
 		Question updateQuestion = questionService.updateQuestion(chapterId,questionId,questionContent,option1,option2,option3,option4,correctOption,image);
 		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
