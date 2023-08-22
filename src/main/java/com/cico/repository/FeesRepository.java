@@ -21,6 +21,7 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 
 	Page<Fees> findAllByIsCompleted(boolean b, Pageable pageable);
 
+
 	@Query("SELECT f FROM Fees f WHERE f.student.fullName LIKE %:fullName% AND f.isCompleted =:isCompleted")
 	List<Fees> findByStudentFullNameContaining(@Param("fullName") String fullName,@Param("isCompleted") Boolean isCompleted);
 

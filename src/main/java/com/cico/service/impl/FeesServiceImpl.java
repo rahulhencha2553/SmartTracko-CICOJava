@@ -129,6 +129,7 @@ public class FeesServiceImpl implements IFeesService {
 	@Override
 	public Fees updateFees(Fees fees) {
 		Fees feesData = feesRepository.findByFeesId(fees.getFeesId());
+		System.out.println(feesData);
 		if(Objects.nonNull(feesData)) {
 			feesData.setFinalFees(fees.getFinalFees());
 			feesData.setRemainingFees(fees.getRemainingFees());
