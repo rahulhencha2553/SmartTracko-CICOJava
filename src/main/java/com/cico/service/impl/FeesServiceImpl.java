@@ -5,13 +5,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,9 +84,14 @@ public class FeesServiceImpl implements IFeesService {
 	}
 
 	@Override
-	public List<FeesResponse> searchByName(String fullName) {
-
-          List<Fees> findByStudent = feesRepository.findByStudentFullNameContaining(fullName);
+	public List<FeesResponse> searchByName(String fullName,String status) {
+		List<Fees> findByStudent =  null ;
+		if(AppConstants.COMPLETED.equals(status)) {
+			findByStudent = feesRepository.findByStudentFullNameContaining(fullName,true);
+		}else{
+			findByStudent = feesRepository.findByStudentFullNameContaining(fullName,false);
+		}
+           
           if(Objects.isNull(findByStudent)) {
         	  throw new ResourceNotFoundException("Student not found");
           }
@@ -91,9 +100,13 @@ public class FeesServiceImpl implements IFeesService {
 	}
 
 	@Override
-	public List<FeesResponse> findFeesByDates(String startDate, String endDate) {
-
-        List<Fees> findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate));
+	public List<FeesResponse> findFeesByDates(String startDate, String endDate,String status) {
+        List<Fees> findFeesByGivenDates = null;
+        if(AppConstants.COMPLETED.equals(status)) {
+        	findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate),true);
+        }else {
+        	findFeesByGivenDates = feesRepository.findFeesByGivenDates(LocalDate.parse(startDate),LocalDate.parse(endDate),false);        	
+        }
         if(Objects.isNull(findFeesByGivenDates)) {
       	  throw new ResourceNotFoundException("Fees is not found from given Dates");
         }
@@ -126,7 +139,25 @@ public class FeesServiceImpl implements IFeesService {
 		}
 		return null;
 	}
-	
-	
 
+	@Override
+	public ResponseEntity<?> getFeesCollectionMonthAndYearWise(int year) {
+		 Map<Integer,Double>response = new HashMap<>();
+         List<Object[]> totalFeesPaidByMonthAndYear = feesRepository.getTotalFeesPaidByMonth(year);
+		 for(Object[] row :totalFeesPaidByMonthAndYear) {
+			 response.put((Integer)row[0],(Double)row[1]);
+		 }
+		 return new ResponseEntity<>(response,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getTotalfeesCollection() {
+	 Map<String,Object>feeResponse = new HashMap<>();
+	 List< Object[] > row = feesRepository.getTotalFeeCollection();
+	     feeResponse.put("Collected", row.get(0)[0]); 
+	   feeResponse.put("reamaining",row.get(0)[1]);
+	     feeResponse.put("feesPaid", row.get(0)[2]);
+	    return new ResponseEntity<>(feeResponse,HttpStatus.OK);
+	}  
+	
 }

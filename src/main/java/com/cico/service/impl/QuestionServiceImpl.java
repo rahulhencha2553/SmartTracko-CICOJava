@@ -50,18 +50,21 @@ public class QuestionServiceImpl implements IQuestionService {
 		questionObj.setOption3(option3);
 		questionObj.setOption4(option4);
 		questionObj.setCorrectOption(correctOption);
-		// questionObj.setQuestionImage(image.getOriginalFilename());
+	    
 		Chapter chapter = chapterRepository.findById(chapterId).get();
 		questionObj.setChapter(chapter);
-//		String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
-//		questionObj.setQuestionImage(file);
+		if(image!=null) {
+			questionObj.setQuestionImage(image.getOriginalFilename());
+			String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+			questionObj.setQuestionImage(file);
+		}
 		return questionRepo.save(questionObj);
 
 	}
 
 	@Override
 	public Question updateQuestion(Integer chapterId, Integer questionId, String questionContent, String option1,
-			String option2, String option3, String option4, String correctOption) {
+			String option2, String option3, String option4, String correctOption,MultipartFile image) {
 
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
@@ -91,6 +94,15 @@ public class QuestionServiceImpl implements IQuestionService {
 		else
 			question.setCorrectOption(question.getCorrectOption());
 
+		if(image!=null && !image.isEmpty()) {
+			if(image!=null) {
+				question.setQuestionImage(image.getOriginalFilename());
+				String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
+				question.setQuestionImage(file);
+			}
+		}else {
+			question.setQuestionImage(question.getQuestionImage());
+		}
 		Chapter chapter = chapterRepository.findById(chapterId).get();
 		question.setChapter(chapter);
 		return questionRepo.save(question);
@@ -98,12 +110,12 @@ public class QuestionServiceImpl implements IQuestionService {
 	}
 
 	@Override
-	public List<Question> getQuestionByChapterId(Integer chapterId) {
+	public List<Question> getAllQuestionByChapterId(Integer chapterId) {
 		Chapter chapter = chapterRepository.findById(chapterId).get();
 		List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
 		return questions;
 
-	}
+	}  
 
 	@Override
 	public void deleteQuestion(Integer questionId) {

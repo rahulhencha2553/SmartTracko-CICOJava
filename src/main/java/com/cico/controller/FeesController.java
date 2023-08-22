@@ -1,6 +1,7 @@
 package com.cico.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,17 +55,21 @@ public class FeesController {
 	}
 	
 	@GetMapping("/searchByName")
-	public ResponseEntity<List<FeesResponse>> searchByName(@RequestParam("fullName") String fullName)
+	public ResponseEntity<List<FeesResponse>> searchByName(@RequestParam("fullName") String fullName,@RequestParam("status") String status)
 	{
-		List<FeesResponse> searchByName = feesService.searchByName(fullName);
+		System.out.println(status);
+		List<FeesResponse> searchByName = feesService.searchByName(fullName,status);
 		return new ResponseEntity<List<FeesResponse>>(searchByName,HttpStatus.OK);
 	}
+	
 	@GetMapping("/findFeesByDates")
-	public ResponseEntity<List<FeesResponse>> findFeesByDates(@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate)
+	public ResponseEntity<List<FeesResponse>> findFeesByDates(@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,@RequestParam("status") String status)
 	{
-		 List<FeesResponse> findFeesByDates = feesService.findFeesByDates(startDate,endDate);
+		System.out.println(status);
+		 List<FeesResponse> findFeesByDates = feesService.findFeesByDates(startDate,endDate,status);
 		return new ResponseEntity<List<FeesResponse>>(findFeesByDates,HttpStatus.OK);
 	}
+	
 	@GetMapping("/feesCompletedList")
 	public PageResponse<FeesResponse> feesCompleteList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size)
@@ -92,6 +97,24 @@ public class FeesController {
 	{
 		Fees updateFees = feesService.updateFees(fees);
 		return new ResponseEntity<>(updateFees,HttpStatus.OK);
+	}
+
+   @GetMapping("/getFeesCollectionMonthAndYearWise")
+   public ResponseEntity<?>getFeesCollectionMonthAndYearWise(@RequestParam("year")Integer year){
+	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getFeesCollectionMonthAndYearWise(year);
+     return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
+   }
+
+   @GetMapping("/getTotalFeesCollection")
+   public ResponseEntity<?>getTotalfeesCollection(){
+	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getTotalfeesCollection();
+     return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
+   }
+
+	
+	@GetMapping("/getAllTransectionsByStudentId")
+	public ResponseEntity<?> getAllTransectionsOfStudent(@RequestParam("studentId") Integer studentId){
+		return feesPayService.getAllTransectionByStudentId(studentId);
 	}
 
 }

@@ -18,6 +18,10 @@ public interface ILeaveService {
 
 	public Map<String, Object> retractStudentLeave(HttpHeaders header, Integer leaveId);
 
-	public ResponseEntity<?> studentLeaveMonthFilter(Integer studentId, Integer monthNo);
+	public ResponseEntity<?> studentLeaveMonthFilterById(Integer studentId, Integer monthNo);
+
+	public ResponseEntity<?> studentLeaveMonthFilterByToken(HttpHeaders header, Integer monthNo);
+	
+	public ResponseEntity<?> getStudentLeavesByToken(HttpHeaders header, Integer page, Integer size);
 
 }

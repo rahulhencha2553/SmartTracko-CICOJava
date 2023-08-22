@@ -42,14 +42,16 @@ public class QuestionController {
 			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
 			@RequestParam("option4") String option4,
 			@RequestParam("questionId")Integer questionId,
-			@RequestParam("correctOption") String correctOption) {
-		Question updateQuestion = questionService.updateQuestion(chapterId,questionId,questionContent,option1,option2,option3,option4,correctOption);
+			@RequestParam("correctOption") String correctOption,
+			@RequestParam("image")MultipartFile image
+			) {
+		Question updateQuestion = questionService.updateQuestion(chapterId,questionId,questionContent,option1,option2,option3,option4,correctOption,image);
 		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
 	}
 
 	@GetMapping("/getAllQuestionByChapterId") // k
 	public ResponseEntity<List<Question>> getAllQuestionById(@RequestParam("chapterId") Integer chapterId) {
-		List<Question> question = questionService.getQuestionByChapterId(chapterId);
+		List<Question> question = questionService.getAllQuestionByChapterId(chapterId);
 		return ResponseEntity.ok(question);
 	}
 
