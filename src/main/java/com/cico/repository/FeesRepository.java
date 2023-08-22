@@ -21,7 +21,7 @@ public interface FeesRepository extends JpaRepository<Fees, Integer>{
 
 	Page<Fees> findAllByIsCompleted(boolean b, Pageable pageable);
 
-	@Query("SELECT f FROM Fees f WHERE f.student IN (SELECT s FROM Student s WHERE s.fullName LIKE %:fullName%)")
+	@Query("SELECT f FROM Fees f WHERE f.student IN (SELECT s FROM Student s WHERE s.fullName LIKE %:fullName%) AND IsCompleted=false")
     List<Fees> findByStudentFullNameContaining(@Param("fullName") String fullName);
 
 	@Query("SELECT f FROM Fees f WHERE f.date BETWEEN :startDate AND :endDate")
