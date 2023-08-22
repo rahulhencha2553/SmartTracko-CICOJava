@@ -105,6 +105,12 @@ public class FeesController {
      return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
    }
 
+   @GetMapping("/getTotalFeesCollection")
+   public ResponseEntity<?>getTotalfeesCollection(){
+	    ResponseEntity<?> feesCollectionMonthAndYearWise = feesService.getTotalfeesCollection();
+     return new ResponseEntity<>(feesCollectionMonthAndYearWise,HttpStatus.OK);
+   }
+
 	
 	@GetMapping("/getAllTransectionsByStudentId")
 	public ResponseEntity<?> getAllTransectionsOfStudent(@RequestParam("studentId") Integer studentId){

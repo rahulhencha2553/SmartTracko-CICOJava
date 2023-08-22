@@ -30,4 +30,6 @@ public interface IFeesService {
 
 	ResponseEntity<?> getFeesCollectionMonthAndYearWise(int year);
 
+	public ResponseEntity<?> getTotalfeesCollection();
+
 }

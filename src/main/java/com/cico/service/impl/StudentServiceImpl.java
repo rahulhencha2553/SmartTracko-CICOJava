@@ -249,6 +249,7 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public ResponseEntity<?> login(String userId, String password, String fcmId, String deviceId, String deviceType) {
+		
 		Map<String, Object> response = new HashMap<>();
 		if (deviceType.equals(ANDROID) || deviceType.equals(IOS)) {
 			Student studentByUserId = getStudentByUserId(userId);
@@ -1399,29 +1400,9 @@ public class StudentServiceImpl implements IStudentService {
 		for (Object[] object : leaveForYear) 
 			leavesCount.put((Integer) object[0], (Long) object[1]);
 		
-		
-        
-//		LocalDate joinDate = studRepo.findById(studentId).get().getJoinDate();
-//		
-//		for(int i=1;i<=12;i++) {
-//			LocalDate firstDayOfMonth = LocalDate.of(year, i, 1);
-//			YearMonth yearMonth = YearMonth.of(year, i);
-//			int lastDay = yearMonth.lengthOfMonth();
-//			LocalDate lastDayOfMonth = LocalDate.of(year, i, lastDay);
-//			LocalDate currentDay = firstDayOfMonth;
-//			LocalDate currentDate = LocalDate.now();
-//			 
-//			
-//			while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
-//					&& !currentDay.isAfter(lastDayOfMonth)) {
-//				if (!present.hash(currentDay.getDayOfMonth())
-//						&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
-//					absent.add(currentDay.getDayOfMonth());
-//				}
-//				currentDay = currentDay.plusDays(1);
-//			}
-//		} 
-		// counting absent
+		LocalDate joinDate = studRepo.findById(studentId).get().getJoinDate();
+				 
+		//counting absentr
 		response.put("presents", present);
 		response.put("leaves", leavesCount);
 //		response.put("absent", absentCount);
