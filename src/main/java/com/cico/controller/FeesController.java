@@ -55,17 +55,21 @@ public class FeesController {
 	}
 	
 	@GetMapping("/searchByName")
-	public ResponseEntity<List<FeesResponse>> searchByName(@RequestParam("fullName") String fullName)
+	public ResponseEntity<List<FeesResponse>> searchByName(@RequestParam("fullName") String fullName,@RequestParam("status") String status)
 	{
-		List<FeesResponse> searchByName = feesService.searchByName(fullName);
+		System.out.println(status);
+		List<FeesResponse> searchByName = feesService.searchByName(fullName,status);
 		return new ResponseEntity<List<FeesResponse>>(searchByName,HttpStatus.OK);
 	}
+	
 	@GetMapping("/findFeesByDates")
-	public ResponseEntity<List<FeesResponse>> findFeesByDates(@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate)
+	public ResponseEntity<List<FeesResponse>> findFeesByDates(@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate,@RequestParam("status") String status)
 	{
-		 List<FeesResponse> findFeesByDates = feesService.findFeesByDates(startDate,endDate);
+		System.out.println(status);
+		 List<FeesResponse> findFeesByDates = feesService.findFeesByDates(startDate,endDate,status);
 		return new ResponseEntity<List<FeesResponse>>(findFeesByDates,HttpStatus.OK);
 	}
+	
 	@GetMapping("/feesCompletedList")
 	public PageResponse<FeesResponse> feesCompleteList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size)
