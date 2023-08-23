@@ -1,5 +1,6 @@
 package com.cico.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -31,7 +32,7 @@ public class Task {
 	private String taskAttachment;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<TaskQuestion> question;
+	private List<TaskQuestion> taskQuestion = new ArrayList<>();
 	
 	private String submitFile;
 
