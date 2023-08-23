@@ -47,7 +47,7 @@ public class TaskServiceImpl implements ITaskService {
 		Task task = new Task();
 		task.setAttachmentStatus(taskRequest.getAttachmentStatus());
 		task.setCourse(taskRequest.getCourse());
-		task.setQuestion(taskRequest.getQuestion());
+		task.setTaskQuestion(taskRequest.getQuestion());
 		task.setSubject(taskRequest.getSubject());
 		task.setTaskAttachment(taskRequest.getTaskAttachment().getOriginalFilename());
 		task.setTaskName(taskRequest.getTaskName());
