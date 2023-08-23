@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class FeesPayServiceImpl implements IFeesPayService {
 	}
 
 	@Override
-	public PageResponse<FeesResponse> feesPayList(Integer page, Integer size) {
+	public PageResponse<FeesResponse> feesPendingList(Integer page, Integer size) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "feesId");
 		 Page<Fees> fees = feesRepository.findByRemainingFees(pageable);
@@ -86,6 +87,27 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		}
 		
 		return new ResponseEntity<>(payResponse,HttpStatus.OK);
+	}
+
+	@Override
+	public PageResponse<FeesPayResponse> feesPayList(Integer page, Integer size) {
+		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "payId");
+		Page<FeesPay> fees = feesPayRepository.findByFeesPayAmount(pageable);
+		 
+		 
+		if(fees.getNumberOfElements()==0) {
+			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+		}
+		List<FeesPayResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesPayResponse[].class));
+		
+		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(),fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+	}
+
+	@Override
+	public FeesPayResponse findByPayId(Integer payId) {
+		// TODO Auto-generated method stub
+		FeesPay feesPay = feesPayRepository.findById(payId).orElseThrow(()->new ResourceNotFoundException("Fees Pay not found from given Id"));
+		return mapper.map(feesPay, FeesPayResponse.class);
 	}
 	
 }
