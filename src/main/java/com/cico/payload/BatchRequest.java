@@ -16,5 +16,5 @@ public class BatchRequest {
 	private LocalDate batchStartDate;
 	private LocalTime batchTiming;
 	private String batchDetails;
-	private Integer technologyStack;
+	private Integer subjectId;
 }

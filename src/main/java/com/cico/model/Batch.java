@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,8 +31,12 @@ public class Batch {
 	@Column(columnDefinition = "longtext")
 	private String batchDetails;
 	
+//	@ManyToOne
+//	private TechnologyStack technologyStack;
+	
 	@ManyToOne
-	private TechnologyStack technologyStack;
+	private Subject subject;
+	
 	
 	private boolean isDeleted=false;
 	private boolean isActive=true;
