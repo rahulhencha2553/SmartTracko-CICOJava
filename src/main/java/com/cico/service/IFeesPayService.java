@@ -11,8 +11,12 @@ public interface IFeesPayService {
 
 	public FeesPay feesPayService(Integer feesId, Double feesPayAmount, String payDate, String recieptNo, String description);
 
-	public PageResponse<FeesResponse> feesPayList(Integer page, Integer size);
+	public PageResponse<FeesResponse> feesPendingList(Integer page, Integer size);
 
 	public ResponseEntity<?> getAllTransectionByStudentId(Integer studentId);
+	
+	public PageResponse<FeesPayResponse> feesPayList(Integer page, Integer size);
+
+	public FeesPayResponse findByPayId(Integer payId);
 
 }

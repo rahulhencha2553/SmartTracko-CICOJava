@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Fees;
 import com.cico.model.FeesPay;
+import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.IFeesPayService;
@@ -85,11 +86,24 @@ public class FeesController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(feesPay);
 	}
 	
+	@GetMapping("/feesPendingList")
+	public PageResponse<FeesResponse> feesPendingList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size)
+	{
+		return feesPayService.feesPendingList(page,size);
+	}
+	
 	@GetMapping("/feesPayList")
-	public PageResponse<FeesResponse> feesPayList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
+	public PageResponse<FeesPayResponse> feesPayList(@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
 			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size)
 	{
 		return feesPayService.feesPayList(page,size);
+	}
+	@GetMapping("/findByPayId")
+	public ResponseEntity<FeesPayResponse> findByPayId(@RequestParam(name="payId") Integer payId)
+	{
+		FeesPayResponse findByPayId = feesPayService.findByPayId(payId);
+		return new ResponseEntity<FeesPayResponse>(findByPayId,HttpStatus.OK);
 	}
 	
 	@PutMapping("/updateFeesApi")
