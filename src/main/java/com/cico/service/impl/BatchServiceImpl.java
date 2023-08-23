@@ -1,10 +1,7 @@
 package com.cico.service.impl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
-import javax.persistence.criteria.Predicate.BooleanOperator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +14,7 @@ import com.cico.payload.ApiResponse;
 import com.cico.payload.BatchRequest;
 import com.cico.repository.BatchRepository;
 import com.cico.repository.CourseRepository;
+import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
 import com.cico.util.AppConstants;
@@ -36,12 +34,15 @@ public class BatchServiceImpl implements IBatchService {
 	@Autowired
 	private CourseRepository courseRepository;
 	
+	@Autowired
+	private SubjectRepository subjectRepository;
+	
 	
 	@Override
 	public ApiResponse createBatch(BatchRequest request) {
 		Course course = courseRepository.findById(request.getCourseId()).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 		Batch batch=new Batch(request.getBatchName(), request.getBatchStartDate(), request.getBatchTiming(), request.getBatchDetails());
-		batch.setTechnologyStack(repository.findById(request.getTechnologyStack()).get());
+		batch.setSubject(subjectRepository.findBySubjectIdAndIsDeleted(request.getSubjectId(), false).get());
 		List<Batch> batches = course.getBatches();
 		batches.add(batch);
 		course.setBatches(batches);
