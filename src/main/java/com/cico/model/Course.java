@@ -44,6 +44,7 @@ public class Course {
     
     @OneToMany(cascade = CascadeType.ALL)
     private List<Batch> batches = new ArrayList<>();
+   
     
 	public Course(String courseName, String courseFees, String duration, String sortDescription,
 			TechnologyStack technologyStack) {

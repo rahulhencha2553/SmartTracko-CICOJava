@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,6 +29,9 @@ public class TaskQuestion {
 	@ElementCollection
 	@CollectionTable
 	private List<String> questionImages;
+	
+	@ManyToOne
+	private Task task;
 	
 	private String videoUrl;
 }
