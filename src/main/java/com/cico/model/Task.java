@@ -33,6 +33,7 @@ public class Task {
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<TaskQuestion>taskQuestion= new ArrayList<>();;
+
 	
 	private String submitFile;
 

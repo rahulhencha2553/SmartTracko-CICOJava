@@ -22,7 +22,7 @@ public class TaskQuestion {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int questionId;
+	private Integer questionId;
 	
 	private String question;
 	

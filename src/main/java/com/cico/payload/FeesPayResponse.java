@@ -1,6 +1,7 @@
 package com.cico.payload;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.cico.model.Fees;
 
@@ -14,10 +15,11 @@ import lombok.NoArgsConstructor;
 public class FeesPayResponse {
 
 	private Integer payId;
+	private Fees fees;
 	private Double feesPayAmount;
 	private LocalDate payDate;
 	private String recieptNo;
 	private String description;
-	private LocalDate createDate;
-	private LocalDate updatedDate;
+	private LocalDateTime createDate;
+	private LocalDateTime updatedDate;
 }
