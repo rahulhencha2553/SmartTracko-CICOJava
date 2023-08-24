@@ -138,4 +138,9 @@ public class SubjectServiceImpl implements ISubjectService {
 			new ResourceNotFoundException("No subject available");
 		return responseSend;
 	}
+
+	@Override
+	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
+          return null;
+	}
 }

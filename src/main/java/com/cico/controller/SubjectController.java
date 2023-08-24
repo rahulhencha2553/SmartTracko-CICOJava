@@ -69,6 +69,11 @@ public class SubjectController {
 	      List<SubjectResponse> subjects = subjectService.getAllSubjects();
 	return ResponseEntity.ok(subjects);
 	}
+	@GetMapping("/getAllSubjectsByCourseId")
+	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
+	return ResponseEntity.ok(subjects);
+	}
 	
 
 }

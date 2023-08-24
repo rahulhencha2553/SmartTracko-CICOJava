@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,34 +30,28 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Autowired
 	FileServiceImpl fileService;
-	
+
 	@Autowired
 	CourseServiceImpl courseService;
-	
+
 	@Autowired
 	SubjectServiceImpl subjectService;
 
 	@Autowired
 	SubjectRepository subjectRepo;
-	
+
 	@Override
-	public void createTask(TaskRequest taskRequest) {
+	public Task createTask(TaskRequest taskRequest) {
 		if (taskRepo.findByTaskName(taskRequest.getTaskName()) != null)
 			throw new ResourceAlreadyExistException("Task already exist");
 
 		Task task = new Task();
 		task.setAttachmentStatus(taskRequest.getAttachmentStatus());
 		task.setCourse(taskRequest.getCourse());
-		task.setTaskQuestion(taskRequest.getQuestion());
 		task.setSubject(taskRequest.getSubject());
-		task.setTaskAttachment(taskRequest.getTaskAttachment().getOriginalFilename());
 		task.setTaskName(taskRequest.getTaskName());
-		
 
-		fileService.uploadFileInFolder(taskRequest.getTaskAttachment(), imageUploadPath);
-
-		taskRepo.save(task);
-
+		return taskRepo.save(task);
 	}
 
 	@Override
@@ -75,19 +70,25 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public List<Task> getFilteredTasks(TaskFilterRequest taskFilter) {
 		Example<Task> example = null;
-		
+
 		Course course = courseService.findCourseById(taskFilter.getCourseId());
 		Subject subject = subjectRepo.findById(taskFilter.getSubjectId()).get();
-		
-		Task task=new Task();
+
+		Task task = new Task();
 		task.setCourse(course);
 		task.setSubject(subject);
 		task.setIsActive(taskFilter.getStatus());
-		
-		example=Example.of(task);
-		
+
+		example = Example.of(task);
+
 		return taskRepo.findAll(example);
-		
+
+	}
+
+	@Override
+	public Task getTaskById(Integer taskId) {
+		return taskRepo.findById(taskId)
+				.orElseThrow(() -> new ResourceNotFoundException("TASK NOT FOUND WITH THIS ID"));
 	}
 
 }

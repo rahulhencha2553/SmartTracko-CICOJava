@@ -15,66 +15,75 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Exam;
+import com.cico.payload.ChapterExamResultRequest;
 import com.cico.service.IExamService;
-
 
 @RestController
 @RequestMapping("/exam")
 @CrossOrigin("*")
 public class ExamController {
-	
+
 	@Autowired
 	private IExamService examService;
-	
+
 	@PostMapping("/addExam")
-	public ResponseEntity<String> addExam(@RequestParam("examName") String examName){
+	public ResponseEntity<String> addExam(@RequestParam("examName") String examName) {
 //		examService.addExam(examName);	
-	return ResponseEntity.ok("Exam Added");
-	}
-	
-	@PostMapping("/addQuestionsToExam")
-	public ResponseEntity<String> addQuestionsToExam(@RequestParam("examId") Integer examId, 
-			@RequestParam("examId")String question, @RequestParam("options")List<String> options, 
-			@RequestParam("image")MultipartFile image){
-		examService.addQuestionsToExam(examId,question,options,image);	
-	return ResponseEntity.ok("Questions Added");
-	}
-	
-	@PutMapping("/updateExam")
-	public ResponseEntity<String> updateExam(@RequestBody Exam exam){
-		examService.updateExam(exam);	
-	return ResponseEntity.ok("Exam Updated");
-	}
-	
-	@GetMapping("/getExamById")
-	public ResponseEntity<Exam> getExamById(@RequestParam("examId") Integer examId){
-		Exam exam=examService.getExamById(examId);	
-	return ResponseEntity.ok(exam);
-	}
-	
-	
-	@PutMapping("/deleteExam")
-	public ResponseEntity<String> deleteExam(@RequestParam("examId") Integer examId){
-	examService.deleteExam(examId);	
-	return ResponseEntity.ok("Exam Deleted");
-	}
-	
-	@PutMapping("/updateExamStatus")
-	public ResponseEntity<String> updateExamStatus(@RequestParam("examId") Integer examId){
-	examService.updateExamStatus(examId);	
-	return ResponseEntity.ok("Exam Updated");
-	}
-	
-	@GetMapping("/getAllExams")
-	public ResponseEntity<List<Exam>> getAllExams(){
-		List<Exam> exams=examService.getAllExams();	
-	return ResponseEntity.ok(exams);
-	}
-	
-	@GetMapping("/getExamsByChapter")
-	public ResponseEntity<List<Exam>> getExamsByChapter(@RequestParam("chapterId") Integer chapterId){
-		List<Exam> exams=examService.getExamsByChapter(chapterId);	
-	return ResponseEntity.ok(exams);
+		return ResponseEntity.ok("Exam Added");
 	}
 
+	@PostMapping("/addQuestionsToExam")
+	public ResponseEntity<String> addQuestionsToExam(@RequestParam("examId") Integer examId,
+			@RequestParam("examId") String question, @RequestParam("options") List<String> options,
+			@RequestParam("image") MultipartFile image) {
+		examService.addQuestionsToExam(examId, question, options, image);
+		return ResponseEntity.ok("Questions Added");
+	}
+
+	@PutMapping("/updateExam")
+	public ResponseEntity<String> updateExam(@RequestBody Exam exam) {
+		examService.updateExam(exam);
+		return ResponseEntity.ok("Exam Updated");
+	}
+
+	@GetMapping("/getExamById")
+	public ResponseEntity<Exam> getExamById(@RequestParam("examId") Integer examId) {
+		Exam exam = examService.getExamById(examId);
+		return ResponseEntity.ok(exam);
+	}
+
+	@PutMapping("/deleteExam")
+	public ResponseEntity<String> deleteExam(@RequestParam("examId") Integer examId) {
+		examService.deleteExam(examId);
+		return ResponseEntity.ok("Exam Deleted");
+	}
+
+	@PutMapping("/updateExamStatus")
+	public ResponseEntity<String> updateExamStatus(@RequestParam("examId") Integer examId) {
+		examService.updateExamStatus(examId);
+		return ResponseEntity.ok("Exam Updated");
+	}
+
+	@GetMapping("/getAllExams")
+	public ResponseEntity<List<Exam>> getAllExams() {
+		List<Exam> exams = examService.getAllExams();
+		return ResponseEntity.ok(exams);
+	}
+
+	@GetMapping("/getExamsByChapter")
+	public ResponseEntity<List<Exam>> getExamsByChapter(@RequestParam("chapterId") Integer chapterId) {
+		List<Exam> exams = examService.getExamsByChapter(chapterId);
+		return ResponseEntity.ok(exams);
+	}
+
+	@PostMapping("/addChapterExam")
+	public ResponseEntity<?> addChapterExamResult(@RequestBody ChapterExamResultRequest chapterExamResult) {
+		System.out.println("11111111111111111111111111111"+chapterExamResult);
+		return this.examService.addChapterExamResult(chapterExamResult);
+	}
+	
+	@GetMapping("/getChapterExamResult")
+	public ResponseEntity<?> getChapterExamResult(@RequestParam("resultId") Integer id){
+		return examService.getChapterExamResult(id);
+	}
 }
