@@ -8,10 +8,12 @@ import com.cico.payload.TaskRequest;
 
 public interface ITaskService {
 
-	void createTask(TaskRequest taskRequest);
+	Task createTask(TaskRequest taskRequest);
 
 	void updateTaskStatus(int taskId);
 
 	List<Task> getFilteredTasks(TaskFilterRequest taskFilter);
+
+	Task getTaskById(Integer taskId);
 
 }

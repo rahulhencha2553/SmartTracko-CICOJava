@@ -26,4 +26,6 @@ public interface ISubjectService {
 
 	List<SubjectResponse> getAllSubjects();
 
+	List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId);
+
 }

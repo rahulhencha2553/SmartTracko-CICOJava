@@ -1,22 +1,33 @@
 package com.cico.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
+import org.hibernate.internal.build.AllowSysOut;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.model.Chapter;
+import com.cico.model.ChapterExamResult;
 import com.cico.model.Exam;
 import com.cico.model.Question;
+import com.cico.model.Student;
+import com.cico.payload.ChapterExamResultRequest;
+import com.cico.repository.ChapterExamResultRepo;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
 import com.cico.repository.QuestionRepo;
+import com.cico.repository.StudentRepository;
 import com.cico.service.IExamService;
 import com.cico.service.IFileService;
+import com.cico.util.AppConstants;
 
 @Service
 public class ExamServiceImpl implements IExamService {
@@ -35,6 +46,15 @@ public class ExamServiceImpl implements IExamService {
 
 	@Value("${fileUploadPath}")
 	private String IMG_UPLOAD_DIR;
+	@Autowired
+	private ChapterExamResultRepo chapterExamResultRepo;
+
+	@Autowired
+	private ModelMapper modelMapper;
+	@Autowired
+	private StudentRepository studentRepository;
+	@Autowired
+	private StudentServiceImpl studentServiceImpl;
 
 //	@Override
 //	public void addExam(String examName) {
@@ -135,5 +155,55 @@ public class ExamServiceImpl implements IExamService {
 		return null;
 
 	}
+
+	@Override
+	public ResponseEntity<?> addChapterExamResult(ChapterExamResultRequest chapterExamResult) {
+        Student student = studentRepository.findById(chapterExamResult.getStudentId()).get();
+	    Chapter chapter = chapterRepo.findById(chapterExamResult.getChapterId()).get();
+	    ChapterExamResult examResult = new ChapterExamResult();
+	    Map<Integer, String> review = chapterExamResult.getReview();
+	    int correct=0;
+	    int inCorrect=0;
+	    examResult.setChapter(chapter);
+	    examResult.setStudent(student);
+	   
+	   
+	    
+	    List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
+	      
+	    // Iterating over the map using a for-each loop
+         
+	    for(Question q :questions) {
+	    	if(!review.containsKey(q.getQuestionId())) {
+	    		 review.put(q.getQuestionId(),"kapil rathore");
+	    	}
+	    	 Integer id = q.getQuestionId();
+	    	 String correctOption = q.getCorrectOption();
+	    	
+	    	 if(review.get(id).equals(correctOption)) {
+	    		 correct++;
+	    	 }else {
+	    		 inCorrect++;
+	    	 }
+	    }
+	    examResult.setReview(review);
+	    examResult.setCorrecteQuestions(correct);
+	    examResult.setWrongQuestions(inCorrect);
+	    examResult.setNotSelectedQuestions(questions.size()-(correct+inCorrect));
+		ChapterExamResult save = chapterExamResultRepo.save(examResult);
+		return new ResponseEntity<>(save, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getChapterExamResult(Integer id) {
+	    Map<String,Object>response=  new HashMap<>();
+		ChapterExamResult examResult = chapterExamResultRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
+		List<Question> findAllByChapterAndIsDeleted = questionRepo.findAllByChapterAndIsDeleted(examResult.getChapter(), false);
+		response.put("examResult", examResult);
+		response.put("questions", findAllByChapterAndIsDeleted);
+	
+		return new ResponseEntity<>(response,HttpStatus.OK);
+	}
+	
 
 }

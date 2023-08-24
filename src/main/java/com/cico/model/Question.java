@@ -34,7 +34,7 @@ public class Question {
 	private String option4;
 	
 	private String correctOption;
-	private String selectedOption;
+	private String selectedOption;// select by student 
 
 	@ManyToOne
 	private Exam chapterExam;
