@@ -19,4 +19,6 @@ public interface IFeesPayService {
 
 	public FeesPayResponse findByPayId(Integer payId);
 
+	public FeesPay updateFeesPay(FeesPay feesPay);
+
 }

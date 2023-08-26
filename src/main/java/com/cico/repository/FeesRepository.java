@@ -42,6 +42,11 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 	@Modifying
 	@Query("UPDATE Fees f SET f.isCompleted =1 where f.feesId =:feesId  ")
 	public int updateIsCompleted(@Param("feesId") Integer feesId);
+	
+	@Transactional
+	@Modifying
+	@Query("UPDATE Fees f SET f.isCompleted =0 where f.feesId =:feesId  ")
+	public int updateNotIsCompleted(@Param("feesId") Integer feesId);
 
 	@Query("SELECT MONTH(f.payDate) AS month, SUM(f.feesPayAmount) AS totalPaid " +
 		       "FROM FeesPay f " +

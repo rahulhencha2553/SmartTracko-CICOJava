@@ -130,5 +130,13 @@ public class FeesController {
 	public ResponseEntity<?> getAllTransectionsOfStudent(@RequestParam("studentId") Integer studentId){
 		return feesPayService.getAllTransectionByStudentId(studentId);
 	}
+	
+	@PutMapping("/updateFeesPay")
+	public ResponseEntity<FeesPay> updateFeesPay(@RequestBody FeesPay feesPay)
+	{
+		FeesPay updateFeesPay = feesPayService.updateFeesPay(feesPay);
+		return new ResponseEntity<FeesPay>(updateFeesPay,HttpStatus.OK);
+	}
+	
 
 }

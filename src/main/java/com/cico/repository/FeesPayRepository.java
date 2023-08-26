@@ -17,4 +17,6 @@ public interface FeesPayRepository extends JpaRepository<FeesPay, Integer> {
 	@Query("SELECT f FROM FeesPay f WHERE f.feesPayAmount != 0")
 	Page<FeesPay> findByFeesPayAmount(Pageable pageable);
 
+	FeesPay findByPayId(Integer payId);
+
 }
