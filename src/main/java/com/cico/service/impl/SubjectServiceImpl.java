@@ -34,6 +34,7 @@ public class SubjectServiceImpl implements ISubjectService {
 	@Autowired
 	private TechnologyStackRepository technologyStackRepository;
 
+	
 	@Override
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
@@ -75,10 +76,10 @@ public class SubjectServiceImpl implements ISubjectService {
 	}
 
 	@Override
-	public void updateSubject(Subject subject) {
+	public Subject updateSubject(Subject subject) {
 		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId(), false)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		subRepo.save(subject);
+	return 	subRepo.save(subject);
 
 	}
 

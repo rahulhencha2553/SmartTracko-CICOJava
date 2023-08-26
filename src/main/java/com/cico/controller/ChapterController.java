@@ -19,8 +19,6 @@ import com.cico.model.ChapterContent;
 import com.cico.model.Subject;
 import com.cico.service.IChapterService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
-
 @RestController
 @RequestMapping("/chapter")
 @CrossOrigin("*")
@@ -78,8 +76,8 @@ public class ChapterController {
 	}
 	
 	@PutMapping("/deleteChapter")
-	public ResponseEntity<String> deleteChapter(@RequestParam("chapterId") Integer chapterId){
-	chapterService.deleteChapter(chapterId);	
+	public ResponseEntity<String> deleteChapter(@RequestParam("chapterId") Integer chapterId,@RequestParam("subjectId")Integer subjectId){
+	chapterService.deleteChapter(chapterId,subjectId);	
 	return ResponseEntity.ok("Chapter Deleted");
 	}
 	

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cico.model.Chapter;
 import com.cico.model.Subject;
@@ -29,5 +30,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
 	@Query("SELECT c FROM Chapter c WHERE c.subject =:subject AND c.chapterId = :chapterId AND c.isDeleted = :b")
 	Optional<Chapter> findByChapterIdAndsubjectIdAndIsDeleted(@Param("chapterId") Integer chapterId,
 			@Param("subject") Subject subject, @Param("b") Boolean b);
-
+  //@Query("SELECT s  FROM  Chapter s  WHERE s.chapterId =:chapterId AND s.subject =:subject AND s.isDeleted =:b")
+  //public Optional<Chapter> findByChapterIdAndSubjectAndIsDeleted(@RequestParam("chapterId")Integer chapterId,@RequestParam("subject")Subject Subject,@RequestParam("b")boolean b);
 }

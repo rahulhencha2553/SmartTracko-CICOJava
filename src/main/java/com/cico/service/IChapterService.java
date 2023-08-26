@@ -18,7 +18,7 @@ public interface IChapterService {
 
 	Chapter getChapterById(Integer chapterId);
 
-	void deleteChapter(Integer chapterId);
+	void deleteChapter(Integer chapterId, Integer subjectId);
 
 	void updateChapterStatus(Integer chapterId);
 

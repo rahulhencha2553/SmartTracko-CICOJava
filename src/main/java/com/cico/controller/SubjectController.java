@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Subject;
+import com.cico.payload.ApiResponse;
 import com.cico.payload.SubjectResponse;
 import com.cico.service.ISubjectService;
 
@@ -40,9 +42,9 @@ public class SubjectController {
 	}
 	
 	@PutMapping("/updateSubject")
-	public ResponseEntity<String> updateSubject(@RequestBody Subject subject){
-	subjectService.updateSubject(subject);	
-	return ResponseEntity.ok("Subject Updated");
+	public ResponseEntity<Subject> updateSubject(@RequestBody Subject subject){
+	 Subject updateSubject = subjectService.updateSubject(subject);
+	return new ResponseEntity<Subject>(updateSubject,HttpStatus.OK);
 	}
 	
 	@GetMapping("/getSubjectById")
@@ -74,6 +76,10 @@ public class SubjectController {
 	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
 	return ResponseEntity.ok(subjects);
 	}
-	
-
+	 
+	@PutMapping("/deleteSubjectById")
+	public ResponseEntity<ApiResponse>deleteSubjectById(@RequestParam("subjectId")Integer subjectId){
+		subjectService.deleteSubject(subjectId);
+		return new ResponseEntity<ApiResponse>(new ApiResponse(true,"Success",HttpStatus.OK),HttpStatus.OK);
+	}
 }
