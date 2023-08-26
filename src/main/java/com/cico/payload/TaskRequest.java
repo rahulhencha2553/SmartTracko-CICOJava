@@ -1,12 +1,7 @@
 package com.cico.payload;
 
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
-
 import com.cico.model.Course;
 import com.cico.model.Subject;
-import com.cico.model.TaskQuestion;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

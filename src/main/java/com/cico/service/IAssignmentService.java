@@ -1,23 +1,18 @@
 package com.cico.service;
 
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.ResponseEntity;
 
 import com.cico.model.Assignment;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.AssignmentQuestionRequest;
+import com.cico.payload.AssignmentRequest;
 
 public interface IAssignmentService {
 
-	Assignment getAssignment(Integer id);
+	Assignment getAssignment(Long id);
 
-	ApiResponse createAssignment(String question,String[] hints, MultipartFile[] images);
+	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest);
 
-	ApiResponse deleteAssignment(Integer id);
+	ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest);
 
-	List<List<Assignment>> getAllAssignment();
-
-	Assignment updateAssignment(Integer id, String question, String[] imagesId, MultipartFile[] images,String[] hints);
-
-	Assignment updateAssignment1(Assignment assignment);
 }

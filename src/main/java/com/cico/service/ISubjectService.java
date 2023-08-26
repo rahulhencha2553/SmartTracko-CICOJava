@@ -16,7 +16,7 @@ public interface ISubjectService {
 
 	void addChapterToSubject(Integer subjectId, String chapterName);
 
-	void updateSubject(Subject subject);
+	Subject updateSubject(Subject subject);
 
 	Map<String,Object> getSubjectById(Integer subjectId);
 
