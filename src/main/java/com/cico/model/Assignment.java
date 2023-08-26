@@ -5,15 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -29,20 +27,25 @@ public class Assignment {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private Long id;
+	
+	private String title;
 
-	@Column(columnDefinition = "longtext")
-	private String question;
-
+	private String taskAttachment;
+	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<AssignmentImage> assignmentImages = new ArrayList<>();
-	private LocalDateTime createdTime;
-	private LocalDateTime upatedDate;
-	private Boolean isDeleted;
-	private  Boolean isCompleted;
-	@ElementCollection
-    @CollectionTable
-    private List<String> hints = new ArrayList<>();
+	private List<TaskQuestion>AssignmentQuestion= new ArrayList<>();;
+
+
+	@OneToOne
+	private Course course;
+	
+	@OneToOne
+	private Subject subject;
+		
+	private Boolean isActive=true;
+	
+	private LocalDateTime createdDate;
 
 }
 

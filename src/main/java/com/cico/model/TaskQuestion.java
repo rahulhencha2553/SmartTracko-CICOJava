@@ -30,8 +30,5 @@ public class TaskQuestion {
 	@CollectionTable
 	private List<String> questionImages;
 	
-	@ManyToOne
-	private Task task;
-	
 	private String videoUrl;
 }
