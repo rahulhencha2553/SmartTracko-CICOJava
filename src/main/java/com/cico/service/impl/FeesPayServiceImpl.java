@@ -1,11 +1,12 @@
 package com.cico.service.impl;
 
+import java.lang.module.ResolutionException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.cico.repository.FeesPayRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.service.IFeesPayService;
 
-
 @Service
 public class FeesPayServiceImpl implements IFeesPayService {
 
@@ -37,43 +37,49 @@ public class FeesPayServiceImpl implements IFeesPayService {
 	private FeesRepository feesRepository;
 	@Autowired
 	private ModelMapper mapper;
-	
+
 	@Override
 	public FeesPay feesPayService(Integer feesId, Double feesPayAmount, String payDate, String recieptNo,
 			String description) {
-		
-		FeesPay feesPay=new FeesPay(feesPayAmount,LocalDate.parse(payDate) , recieptNo, description);
-     	Fees findByFeesId = feesRepository.findByFeesId(feesId);
-		
-     	if(findByFeesId.getRemainingFees()!=0) {	
-		feesPay.setFees(feesRepository.findById(feesId).get());
-		feesPay.setFeesPayAmount(feesPayAmount);
-		Fees fees=feesPay.getFees();
-		fees.setRemainingFees(fees.getRemainingFees()-feesPay.getFeesPayAmount()); 
-		fees.setFeesPaid(fees.getFinalFees()-fees.getRemainingFees());
-		feesRepository.save(fees);
-		if(findByFeesId.getRemainingFees()==0) {
-			feesRepository.updateIsCompleted(feesId);
-     	}
-		return feesPayRepository.save(feesPay);
-     	}
-     	
-     	throw new ResourceNotFoundException("Fees Not Found");
-		
+
+		FeesPay feesPay = new FeesPay(feesPayAmount, LocalDate.parse(payDate), recieptNo, description);
+		Fees findByFeesId = feesRepository.findByFeesId(feesId);
+
+		if (findByFeesId.getRemainingFees() != 0) {
+			feesPay.setFees(feesRepository.findById(feesId).get());
+			feesPay.setFeesPayAmount(feesPayAmount);
+			Fees fees = feesPay.getFees();
+			if (feesPay.getFeesPayAmount() <= findByFeesId.getRemainingFees()) {
+				fees.setRemainingFees(fees.getRemainingFees() - feesPay.getFeesPayAmount());
+				fees.setFeesPaid(fees.getFinalFees() - fees.getRemainingFees());
+
+				if (findByFeesId.getRemainingFees() == 0) {
+					feesRepository.updateIsCompleted(feesId);
+				}
+				feesRepository.save(fees);
+
+				return feesPayRepository.save(feesPay);
+			} else
+				throw new ResourceNotFoundException("Fees Amount Is Greate then Remaining Fees Amount");
+		}
+		throw new ResourceNotFoundException("Fees Not Found");
+
 	}
 
 	@Override
 	public PageResponse<FeesResponse> feesPendingList(Integer page, Integer size) {
 		// TODO Auto-generated method stub
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "feesId");
-		 Page<Fees> fees = feesRepository.findByRemainingFees(pageable);
-		 
-		if(fees.getNumberOfElements()==0) {
-			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+		Page<Fees> fees = feesRepository.findByRemainingFees(pageable);
+
+		if (fees.getNumberOfElements() == 0) {
+			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(),
+					fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 		}
 		List<FeesResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesResponse[].class));
-		
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(),fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+
+		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(),
+				fees.getTotalPages(), fees.isLast());
 	}
 
 	@Override
@@ -81,35 +87,68 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		Fees fees = feesRepository.findFeesByStudentId(studentId);
 		List<FeesPayResponse> payResponse = new ArrayList<>();
 		List<FeesPay> findByFees = feesPayRepository.findByFees(fees);
-		
+
 		for (FeesPay feesPay : findByFees) {
-			 payResponse.add(mapper.map(feesPay, FeesPayResponse.class));
+			payResponse.add(mapper.map(feesPay, FeesPayResponse.class));
 		}
-		
-		return new ResponseEntity<>(payResponse,HttpStatus.OK);
+
+		return new ResponseEntity<>(payResponse, HttpStatus.OK);
 	}
 
 	@Override
 	public PageResponse<FeesPayResponse> feesPayList(Integer page, Integer size) {
 		Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "payId");
 		Page<FeesPay> fees = feesPayRepository.findByFeesPayAmount(pageable);
-		 
-		 
-		if(fees.getNumberOfElements()==0) {
-			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(), fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+
+		if (fees.getNumberOfElements() == 0) {
+			return new PageResponse<>(Collections.emptyList(), fees.getNumber(), fees.getSize(),
+					fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
 		}
 		List<FeesPayResponse> asList = Arrays.asList(mapper.map(fees.getContent(), FeesPayResponse[].class));
-		
-		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(),fees.getTotalElements(), fees.getTotalPages(), fees.isLast());
+
+		return new PageResponse<>(asList, fees.getNumber(), fees.getSize(), fees.getTotalElements(),
+				fees.getTotalPages(), fees.isLast());
 	}
 
 	@Override
 	public FeesPayResponse findByPayId(Integer payId) {
 		// TODO Auto-generated method stub
-		FeesPay feesPay = feesPayRepository.findById(payId).orElseThrow(()->new ResourceNotFoundException("Fees Pay not found from given Id"));
+		FeesPay feesPay = feesPayRepository.findById(payId)
+				.orElseThrow(() -> new ResourceNotFoundException("Fees Pay not found from given Id"));
 		return mapper.map(feesPay, FeesPayResponse.class);
 	}
-	
+
+	@Override
+	public FeesPay updateFeesPay(FeesPay feesPay) {
+		FeesPay feesPayData = feesPayRepository.findByPayId(feesPay.getPayId());
+		System.out.println(feesPayData);
+		if (Objects.nonNull(feesPayData)) {
+
+			if (feesPay.getPayDate() != null) {
+				feesPayData.setPayDate(feesPay.getPayDate());
+			} else {
+				feesPay.setPayDate(feesPay.getPayDate());
+			}
+			Fees fees = feesPayData.getFees();
+			fees.setFeesPaid(fees.getFeesPaid() - feesPayData.getFeesPayAmount());
+			fees.setFeesPaid(fees.getFeesPaid() + feesPay.getFeesPayAmount());
+			feesPayData.setFeesPayAmount(feesPay.getFeesPayAmount());
+			fees.setRemainingFees(fees.getFinalFees() - fees.getFeesPaid());
+			if (fees.getFeesPaid() <= fees.getRemainingFees()) {
+				if (fees.getRemainingFees() == 0) {
+					feesRepository.updateIsCompleted(fees.getFeesId());
+				} else {
+					feesRepository.updateNotIsCompleted(fees.getFeesId());
+				}
+
+				feesPayData.setFees(fees);
+				feesRepository.save(fees);
+				return feesPayRepository.save(feesPayData);
+			}
+		} else {
+			throw new ResourceNotFoundException("Fees Amount Is Greate then Remaining Fees Amount");
+		}
+		throw new ResourceNotFoundException("Fees Pay Not Found");
+	}
+
 }
-
-
