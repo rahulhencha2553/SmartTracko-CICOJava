@@ -39,9 +39,11 @@ public class TaskController {
 		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
 
 	}
+
 	@GetMapping("/getTaskById")
-   public ResponseEntity<Task>getTaskById(@RequestParam("taskId")Integer taskId){
-      Task task=  this.taskService.getTaskById(taskId);   
-      return new ResponseEntity<Task>(task,HttpStatus.OK);
-   }
+	public ResponseEntity<Task> getTaskById(@RequestParam("taskId") Integer taskId) {
+		Task task = this.taskService.getTaskById(taskId);
+		return new ResponseEntity<Task>(task, HttpStatus.OK);
+	}
 }
+
