@@ -15,4 +15,8 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest);
 
+	ResponseEntity<?> getAllAssignments();
+
+	ResponseEntity<?> getAssignmentQuesById(Long questionId);
+
 }
