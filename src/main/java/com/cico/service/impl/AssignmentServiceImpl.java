@@ -77,7 +77,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		for (TaskQuestionRequest request: questionRequest.getAssignmentQuestion()) {
 			TaskQuestion taskQue = new TaskQuestion();
 			taskQue.setQuestion(request.getQuestion());
-			taskQue.setVideoUrl(request.getVideoUrl());
+			//taskQue.setVideoUrl(request.getVideoUrl());
 			List<String> imagesName = new ArrayList<>();
 			for (MultipartFile image : request.getQuestionImages()) {
 				imagesName.add(fileServiceImpl.uploadFileInFolder(image, QUESTION_IMAGES_DIR));

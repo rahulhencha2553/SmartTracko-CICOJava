@@ -1,5 +1,7 @@
 package com.cico.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,12 @@ public class TaskController {
 	public ResponseEntity<Task> getTaskById(@RequestParam("taskId") Integer taskId) {
 		Task task = this.taskService.getTaskById(taskId);
 		return new ResponseEntity<Task>(task, HttpStatus.OK);
+	}
+	
+	@GetMapping("/getAllTask")
+	public ResponseEntity<List<Task>>getAllTask(){
+		List<Task>tasks  = taskService.getAllTask();
+		return new ResponseEntity<List<Task>>(tasks,HttpStatus.OK);
 	}
 }
 

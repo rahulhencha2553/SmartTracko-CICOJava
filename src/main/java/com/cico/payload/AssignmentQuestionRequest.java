@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class AssignmentQuestionRequest {
 	
 	private Long assignmentId;
- 	private MultipartFile taskAttachment;
+	private MultipartFile taskAttachment;
 	private List<TaskQuestionRequest> assignmentQuestion;
+	
 }
