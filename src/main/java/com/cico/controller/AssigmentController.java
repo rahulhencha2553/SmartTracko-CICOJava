@@ -1,6 +1,7 @@
 package com.cico.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,26 +27,37 @@ public class AssigmentController {
 
 	@Autowired
 	private IAssignmentService service;
-	
+
 	@Autowired
 	private ObjectMapper objectMapper;
-	
 
 	@PostMapping("/createAssignment")
 	public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest assignmentRequest) {
-		 return service.createAssignment(assignmentRequest);
+		return service.createAssignment(assignmentRequest);
 	}
-	
+
 	@GetMapping("/getAssignment")
 	public ResponseEntity<Assignment> getAssigment(@RequestParam("assignmentId") Long id) {
 		Assignment assignment = service.getAssignment(id);
-		return  ResponseEntity.ok(assignment);
+		return ResponseEntity.ok(assignment);
 	}
-	
+
 	@PostMapping("/addQuestionInAssignment")
-	public ResponseEntity<?> addQuestionInAssignment(@RequestBody AssignmentQuestionRequest request){
-		return service.addQuestionInAssignment(request);
-	}
+	public ResponseEntity<?> addQuestionInAssignment(@RequestParam Map<String, List<MultipartFile>> questionImages) {
+		
+	//	System.out.println(assignmentQuestionData);
+		 for (Map.Entry<String, List<MultipartFile>> entry : questionImages.entrySet()) {
+		        String questionIndex = entry.getKey();
+		        List<MultipartFile> imageList = entry.getValue();
+
+		        // Process imageList based on question index
+		        for (int imageIndex = 0; imageIndex < imageList.size(); imageIndex++) {
+		            MultipartFile imageFile = imageList.get(imageIndex);
+		            // Process the image file (e.g., save to storage, etc.)
+		        }
+		    }
+		return null;
+  }
 	
 	@GetMapping("/getAllAssignments")
 	public ResponseEntity<?> getAllAssignments(){

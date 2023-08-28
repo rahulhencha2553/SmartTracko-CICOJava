@@ -16,4 +16,6 @@ public interface ITaskService {
 
 	Task getTaskById(Integer taskId);
 
+	List<Task> getAllTask();
+
 }

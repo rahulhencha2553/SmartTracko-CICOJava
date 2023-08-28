@@ -91,4 +91,9 @@ public class TaskServiceImpl implements ITaskService {
 				.orElseThrow(() -> new ResourceNotFoundException("TASK NOT FOUND WITH THIS ID"));
 	}
 
+	@Override
+	public List<Task> getAllTask() {
+	    return taskRepo.findAll();
+	}
+
 }

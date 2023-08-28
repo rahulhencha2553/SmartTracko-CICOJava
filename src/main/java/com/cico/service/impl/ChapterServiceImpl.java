@@ -76,12 +76,12 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public void deleteChapter(Integer chapterId,Integer subjectId) {
-		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false).get();
-		Chapter chapter = chapterRepo.findByChapterIdAndSubjectAndIsDeleted(chapterId,subject, false)
-				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-          System.out.println("222222222222222222222222222222222222"+chapter);
-		chapter.setIsDeleted(true);
-		chapterRepo.save(chapter);
+//		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false).get();
+//		Chapter chapter = chapterRepo.findByChapterIdAndSubjectAndIsDeleted(chapterId,subject, false)
+//				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+//          System.out.println("222222222222222222222222222222222222"+chapter);
+//		chapter.setIsDeleted(true);
+//		chapterRepo.save(chapter);
 
 	}
 

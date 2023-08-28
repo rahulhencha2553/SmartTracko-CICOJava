@@ -83,14 +83,17 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		System.out.println(questionRequest);
 		Assignment assignment = assignmentRepository.findByIdAndIsActive(questionRequest.getAssignmentId(), true)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-		List<TaskQuestion> taskList = new ArrayList<>();
-		for (TaskQuestionRequest request : questionRequest.getAssignmentQuestion()) {
-			TaskQuestion taskQuestion = new TaskQuestion();
-			taskQuestion.setQuestion(request.getQuestion());
-			taskQuestion.setVideoUrl(request.getVideoUrl());
-			taskQuestion.setQuestionImages(request.getQuestionImages());
-			taskList.add(taskQuestion);
-		}
+		List<TaskQuestion> taskQuestionList = new ArrayList<>();
+		for (TaskQuestionRequest request: questionRequest.getAssignmentQuestion()) {
+			TaskQuestion taskQue = new TaskQuestion();
+			taskQue.setQuestion(request.getQuestion());
+			//taskQue.setVideoUrl(request.getVideoUrl());
+			List<String> imagesName = new ArrayList<>();
+			for (MultipartFile image : request.getQuestionImages()) {
+				imagesName.add(fileServiceImpl.uploadFileInFolder(image, QUESTION_IMAGES_DIR));
+			}
+			taskQue.setQuestionImages(imagesName);
+    }
 		assignment.setAssignmentQuestion(taskList);
 		assignment.setTaskAttachment(questionRequest.getTaskAttachment());
 //		List<TaskQuestion> taskQuestionList = new ArrayList<>();
