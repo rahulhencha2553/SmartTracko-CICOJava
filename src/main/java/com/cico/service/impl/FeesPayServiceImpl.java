@@ -134,7 +134,7 @@ public class FeesPayServiceImpl implements IFeesPayService {
 			fees.setFeesPaid(fees.getFeesPaid() + feesPay.getFeesPayAmount());
 			feesPayData.setFeesPayAmount(feesPay.getFeesPayAmount());
 			fees.setRemainingFees(fees.getFinalFees() - fees.getFeesPaid());
-			if (fees.getFeesPaid() <= fees.getRemainingFees()) {
+			if (fees.getFeesPaid() <= fees.getFinalFees()) {
 				if (fees.getRemainingFees() == 0) {
 					feesRepository.updateIsCompleted(fees.getFeesId());
 				} else {
