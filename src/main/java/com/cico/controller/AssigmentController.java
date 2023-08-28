@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Assignment;
+import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.service.IAssignmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,15 +43,17 @@ public class AssigmentController {
 	}
 	
 	@PostMapping("/addQuestionInAssignment")
-	public ResponseEntity<?> addQuestionInAssignment(
-            @RequestParam("assignmentQuestion")  String[] assignmentQuestion
-          ){
-		
-	//	System.out.println(assignmentId);
-		//System.out.println(taskAttachment.getOriginalFilename());
-		System.out.println(assignmentQuestion.toString());
-		//System.out.println(questionImages.toString());
-		
-		return null;
-}
+	public ResponseEntity<?> addQuestionInAssignment(@RequestBody AssignmentQuestionRequest request){
+		return service.addQuestionInAssignment(request);
+	}
+	
+	@GetMapping("/getAllAssignments")
+	public ResponseEntity<?> getAllAssignments(){
+		return service.getAllAssignments();
+	}
+	
+	@GetMapping("/getAssignmentQuesById")
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId){
+		return service.getAssignmentQuesById(questionId);
+	}
 }
