@@ -1,5 +1,6 @@
 package com.cico.payload;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -17,4 +18,5 @@ public class TaskQuestionRequest {
 	  private String videoUrl;
 	  private List<MultipartFile> questionImages;
 	  
+
 }

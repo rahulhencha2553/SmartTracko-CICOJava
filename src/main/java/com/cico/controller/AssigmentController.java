@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Assignment;
+import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.service.IAssignmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,5 +57,15 @@ public class AssigmentController {
 		        }
 		    }
 		return null;
+  }
+	
+	@GetMapping("/getAllAssignments")
+	public ResponseEntity<?> getAllAssignments(){
+		return service.getAllAssignments();
+	}
+	
+	@GetMapping("/getAssignmentQuesById")
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId){
+		return service.getAssignmentQuesById(questionId);
 	}
 }
