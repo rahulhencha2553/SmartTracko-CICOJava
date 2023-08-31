@@ -17,8 +17,11 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.service.IFileService;
@@ -143,7 +146,21 @@ public class FileServiceImpl implements IFileService{
 		return null;
 	}
 
+	 public Resource loadFileAsResource(String filename,String destination) {
+	        try {
+	            Path filePath = Paths.get(System.getProperty("user.dir") +globalImagesPath+ destination).resolve(filename).normalize();
+	            System.out.println(filePath);
+	            Resource resource = new UrlResource(filePath.toUri());
 
+	            if (resource.exists()) {
+	                return resource;
+	            } else {
+	                throw new RuntimeException("File not found: " + filename);
+	            }
+	        } catch (Exception e) {
+	            throw new RuntimeException("Could not load file: " + filename, e);
+	        }
+	    }
 
 	
 	@Override
