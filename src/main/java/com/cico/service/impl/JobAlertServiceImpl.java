@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
@@ -17,16 +18,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.JobAlert;
 import com.cico.model.TechnologyStack;
+import com.cico.payload.ApiResponse;
 import com.cico.payload.JobAlertResponse;
 import com.cico.payload.PageResponse;
 import com.cico.repository.JobAlertRepository;
 import com.cico.service.IJobAlertService;
 import com.cico.service.ITechnologyStackService;
+import com.cico.util.AppConstants;
 
 @Service
 public class JobAlertServiceImpl implements IJobAlertService {
@@ -68,7 +72,7 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public JobAlert update(Integer jobId, String jobTitle, String jobDescription, String companyName,
-			String experienceRequired, String technicalSkills, Integer technologyStackId) {
+			String experienceRequired, String technicalSkills,String jobPackage,String type, Integer technologyStackId) {
 		JobAlert alert = new JobAlert();
 		Optional<JobAlert> findById = repository.findById(jobId);
 		alert = findById.get();
@@ -177,6 +181,16 @@ public class JobAlertServiceImpl implements IJobAlertService {
 		
 		return new PageResponse<>(alertResponses,jobAlert.getNumber(), jobAlert.getSize(), jobAlert.getTotalElements(),
 				jobAlert.getTotalPages(), jobAlert.isLast());
+	}
+
+	@Override
+	public ApiResponse update(JobAlert jobAlert) {
+		
+		JobAlert save = repository.save(jobAlert);
+		if(Objects.nonNull(save))
+			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
+		
 	}
 
 }

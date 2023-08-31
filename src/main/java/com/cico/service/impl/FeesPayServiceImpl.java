@@ -151,4 +151,18 @@ public class FeesPayServiceImpl implements IFeesPayService {
 		throw new ResourceNotFoundException("Fees Pay Not Found");
 	}
 
+	@Override
+	public List<FeesPayResponse> searchByNameInFeesPayList(String fullName) {
+		List<FeesPay> findByFullName = feesPayRepository.findByFullName(fullName);
+		List<FeesPayResponse> asList = Arrays.asList(mapper.map(findByFullName, FeesPayResponse[].class));
+		return asList;
+	}
+
+	@Override
+	public List<FeesPayResponse> searchByMonthInFeesPayList(String startDate, String endDate) {
+		List<FeesPay> findByMonth = feesPayRepository.findByMonth(LocalDate.parse(startDate),LocalDate.parse(endDate));
+		List<FeesPayResponse> asList = Arrays.asList(mapper.map(findByMonth, FeesPayResponse[].class));
+		return asList;
+	}
+
 }

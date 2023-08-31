@@ -26,5 +26,6 @@ public class JobAlertResponse implements Serializable{
 	private String experienceRequired;
 	private String technicalSkills;
 	private TechnologyStack technologyStack;
+	private String jobPackage;
 
 }

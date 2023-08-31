@@ -138,5 +138,20 @@ public class FeesController {
 		return new ResponseEntity<FeesPay>(updateFeesPay,HttpStatus.OK);
 	}
 	
+	@GetMapping("/searchByNameInFeesPayList")
+	public ResponseEntity<List<FeesPayResponse>> searchByNameInFeesPayList(@RequestParam("fullName") String fullName)
+	{
+		
+		List<FeesPayResponse> searchByName = feesPayService.searchByNameInFeesPayList(fullName);
+		return new ResponseEntity<List<FeesPayResponse>>(searchByName,HttpStatus.OK);
+	}
+	@GetMapping("/searchByMonthInFeesPayList")
+	public ResponseEntity<List<FeesPayResponse>> searchByMonthInFeesPayList(@RequestParam("startDate") String startDate,@RequestParam("endDate") String endDate)
+	{
+		
+		List<FeesPayResponse> searchByMonth = feesPayService.searchByMonthInFeesPayList(startDate,endDate);
+		return new ResponseEntity<List<FeesPayResponse>>(searchByMonth,HttpStatus.OK);
+	}
+	
 
 }
