@@ -1,5 +1,7 @@
 package com.cico.service;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
 import com.cico.model.FeesPay;
@@ -20,5 +22,9 @@ public interface IFeesPayService {
 	public FeesPayResponse findByPayId(Integer payId);
 
 	public FeesPay updateFeesPay(FeesPay feesPay);
+
+	public List<FeesPayResponse> searchByNameInFeesPayList(String fullName);
+
+	public List<FeesPayResponse> searchByMonthInFeesPayList(String startDate, String endDate);
 
 }

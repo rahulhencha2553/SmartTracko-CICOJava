@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +21,10 @@ import com.cico.model.Course;
 import com.cico.model.Subject;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
+import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -55,7 +59,6 @@ public class AssigmentController {
 			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
 			@RequestParam("questionImages") List<MultipartFile> questionImages) {
 		return service.addQuestionInAssignment2(question, videoUrl, questionImages, assignmentId);
-
 	}
 
 	@GetMapping("/getAllAssignments")
@@ -73,4 +76,37 @@ public class AssigmentController {
 			@RequestParam("assignmentId") Long assignmentId) {
 		return service.deleteTaskQuestion(questionId, assignmentId);
 	}
+
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId) {
+		return service.getAssignmentQuesById(questionId, assignmentId);
+	}
+
+	@PostMapping("/submitAssignment")
+	public ResponseEntity<?> submitAssignmentByStudent(@RequestParam("file") MultipartFile file,
+			@RequestParam("assignmentSubmissionRequest") String assignmentSubmissionRequest)
+			throws JsonMappingException, JsonProcessingException {
+		AssignmentSubmissionRequest readValue = objectMapper.readValue(assignmentSubmissionRequest,
+				AssignmentSubmissionRequest.class);
+		return service.submitAssignment(file, readValue);
+	}
+
+	// This API for student Uses
+	@GetMapping("/getSubmitedAssignmetByStudentId")
+	public ResponseEntity<?> getSubmitedAssignmetByStudentId(@RequestParam("studentId") Integer studentId) {
+		return service.getSubmitedAssignmetByStudentId(studentId);
+	}
+
+	// This API for Admin Uses
+	@GetMapping("/getAllSubmitedAssginments")
+	public ResponseEntity<?> getAllSubmitedAssginments() {
+		return service.getAllSubmitedAssginments();
+	}
+
+	@PutMapping("/updateSubmitedAssignmentStatus")
+	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Long submissionId,
+			@RequestParam("status") String status,@RequestParam("review") String review) {
+		return service.updateSubmitedAssignmentStatus(submissionId, status, review);
+	}
+
 }

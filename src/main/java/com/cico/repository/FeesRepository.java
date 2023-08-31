@@ -25,7 +25,7 @@ public interface FeesRepository extends JpaRepository<Fees, Integer> {
 	@Query("SELECT f FROM Fees f WHERE f.student.fullName LIKE %:fullName% AND f.isCompleted =:isCompleted")
 	List<Fees> findByStudentFullNameContaining(@Param("fullName") String fullName,@Param("isCompleted") Boolean isCompleted);
 
-	@Query("SELECT f FROM Fees f WHERE f.date BETWEEN :startDate AND :endDate AND f.isCompleted =:isCompleted")
+	@Query("SELECT f FROM Fees f WHERE f.date BETWEEN :startDate AND :endDate AND f.isCompleted =:isCompleted ORDER BY f.date DESC")
 	List<Fees> findFeesByGivenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate,@Param("isCompleted") Boolean isCompleted);
 
 	Fees findByFeesId(Integer feesId);

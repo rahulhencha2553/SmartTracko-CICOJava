@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import com.cico.payload.JobAlertResponse;
 import com.cico.payload.PageResponse;
 import com.cico.service.IJobAlertService;
 import com.cico.util.AppConstants;
+
 
 @RestController
 @RequestMapping("/job")
@@ -63,17 +65,10 @@ public class JobAlertController {
 		return new ResponseEntity<>(jobAlert, HttpStatus.OK);
 	}
 
-	@PutMapping("/updateJobApi")
-	public ResponseEntity<ApiResponse> updatejob(@RequestParam("jobId") Integer jobId,
-			@RequestParam("TechnologyStackId") Integer TechnologyStack, @RequestParam("jobTitle") String jobTitle,
-			@RequestParam("jobDescription") String jobDescription, @RequestParam("companyName") String companyName,
-			@RequestParam("experienceRequired") String experienceRequired,
-			@RequestParam("technicalSkills") String technicalSkills,
-			@RequestParam("technologyStack") Integer technologyStackId) {
-		JobAlert update = service.update(jobId, jobTitle, jobDescription, companyName, experienceRequired,
-				technicalSkills, technologyStackId);
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(new ApiResponse(Boolean.TRUE, "Job Updated Successfully", HttpStatus.CREATED));
+	@PutMapping("/updateAlertJobApi")
+	public ResponseEntity<ApiResponse> updatejob(@RequestBody JobAlert jobAlert) {
+		 ApiResponse update = service.update(jobAlert);
+		 return ResponseEntity.status(HttpStatus.CREATED).body(update);
 	}
 
 	@DeleteMapping("/deleteJobApi")

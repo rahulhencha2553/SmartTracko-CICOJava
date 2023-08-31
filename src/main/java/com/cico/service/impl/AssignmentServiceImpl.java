@@ -21,17 +21,22 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
 import com.cico.model.Course;
 import com.cico.model.Subject;
+import com.cico.model.AssignmentSubmission;
 import com.cico.model.TaskQuestion;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
+import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.payload.TaskQuestionRequest;
 import com.cico.repository.AssignmentRepository;
+import com.cico.repository.AssignmentSubmissionRepository;
 import com.cico.repository.CourseRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TaskQuestionRepository;
 import com.cico.service.IAssignmentService;
 import com.cico.util.AppConstants;
+import com.cico.util.SubmissionStatus;
 
 @Service
 public class AssignmentServiceImpl implements IAssignmentService {
@@ -59,6 +64,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Autowired
 	private TaskQuestionRepository taskQuestionRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
+	
+	@Autowired
+	private AssignmentSubmissionRepository submissionRepository;
 
 	@Override
 	public Assignment getAssignment(Long id) {
@@ -88,14 +99,53 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAssignmentQuesById(Long questionId) {
+	public ResponseEntity<?> getAssignmentQuesById(Long questionId,Long assignmentId) {
 		Map<String, Object> response = new HashMap<>();
 		TaskQuestion taskQuestion = taskQuestionRepository.findByQuestionId(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-
+		Assignment assignment = assignmentRepository.findByIdAndIsActive(assignmentId,true).get();
 		response.put("question", taskQuestion);
-		response.put("attachment", response);
-		return null;
+		response.put("attachment", assignment.getTaskAttachment());
+		return new ResponseEntity<>(response,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) {
+		AssignmentSubmission submission = new AssignmentSubmission();
+		submission.setStudent(studentRepository.findByStudentId(readValue.getStudentId()));
+		submission.setAssignmentId(readValue.getAssignmentId());
+		submission.setTaskId(readValue.getTaskId());
+		submission.setDescription(readValue.getDescription());
+		submission.setSubmissionDate(LocalDateTime.now());
+		submission.setStatus(SubmissionStatus.Unreviewed);;
+		if(Objects.nonNull(file)) {
+			String fileName = fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
+			submission.setSubmitFile(fileName);
+		}
+		return new ResponseEntity<>(submissionRepository.save(submission),HttpStatus.CREATED);
+	}
+
+	@Override
+	public ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId) {
+		List<AssignmentSubmission> assignmentByStudentId = submissionRepository.getSubmitAssignmentByStudentId(studentId);
+		return new  ResponseEntity<>(assignmentByStudentId,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllSubmitedAssginments() {
+		return new ResponseEntity<>(submissionRepository.findAll(),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> updateSubmitedAssignmentStatus(Long submissionId,String status,String review) {
+		if(status.equals(SubmissionStatus.Reviewing.toString())) {
+			 submissionRepository.updateSubmitAssignmentStatus(submissionId,SubmissionStatus.Reviewing,review);
+		}else if(status.equals(SubmissionStatus.Accepted.toString())) {
+			 submissionRepository.updateSubmitAssignmentStatus(submissionId,SubmissionStatus.Accepted,review);
+		}else if(status.equals(SubmissionStatus.Rejected.toString())){
+			 submissionRepository.updateSubmitAssignmentStatus(submissionId,SubmissionStatus.Rejected,review);
+		}
+		return new ResponseEntity<>(submissionRepository.findById(submissionId).get(),HttpStatus.CREATED);
 	}
 
 	@Override
