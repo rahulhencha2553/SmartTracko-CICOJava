@@ -3,6 +3,7 @@ package com.cico.model;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -24,6 +25,7 @@ public class TaskQuestion {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long questionId;
 	
+	@Column(columnDefinition = "longtext")
 	private String question;
 	
 	@ElementCollection

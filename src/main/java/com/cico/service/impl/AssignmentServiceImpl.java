@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
+import com.cico.model.Course;
+import com.cico.model.Subject;
 import com.cico.model.TaskQuestion;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.AssignmentQuestionRequest;
@@ -79,42 +83,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest) {
-		System.out.println(questionRequest);
-		Assignment assignment = assignmentRepository.findByIdAndIsActive(questionRequest.getAssignmentId(), true)
-				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-		List<TaskQuestion> taskQuestionList = new ArrayList<>();
-		for (TaskQuestionRequest request: questionRequest.getAssignmentQuestion()) {
-			TaskQuestion taskQue = new TaskQuestion();
-			taskQue.setQuestion(request.getQuestion());
-			//taskQue.setVideoUrl(request.getVideoUrl());
-			List<String> imagesName = new ArrayList<>();
-			for (MultipartFile image : request.getQuestionImages()) {
-				imagesName.add(fileServiceImpl.uploadFileInFolder(image, QUESTION_IMAGES_DIR));
-			}
-			taskQue.setQuestionImages(imagesName);
-    }
-		assignment.setAssignmentQuestion(taskList);
-		assignment.setTaskAttachment(questionRequest.getTaskAttachment());
-//		List<TaskQuestion> taskQuestionList = new ArrayList<>();
-//		for (TaskQuestionRequest request: questionRequest.getAssignmentQuestion()) {
-//			TaskQuestion taskQue = new TaskQuestion();
-//			taskQue.setQuestion(request.getQuestion());
-//			taskQue.setVideoUrl(request.getVideoUrl());
-//			List<String> imagesName = new ArrayList<>();
-//			for (MultipartFile image : request.getQuestionImages()) {
-//				imagesName.add(fileServiceImpl.uploadFileInFolder(image, QUESTION_IMAGES_DIR));
-//			}
-//			taskQue.setQuestionImages(imagesName);
-//		}
-//		assignment.setAssignmentQuestion(taskQuestionList);
-		Assignment save = assignmentRepository.save(assignment);
-		if (Objects.nonNull(save))
-			return new ResponseEntity<>(save, HttpStatus.CREATED);
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	}
-
-	@Override
 	public ResponseEntity<?> getAllAssignments() {
 		return new ResponseEntity<>(assignmentRepository.findByIsActiveTrue(), HttpStatus.OK);
 	}
@@ -128,6 +96,54 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		response.put("question", taskQuestion);
 		response.put("attachment", response);
 		return null;
+	}
+
+	@Override
+	public ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl,
+			List<MultipartFile> questionImages, Long assignmentId) {
+		System.out.println(question);
+		System.out.println(videoUrl);
+		System.out.println(questionImages.toString());
+		Optional<Assignment> assignment = assignmentRepository.findByIdAndIsActive(assignmentId, true);
+		if (Objects.nonNull(assignment)) {
+			TaskQuestion taskQuestion = new TaskQuestion();
+			taskQuestion.setQuestion(question);
+			taskQuestion.setVideoUrl(videoUrl);
+			List<String> list = new ArrayList<>();
+			questionImages.forEach((t) -> {
+				String fileName = fileServiceImpl.uploadFileInFolder(t, QUESTION_IMAGES_DIR);
+				list.add(fileName);
+			});
+			taskQuestion.setQuestionImages(list);
+			List<TaskQuestion> assignmentQuestion = assignment.get().getAssignmentQuestion();
+			assignmentQuestion.add(taskQuestion);
+		}
+		return new ResponseEntity<>(assignmentRepository.save(assignment.get()), HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId) {
+		  assignmentRepository.deleteQuestionByIdAndId(assignmentId, questionId);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<?> addAssignment(Long assignmentId, MultipartFile attachment) {
+
+		Assignment assignment = assignmentRepository.findById(assignmentId).get();
+		if(Objects.nonNull(assignment)) {
+			String fileName = fileServiceImpl.uploadFileInFolder(attachment,QUESTION_IMAGES_DIR );
+			assignment.setTaskAttachment(fileName);
+		}
+	
+		assignmentRepository.save(assignment);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 }

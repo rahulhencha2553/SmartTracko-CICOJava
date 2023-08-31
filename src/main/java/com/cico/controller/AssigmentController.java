@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Assignment;
+import com.cico.model.Course;
+import com.cico.model.Subject;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.service.IAssignmentService;
@@ -35,6 +38,11 @@ public class AssigmentController {
 	public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest assignmentRequest) {
 		return service.createAssignment(assignmentRequest);
 	}
+   @PostMapping("/addAssignment")
+	public ResponseEntity<?> addAssignment(@RequestParam("assignmentId") Long assignmentId,
+		 @RequestParam("attachment") MultipartFile attachment) {
+		return this.service.addAssignment(assignmentId, attachment);
+	}
 
 	@GetMapping("/getAssignment")
 	public ResponseEntity<Assignment> getAssigment(@RequestParam("assignmentId") Long id) {
@@ -43,29 +51,26 @@ public class AssigmentController {
 	}
 
 	@PostMapping("/addQuestionInAssignment")
-	public ResponseEntity<?> addQuestionInAssignment(@RequestParam Map<String, List<MultipartFile>> questionImages) {
-		
-	//	System.out.println(assignmentQuestionData);
-		 for (Map.Entry<String, List<MultipartFile>> entry : questionImages.entrySet()) {
-		        String questionIndex = entry.getKey();
-		        List<MultipartFile> imageList = entry.getValue();
+	public ResponseEntity<?> addQuestionInAssignment(@RequestParam("assignmentId") Long assignmentId,
+			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
+			@RequestParam("questionImages") List<MultipartFile> questionImages) {
+		return service.addQuestionInAssignment2(question, videoUrl, questionImages, assignmentId);
 
-		        // Process imageList based on question index
-		        for (int imageIndex = 0; imageIndex < imageList.size(); imageIndex++) {
-		            MultipartFile imageFile = imageList.get(imageIndex);
-		            // Process the image file (e.g., save to storage, etc.)
-		        }
-		    }
-		return null;
-  }
-	
+	}
+
 	@GetMapping("/getAllAssignments")
-	public ResponseEntity<?> getAllAssignments(){
+	public ResponseEntity<?> getAllAssignments() {
 		return service.getAllAssignments();
 	}
-	
+
 	@GetMapping("/getAssignmentQuesById")
-	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId){
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId) {
 		return service.getAssignmentQuesById(questionId);
+	}
+
+	@DeleteMapping("/deleteTaskQuestion")
+	public ResponseEntity<?>deleteTaskQuestions(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId) {
+		return service.deleteTaskQuestion(questionId, assignmentId);
 	}
 }
