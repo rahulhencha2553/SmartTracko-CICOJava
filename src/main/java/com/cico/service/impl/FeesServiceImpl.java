@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Fees;
+import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.repository.CourseRepository;
@@ -158,6 +159,7 @@ public class FeesServiceImpl implements IFeesService {
 	   feeResponse.put("Pending",row.get(0)[1]);
 	     feeResponse.put("Collected", row.get(0)[2]);
 	    return new ResponseEntity<>(feeResponse,HttpStatus.OK);
-	}  
+	}
+ 
 	
 }

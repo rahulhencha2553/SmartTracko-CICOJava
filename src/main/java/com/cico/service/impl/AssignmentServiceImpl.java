@@ -94,8 +94,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			}
 			taskQue.setQuestionImages(imagesName);
     }
-		assignment.setAssignmentQuestion(taskList);
-		assignment.setTaskAttachment(questionRequest.getTaskAttachment());
+//		assignment.setAssignmentQuestion(taskList);
+//		assignment.setTaskAttachment(questionRequest.getTaskAttachment());
 //		List<TaskQuestion> taskQuestionList = new ArrayList<>();
 //		for (TaskQuestionRequest request: questionRequest.getAssignmentQuestion()) {
 //			TaskQuestion taskQue = new TaskQuestion();

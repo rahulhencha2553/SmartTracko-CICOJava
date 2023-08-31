@@ -33,4 +33,6 @@ public interface JobAlertRepository extends JpaRepository<JobAlert, Integer> {
 			boolean isActive,Pageable pageable);
 
 	Page<JobAlert> findAllByIsDeleted (boolean isDeleted,Pageable pageable);
+
+	JobAlert findByJobId(Integer jobId);
 }

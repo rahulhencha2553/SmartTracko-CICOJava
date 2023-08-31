@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 import com.cico.model.Fees;
+import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
 
@@ -31,5 +32,7 @@ public interface IFeesService {
 	ResponseEntity<?> getFeesCollectionMonthAndYearWise(int year);
 
 	public ResponseEntity<?> getTotalfeesCollection();
+
+	
 
 }
