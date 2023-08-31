@@ -1,9 +1,17 @@
 package com.cico.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+import com.cico.util.SubmissionStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,11 +22,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 public class StudentTaskSubmittion {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	private String taskDescription;
 	private String submittionFileName;
-    
+	@OneToOne
+	private Student student;
+	private Integer taskId;
+	private LocalDateTime submissionDate;
+	@Enumerated(EnumType.STRING)
+	private SubmissionStatus status;
+	private String review;
+
 }
