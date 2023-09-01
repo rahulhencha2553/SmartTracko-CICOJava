@@ -106,5 +106,9 @@ public class AssigmentController {
 	public  ResponseEntity<?>getAllSubmissionAssignmentTaskStatus(){
 		 return  service.getAllSubmissionAssignmentTaskStatus();
 	}
-
+	
+	@GetMapping("getOverAllAssignmentTaskStatus")
+	public ResponseEntity<?>getOverAllAssignmentTaskStatus(){
+		 return service.getOverAllAssignmentTaskStatus();
+	}
 }
