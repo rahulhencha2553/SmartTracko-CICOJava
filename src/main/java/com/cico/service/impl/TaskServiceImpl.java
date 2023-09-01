@@ -37,13 +37,14 @@ public class TaskServiceImpl implements ITaskService {
 	@Autowired
 	TaskRepo taskRepo;
 
-	@Value("${questionImages}")
-	String imageUploadPath;
-
 	@Autowired
 	FileServiceImpl fileService;
+	
 	@Value("${questionImages}")
 	private String QUESTION_IMAGES_DIR;
+
+	@Value("${attachmentFiles}")
+	private String ATTACHMENT_FILES_DIR;
 
 	@Autowired
 	CourseServiceImpl courseService;
@@ -122,11 +123,11 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Integer taskId, Integer studentId, MultipartFile file,
 			String taskDescription) {
+		
 		StudentTaskSubmittion submittion = new StudentTaskSubmittion();
-
 		submittion.setStudent(studentRepository.findByStudentId(studentId));
 		if (Objects.nonNull(file)) {
-			String f = fileService.uploadFileInFolder(file, imageUploadPath);
+			String f = fileService.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
 			submittion.setSubmittionFileName(f);
 			System.out.println("111111111111111"+f);
 		}
@@ -135,7 +136,6 @@ public class TaskServiceImpl implements ITaskService {
 		submittion.setSubmissionDate(LocalDateTime.now());
 		submittion.setTaskDescription(taskDescription);
 		StudentTaskSubmittion object = studentTaskSubmittionRepository.save(submittion);
-		System.out.println(object);
 		if (!Objects.isNull(object)) {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
@@ -173,12 +173,10 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> addTaskAttachment(Integer taskId, MultipartFile attachment) {
-		System.out.println(taskId);
-		System.out.println(attachment);
 		Optional<Task> task = taskRepo.findByTaskIdAndIsActive(taskId, true);
 
 		if (task.isPresent()) {
-			String fileName = fileService.uploadFileInFolder(attachment, QUESTION_IMAGES_DIR);
+			String fileName = fileService.uploadFileInFolder(attachment, ATTACHMENT_FILES_DIR);
 			task.get().setTaskAttachment(fileName);
 			taskRepo.save(task.get());
 			return new ResponseEntity<>(HttpStatus.OK);
@@ -198,6 +196,24 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public ResponseEntity<?> getAllSubmitedTasks() {
 		return new ResponseEntity<>(studentTaskSubmittionRepository.findAll(),HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId) {
+		List<StudentTaskSubmittion> submitedTaskForStudent = studentTaskSubmittionRepository.getSubmitedTaskForStudent(studentId);
+		return new ResponseEntity<>(submitedTaskForStudent,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review) {
+		if(status.equals(SubmissionStatus.Reviewing.toString())) {
+			 studentTaskSubmittionRepository.updateSubmitTaskStatus(submissionId,SubmissionStatus.Reviewing,review);
+		}else if(status.equals(SubmissionStatus.Accepted.toString())) {
+			studentTaskSubmittionRepository.updateSubmitTaskStatus(submissionId,SubmissionStatus.Accepted,review);
+		}else if(status.equals(SubmissionStatus.Rejected.toString())){
+			studentTaskSubmittionRepository.updateSubmitTaskStatus(submissionId,SubmissionStatus.Rejected,review);
+		}
+		return new ResponseEntity<>(studentTaskSubmittionRepository.findBySubmissionId(submissionId),HttpStatus.CREATED);
 	}
 
 }

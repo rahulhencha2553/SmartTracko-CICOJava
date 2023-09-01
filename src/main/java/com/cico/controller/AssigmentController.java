@@ -1,7 +1,6 @@
 package com.cico.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Assignment;
-import com.cico.model.Course;
-import com.cico.model.Subject;
-import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
@@ -67,8 +63,9 @@ public class AssigmentController {
 	}
 
 	@GetMapping("/getAssignmentQuesById")
-	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId) {
-		return service.getAssignmentQuesById(questionId);
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId) {
+		return service.getAssignmentQuesById(questionId, assignmentId);
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
@@ -77,10 +74,6 @@ public class AssigmentController {
 		return service.deleteTaskQuestion(questionId, assignmentId);
 	}
 
-	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId,
-			@RequestParam("assignmentId") Long assignmentId) {
-		return service.getAssignmentQuesById(questionId, assignmentId);
-	}
 
 	@PostMapping("/submitAssignment")
 	public ResponseEntity<?> submitAssignmentByStudent(@RequestParam("file") MultipartFile file,
