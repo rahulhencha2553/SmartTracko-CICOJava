@@ -32,4 +32,6 @@ public interface ITaskService {
 
 	ResponseEntity<?> getAllSubmitedTasks();
 
+	ResponseEntity<?> getAllSubmissionTaskStatus();
+
 }

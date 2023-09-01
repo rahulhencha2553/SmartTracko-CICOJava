@@ -57,11 +57,12 @@ public class TaskController {
 	}
 
 	@PostMapping("/studentTaskSubmittion")
-	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId")Integer taskId,@RequestParam("studentId") Integer studentId,
+	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") Integer taskId,
+			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
 			@RequestParam("taskDescription") String taskDescription) {
 
-		return taskService.studentTaskSubmittion(taskId,studentId, file, taskDescription);
+		return taskService.studentTaskSubmittion(taskId, studentId, file, taskDescription);
 
 	}
 
@@ -82,12 +83,16 @@ public class TaskController {
 	@DeleteMapping("/deleteTaskQuestion")
 	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId,
 			@RequestParam("taskId") Integer taskId) {
-		return taskService.deleteTaskQuestion(taskId,questionId);
+		return taskService.deleteTaskQuestion(taskId, questionId);
 	}
-	
+
 	@GetMapping("/getAllSubmitedTask")
-	public ResponseEntity<?> getAllSubmitedTasks(){
+	public ResponseEntity<?> getAllSubmitedTasks() {
 		return taskService.getAllSubmitedTasks();
 	}
 
+	@GetMapping("/getAllSubmissionTaskStatus")
+	public  ResponseEntity<?>getAllSubmissionTaskStatus(){
+		 return  taskService.getAllSubmissionTaskStatus();
+	}
 }
