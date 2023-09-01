@@ -38,9 +38,10 @@ public class AssigmentController {
 	public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest assignmentRequest) {
 		return service.createAssignment(assignmentRequest);
 	}
-   @PostMapping("/addAssignment")
+
+	@PostMapping("/addAssignment")
 	public ResponseEntity<?> addAssignment(@RequestParam("assignmentId") Long assignmentId,
-		 @RequestParam("attachment") MultipartFile attachment) {
+			@RequestParam("attachment") MultipartFile attachment) {
 		return this.service.addAssignment(assignmentId, attachment);
 	}
 
@@ -69,11 +70,10 @@ public class AssigmentController {
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
-	public ResponseEntity<?>deleteTaskQuestions(@RequestParam("questionId") Long questionId,
+	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId,
 			@RequestParam("assignmentId") Long assignmentId) {
 		return service.deleteTaskQuestion(questionId, assignmentId);
 	}
-
 
 	@PostMapping("/submitAssignment")
 	public ResponseEntity<?> submitAssignmentByStudent(@RequestParam("file") MultipartFile file,
@@ -98,8 +98,13 @@ public class AssigmentController {
 
 	@PutMapping("/updateSubmitedAssignmentStatus")
 	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Long submissionId,
-			@RequestParam("status") String status,@RequestParam("review") String review) {
+			@RequestParam("status") String status, @RequestParam("review") String review) {
 		return service.updateSubmitedAssignmentStatus(submissionId, status, review);
+	}
+	
+	@GetMapping("/getAllSubmissionAssignmentTaskStatus")
+	public  ResponseEntity<?>getAllSubmissionAssignmentTaskStatus(){
+		 return  service.getAllSubmissionAssignmentTaskStatus();
 	}
 
 }

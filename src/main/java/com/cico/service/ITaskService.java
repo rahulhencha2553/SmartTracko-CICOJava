@@ -32,6 +32,9 @@ public interface ITaskService {
 
 	ResponseEntity<?> getAllSubmitedTasks();
 
+
+	ResponseEntity<?> getAllSubmissionTaskStatus();
+
 	ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId);
 
 	ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review);

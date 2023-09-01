@@ -16,18 +16,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.model.AssignmentSubmission;
 import com.cico.model.Course;
 import com.cico.model.StudentTaskSubmittion;
 import com.cico.model.Subject;
 import com.cico.model.Task;
 import com.cico.model.TaskQuestion;
+import com.cico.model.TaskSubmission;
+import com.cico.payload.SubmissionAssignmentTaskStatus;
 import com.cico.payload.TaskFilterRequest;
 import com.cico.payload.TaskRequest;
+import com.cico.repository.AssignmentTaskQuestionRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.StudentTaskSubmittionRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TaskQuestionRepository;
 import com.cico.repository.TaskRepo;
+import com.cico.repository.TaskSubmissionRepository;
 import com.cico.service.ITaskService;
 import com.cico.util.SubmissionStatus;
 
@@ -62,6 +67,11 @@ public class TaskServiceImpl implements ITaskService {
 	private TaskQuestionRepository taskQuestionRepository;
 	@Autowired
 	private StudentRepository studentRepository;
+	
+	@Autowired
+	private AssignmentTaskQuestionRepository assignmentTaskQuestionRepo;
+	@Autowired
+	private TaskSubmissionRepository taskSubmissionRepository;
 	
 
 	@Override
@@ -161,8 +171,8 @@ public class TaskServiceImpl implements ITaskService {
 
 			taskQuestion.setQuestionImages(list);
 
-			Task task = taskOptional.get();
-			task.getTaskQuestion().add(taskQuestion);
+			 Task task = taskOptional.get();
+			 task.getTaskQuestion().add(taskQuestion);
 
 			Task save = taskRepo.save(task);
 			return new ResponseEntity<>(save, HttpStatus.OK);
@@ -186,19 +196,58 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> deleteTaskQuestion(Integer taskId, Long questionId) {
-		TaskQuestion taskQuestion = taskQuestionRepository.findByQuestionId(questionId).get();
-		Task task = taskRepo.findByTaskIdAndIsActive(taskId, true).get();
-		List<TaskQuestion> newTaskQuestionList = new ArrayList<>(task.getTaskQuestion());
-		taskRepo.deleteTaskQuestionByTaskId(taskId, taskQuestion, newTaskQuestionList);
-		return new ResponseEntity<>(HttpStatus.OK);
+//		AssignmentTaskQuestion assignmentTaskQuestion = taskQuestionRepository.findByQuestionId(questionId).get();
+//		Task task = taskRepo.findByTaskIdAndIsActive(taskId, true).get();
+//		List<AssignmentTaskQuestion> newTaskQuestionList = new ArrayList<>(task.getAssignmentTaskQuestion());
+//		taskRepo.deleteTaskQuestionByTaskId(taskId, assignmentTaskQuestion, newTaskQuestionList);
+//		return new ResponseEntity<>(HttpStatus.OK);
+		return null;
 	}
 
 	@Override
 	public ResponseEntity<?> getAllSubmitedTasks() {
-		return new ResponseEntity<>(studentTaskSubmittionRepository.findAll(),HttpStatus.OK);
+		return new ResponseEntity<>(taskSubmissionRepository.findAll(),HttpStatus.OK);
 	}
 
-	@Override
+
+	public ResponseEntity<?> getAllSubmissionTaskStatus() {
+		
+		  List<Task>tasks = taskRepo.findByIsActiveTrue();
+
+		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
+
+		tasks.forEach(task -> {
+			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
+			int totalSubmitted = 0;
+			int underReviewed = 0;
+			int reviewed = 0;
+			int taskCount = 0;
+			List<TaskQuestion> questions = task.getTaskQuestion();
+			for (TaskQuestion q : questions) {
+				taskCount+= 1;
+				     List<TaskSubmission> taskSubmission = taskSubmissionRepository.getSubmitAssignmentByAssignmentId(q.getQuestionId());
+				     totalSubmitted += taskSubmission.size();
+				for (TaskSubmission submission : taskSubmission) {
+					if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
+						underReviewed += 1;
+					} else if (submission.getStatus().equals(SubmissionStatus.Reviewing)
+							|| submission.getStatus().equals(SubmissionStatus.Accepted)
+							|| submission.getStatus().equals(SubmissionStatus.Rejected)) {
+						reviewed += 1;
+					}
+				}
+				assignmentTaskStatus.setTaskId(q.getQuestionId());
+				assignmentTaskStatus.setTaskCount(taskCount);
+				assignmentTaskStatus.setUnderReveiwed(underReviewed);
+				assignmentTaskStatus.setReveiwed(reviewed);
+				assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+				assignmentTaskStatusList.add(assignmentTaskStatus);
+			}
+		});
+		return ResponseEntity.ok(assignmentTaskStatusList);
+	}
+
+
 	public ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId) {
 		List<StudentTaskSubmittion> submitedTaskForStudent = studentTaskSubmittionRepository.getSubmitedTaskForStudent(studentId);
 		return new ResponseEntity<>(submitedTaskForStudent,HttpStatus.OK);

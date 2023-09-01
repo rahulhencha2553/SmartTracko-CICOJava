@@ -25,8 +25,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class TaskQuestion {
-	
+public class AssignmentTaskQuestion {
+ 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long questionId;
@@ -43,7 +43,7 @@ public class TaskQuestion {
 	private Long  assignmentId;
 
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-	private List<TaskSubmission> assignmentSubmissions;
+	private List<AssignmentSubmission> assignmentSubmissions;
 	
 	private Boolean isActive=true;
 }

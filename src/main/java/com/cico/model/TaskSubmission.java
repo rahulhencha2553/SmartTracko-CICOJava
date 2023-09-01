@@ -9,26 +9,21 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import com.cico.util.SubmissionStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table
-public class AssignmentSubmission {
+public class TaskSubmission {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long submissionId;
-
-	private Long assignmentId;
-
+	
 	private Long taskId;
 
 	@OneToOne
@@ -45,6 +40,4 @@ public class AssignmentSubmission {
        
 	private String review;
 
-//	@ManyToOne
-//	private TaskQuestion taskQuestion;
 }
