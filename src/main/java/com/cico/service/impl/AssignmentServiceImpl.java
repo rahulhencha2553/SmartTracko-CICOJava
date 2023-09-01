@@ -267,7 +267,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
 				assignmentTaskStatusList.add(assignmentTaskStatus);
 			}
-
 		});
 		this.getOverAllAssignmentTaskStatus();
 		return ResponseEntity.ok(assignmentTaskStatusList);
