@@ -33,8 +33,6 @@ public class Task {
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<TaskQuestion>TaskQuestion = new ArrayList<>();;
 
-	private String submitFile;
-
 	@OneToOne
 	private Course course;
 

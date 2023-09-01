@@ -61,8 +61,8 @@ public class TaskController {
 			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
 			@RequestParam("taskDescription") String taskDescription) {
+		return taskService.studentTaskSubmittion(taskId,studentId, file, taskDescription);
 
-		return taskService.studentTaskSubmittion(taskId, studentId, file, taskDescription);
 
 	}
 
@@ -85,14 +85,26 @@ public class TaskController {
 			@RequestParam("taskId") Integer taskId) {
 		return taskService.deleteTaskQuestion(taskId, questionId);
 	}
-
+	
+	@GetMapping("/getSubmitedTaskForStudent")
+	public ResponseEntity<?> getSubmitedTaskForStudent(@RequestParam("studentId") Integer studentId){
+		return taskService.getSubmitedTaskForStudent(studentId);	
+	}
+	
 	@GetMapping("/getAllSubmitedTask")
 	public ResponseEntity<?> getAllSubmitedTasks() {
 		return taskService.getAllSubmitedTasks();
 	}
 
+
 	@GetMapping("/getAllSubmissionTaskStatus")
 	public  ResponseEntity<?>getAllSubmissionTaskStatus(){
 		 return  taskService.getAllSubmissionTaskStatus();
+
+		
+	@PutMapping("/updateSubmitedAssignmentStatus")
+	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Integer submissionId,
+			@RequestParam("status") String status,@RequestParam("review") String review){
+		return taskService.updateSubmitedTaskStatus(submissionId,status,review);
 	}
 }
