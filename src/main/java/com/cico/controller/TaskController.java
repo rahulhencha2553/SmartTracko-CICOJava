@@ -100,6 +100,7 @@ public class TaskController {
 	@GetMapping("/getAllSubmissionTaskStatus")
 	public  ResponseEntity<?>getAllSubmissionTaskStatus(){
 		 return  taskService.getAllSubmissionTaskStatus();
+	}
 
 		
 	@PutMapping("/updateSubmitedAssignmentStatus")
