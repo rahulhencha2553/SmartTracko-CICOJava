@@ -16,10 +16,14 @@ import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
 @Data
+@Entity
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "assignments")
@@ -28,24 +32,22 @@ public class Assignment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 	private String title;
 
 	private String taskAttachment;
-	
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<TaskQuestion>AssignmentQuestion= new ArrayList<>();;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private List<AssignmentTaskQuestion> AssignmentQuestion = new ArrayList<>();;
 
 	@OneToOne
 	private Course course;
-	
+
 	@OneToOne
 	private Subject subject;
-		
-	private Boolean isActive=true;
-	
+
+	private Boolean isActive = true;
+
 	private LocalDateTime createdDate;
 
 }
-

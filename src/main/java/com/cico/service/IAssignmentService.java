@@ -36,4 +36,8 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> addAssignment(Long assignmentId, MultipartFile attachment);
 
+	ResponseEntity<?> getAllSubmissionAssignmentTaskStatus();
+
+	ResponseEntity<?> getOverAllAssignmentTaskStatus();
+
 }

@@ -1,6 +1,5 @@
 package com.cico.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
@@ -24,27 +23,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table
 public class AssignmentSubmission {
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long submissionId;
-	
+
 	private Long assignmentId;
-	
+
 	private Long taskId;
-	
-	@OneToOne 
+
+	@OneToOne
 	private Student student;
-	
+
 	private String description;
-	
-	private String  submitFile;
-	
+
+	private String submitFile;
+
 	private LocalDateTime submissionDate;
-	
+
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;
-	
+       
 	private String review;
 
+//	@ManyToOne
+//	private TaskQuestion taskQuestion;
 }

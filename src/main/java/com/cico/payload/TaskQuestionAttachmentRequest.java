@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Task;
-import com.cico.model.TaskQuestion;
+import com.cico.model.AssignmentTaskQuestion;
 
 import lombok.Data;
 
@@ -13,6 +13,6 @@ import lombok.Data;
 public class TaskQuestionAttachmentRequest {
 	
 	private MultipartFile taskAttachment;
-	private List<TaskQuestion> question;
+	private List<AssignmentTaskQuestion> question;
 	private Task task;
 }
