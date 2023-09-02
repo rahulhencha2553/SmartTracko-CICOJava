@@ -67,8 +67,9 @@ public class AssigmentController {
 	}
 
 	@GetMapping("/getAssignmentQuesById")
-	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId) {
-		return service.getAssignmentQuesById(questionId);
+	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId) {
+		return service.getAssignmentQuesById(questionId, assignmentId);
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
@@ -77,10 +78,7 @@ public class AssigmentController {
 		return service.deleteTaskQuestion(questionId, assignmentId);
 	}
 
-	public ResponseEntity<?> getAssignmentQuestion(@RequestParam("questionId") Long questionId,
-			@RequestParam("assignmentId") Long assignmentId) {
-		return service.getAssignmentQuesById(questionId, assignmentId);
-	}
+	
 
 	@PostMapping("/submitAssignment")
 	public ResponseEntity<?> submitAssignmentByStudent(@RequestParam("file") MultipartFile file,

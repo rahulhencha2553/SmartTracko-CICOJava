@@ -32,7 +32,7 @@ public class NewsEventsController {
 	public ResponseEntity<ApiResponse> createNewsEvents(@RequestParam("shortDescriptoin")String shortDescription,
 			@RequestParam("briefDescription")String briefDescription,
 			@RequestParam("title") String title,
-			@RequestParam("file") MultipartFile file) {
+			@RequestParam("fileName") MultipartFile file) {
 		  newsEventsService.createNewsEvents(shortDescription, briefDescription, title, file);
 		return new ResponseEntity<ApiResponse>(new ApiResponse(Boolean.TRUE,AppConstants.CREATE_SUCCESS,HttpStatus.CREATED), HttpStatus.CREATED);
 	}
