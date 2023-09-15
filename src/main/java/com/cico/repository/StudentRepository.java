@@ -75,4 +75,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 //	   @Query("SELECT s FROM Student s ORDER BY s.someAttribute DESC")
 //	    List<Student> findAllOrderedDesc();
 	 List<Student> findAllByOrderByStudentIdDesc();
+
+	Optional<Student> findByEmailAndMobile(String email, String mobile);
 }
