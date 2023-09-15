@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.aspectj.weaver.patterns.HasMemberTypePatternForPerThisMatching;
 import org.modelmapper.ModelMapper;
@@ -33,6 +34,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
 import com.cico.model.Leaves;
@@ -235,16 +237,21 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student registerStudent(Student student) {
-		Student student1 = studRepo.save(student);
-		student1.setPassword(passwordEncoder.encode("123456"));
-		student1.setContactFather(student.getContactFather());
-		student1.setRole(Roles.STUDENT.toString());
-		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
-		student1.setProfilePic("default.png");
-		student1.setDeviceId("");
-		student1.setInUseDeviceId("");
-		student1.setCreatedDate(LocalDateTime.now());
-		return studRepo.save(student1);
+		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail(),student.getMobile());
+		if(!findByEmailAndMobile.isPresent()) {
+			Student student1 = studRepo.save(student);
+			student1.setPassword(passwordEncoder.encode("123456"));
+			student1.setContactFather(student.getContactFather());
+			student1.setRole(Roles.STUDENT.toString());
+			student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
+			student1.setProfilePic("default.png");
+			student1.setDeviceId("");
+			student1.setInUseDeviceId("");
+			student1.setCreatedDate(LocalDateTime.now());
+			return studRepo.save(student1);
+		}
+		throw new ResourceAlreadyExistException("Student is Already Exist");
+	
 	}
 
 	@Override
