@@ -78,7 +78,6 @@ public class ExamController {
 
 	@PostMapping("/addChapterExam")
 	public ResponseEntity<?> addChapterExamResult(@RequestBody ChapterExamResultRequest chapterExamResult) {
-		System.out.println("11111111111111111111111111111"+chapterExamResult);
 		return this.examService.addChapterExamResult(chapterExamResult);
 	}
 	
