@@ -15,11 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
+import com.cico.model.ChapterCompleted;
 import com.cico.model.ChapterExamResult;
 import com.cico.model.Exam;
 import com.cico.model.Question;
 import com.cico.model.Student;
 import com.cico.payload.ChapterExamResultRequest;
+import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.ChapterExamResultRepo;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
@@ -55,6 +57,9 @@ public class ExamServiceImpl implements IExamService {
 	private StudentRepository studentRepository;
 	@Autowired
 	private StudentServiceImpl studentServiceImpl;
+	
+	@Autowired
+	private ChapterCompletedRepository chapterCompletedRepository;
 
 //	@Override
 //	public void addExam(String examName) {
@@ -191,6 +196,12 @@ public class ExamServiceImpl implements IExamService {
 	    examResult.setWrongQuestions(inCorrect);
 	    examResult.setNotSelectedQuestions(questions.size()-(correct+inCorrect));
 		ChapterExamResult save = chapterExamResultRepo.save(examResult);
+		
+       ChapterCompleted chapterCompleted = new  ChapterCompleted();
+        chapterCompleted.setChapterId(chapterExamResult.getChapterId());
+        chapterCompleted.setStudentId(chapterExamResult.getStudentId());
+        chapterCompleted.setSubjectId(chapterExamResult.getSubjectId());
+        chapterCompletedRepository.save(chapterCompleted);
 		return new ResponseEntity<>(save, HttpStatus.OK);
 	}
 

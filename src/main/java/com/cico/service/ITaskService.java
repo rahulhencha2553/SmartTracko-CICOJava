@@ -21,7 +21,7 @@ public interface ITaskService {
 
 	List<Task> getAllTask();
 	
-	ResponseEntity<?> studentTaskSubmittion(Integer studentId, Integer studentId2, MultipartFile file, String taskDescription);
+	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription);
 
 	ResponseEntity<?> addQuestionInTask(String question, String videoUrl, List<MultipartFile> questionImages,
 			Integer taskId);
