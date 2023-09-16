@@ -36,12 +36,10 @@ public class TaskController {
 
 	}
 
-	@PutMapping("/updateTaskStatus")
+	@PutMapping("/updateTaskStatus")    
 	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") int taskId) {
 		taskService.updateTaskStatus(taskId);
-
 		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
-
 	}
 
 	@GetMapping("/getTaskById")
@@ -57,7 +55,7 @@ public class TaskController {
 	}
 
 	@PostMapping("/studentTaskSubmittion")
-	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") Long taskId,
+	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") 	Integer taskId,
 			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
 			@RequestParam("taskDescription") String taskDescription) {
@@ -104,5 +102,9 @@ public class TaskController {
 	public ResponseEntity<?> updateSubmitedAssignmentStatus(@RequestParam("submissionId") Integer submissionId,
 			@RequestParam("status") String status, @RequestParam("review") String review) {
 		return taskService.updateSubmitedTaskStatus(submissionId, status, review);
+	}
+	@GetMapping("/getOverAllTaskStatusforBarChart")
+	public ResponseEntity<?>getOverAllTaskStatusforBarChart(){
+	   return taskService.getOverAllTaskStatusforBarChart();
 	}
 }

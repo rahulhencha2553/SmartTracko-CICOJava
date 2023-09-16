@@ -3,8 +3,6 @@ package com.cico.controller;
 import java.util.List;
 import java.util.Map;
 
-import javax.websocket.server.PathParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,17 +67,22 @@ public class SubjectController {
 	return ResponseEntity.ok("Subject Updated");
 	}
 	
-	@GetMapping("/getAllSubjects/{studentId}")
-	public ResponseEntity<List<SubjectResponse>> getAllSubjects(@PathVariable("studentId")Integer studentId){
-	      List<SubjectResponse> subjects = subjectService.getAllSubjects(studentId);
+	@GetMapping("/getAllSubjects")
+	public ResponseEntity<List<SubjectResponse>>getAllSubjects(){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjects();
 	return ResponseEntity.ok(subjects);
 	}
+	@GetMapping("/getAllSubjectsWithChapterCompletedStatus/{studentId}")
+	public ResponseEntity<List<SubjectResponse>> getAllSubjects(@PathVariable("studentId")Integer studentId){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjectsWithChapterCompletedStatus(studentId);
+	return ResponseEntity.ok(subjects);
+	}
+	
 	@GetMapping("/getAllSubjectsByCourseId")
 	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
 	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
 	return ResponseEntity.ok(subjects);
 	}
-	 
 	@PutMapping("/deleteSubjectById")
 	public ResponseEntity<ApiResponse>deleteSubjectById(@RequestParam("subjectId")Integer subjectId){
 		subjectService.deleteSubject(subjectId);

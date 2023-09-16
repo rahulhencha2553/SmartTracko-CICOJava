@@ -7,10 +7,11 @@ public class SubmissionAssignmentTaskStatus {
 
 	private Long assignmentId;
 	private String taskTitle;
-	private Long taskId;
+	private Integer taskId;
 	private Integer totalSubmitted;
-	private Integer underReveiwed;
+	private Integer unReveiwed;
 	private boolean status;
 	private Integer reveiwed;
 	private Integer taskCount;
+	private String assignmentTitle;
 }

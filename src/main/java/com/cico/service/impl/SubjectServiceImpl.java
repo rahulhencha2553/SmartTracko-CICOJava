@@ -126,7 +126,32 @@ public class SubjectServiceImpl implements ISubjectService {
 	}
 
 	@Override
-	public List<SubjectResponse> getAllSubjects(Integer studentId) {
+	public List<SubjectResponse> getAllSubjects() {
+		List<Subject> subjects = subRepo.findByIsDeleted(false);
+		List<SubjectResponse> responseSend = new ArrayList<>();
+		for (Subject s : subjects) {
+			SubjectResponse response = new SubjectResponse();
+			response.setChapterCount(chapterRepo.findAllBySubject(s).size());
+			response.setTechnologyStack(s.getTechnologyStack());
+			response.setIsActive(s.getIsActive());
+			response.setIsDeleted(s.getIsDeleted());
+			response.setSubjectId(s.getSubjectId());
+			response.setSubjectName(s.getSubjectName());
+			responseSend.add(response);
+		}
+		if (subjects.isEmpty())
+			new ResourceNotFoundException("No subject available");
+		return responseSend;
+	}
+
+
+	@Override
+	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
+          return null;
+	}
+
+	@Override
+	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 		List<Subject> subjects = subRepo.findByIsDeleted(false);
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
@@ -143,11 +168,5 @@ public class SubjectServiceImpl implements ISubjectService {
 		if (subjects.isEmpty())
 			new ResourceNotFoundException("No subject available");
 		return responseSend;
-	}
-
-
-	@Override
-	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
-          return null;
 	}
 }
