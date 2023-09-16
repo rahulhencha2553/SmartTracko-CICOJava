@@ -237,7 +237,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
 
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
-
+         
 		assignments.forEach(assignment -> {
 			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
 			assignmentTaskStatus.setAssignmentId(assignment.getId());
@@ -247,7 +247,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			int taskCount = 0;
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
-				taskCount+= 1;
+				
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
@@ -260,11 +260,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 						reviewed += 1;
 					}
 				}
-				assignmentTaskStatus.setTaskId(q.getQuestionId());
-				assignmentTaskStatus.setTaskCount(taskCount);
-				assignmentTaskStatus.setUnderReveiwed(underReviewed);
+			    //assignmentTaskStatus.setTaskId(q.getQuestionId());
+				assignmentTaskStatus.setTaskCount(++taskCount);
+				assignmentTaskStatus.setUnReveiwed(underReviewed);
 				assignmentTaskStatus.setReveiwed(reviewed);
 				assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+				assignmentTaskStatus.setAssignmentTitle(assignment.getTitle());
 				assignmentTaskStatusList.add(assignmentTaskStatus);
 			}
 		});
@@ -272,12 +273,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
 
+	
 	@Override
 	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
 		
-		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
-
-		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
+		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue(); 
+	//	List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 		int totalSubmitted = 0;
 		int underReviewed = 0;
 		int reviewed = 0;
@@ -288,6 +289,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
+			
 				for (AssignmentSubmission submission : submissionAssignments) {
 					if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
 						underReviewed += 1;
@@ -299,10 +301,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				}
 			}
 		}
-			assignmentTaskStatus.setUnderReveiwed(underReviewed);
+			assignmentTaskStatus.setUnReveiwed(underReviewed);
 			assignmentTaskStatus.setReveiwed(reviewed);
 			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-
-		return ResponseEntity.ok(assignmentTaskStatusList);
+          
+		return ResponseEntity.ok(assignmentTaskStatus);
 	}
 }

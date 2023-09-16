@@ -21,7 +21,7 @@ public interface ITaskService {
 
 	List<Task> getAllTask();
 	
-	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription);
+	ResponseEntity<?> studentTaskSubmittion(Integer taskId, Integer studentId, MultipartFile file, String taskDescription);
 
 	ResponseEntity<?> addQuestionInTask(String question, String videoUrl, List<MultipartFile> questionImages,
 			Integer taskId);
@@ -32,11 +32,12 @@ public interface ITaskService {
 
 	ResponseEntity<?> getAllSubmitedTasks();
 
-
 	ResponseEntity<?> getAllSubmissionTaskStatus();
 
 	ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId);
 
 	ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review);
+
+	ResponseEntity<?> getOverAllTaskStatusforBarChart();
 
 }

@@ -16,6 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.model.Assignment;
+import com.cico.model.AssignmentSubmission;
+import com.cico.model.AssignmentTaskQuestion;
 import com.cico.model.Course;
 import com.cico.model.Subject;
 import com.cico.model.Task;
@@ -26,7 +29,6 @@ import com.cico.payload.TaskFilterRequest;
 import com.cico.payload.TaskRequest;
 import com.cico.repository.AssignmentTaskQuestionRepository;
 import com.cico.repository.StudentRepository;
-import com.cico.repository.StudentTaskSubmittionRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TaskQuestionRepository;
 import com.cico.repository.TaskRepo;
@@ -128,7 +130,7 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
+	public ResponseEntity<?> studentTaskSubmittion(Integer taskId, Integer studentId, MultipartFile file,
 			String taskDescription) {
 
 		TaskSubmission submittion = new TaskSubmission();
@@ -217,32 +219,26 @@ public class TaskServiceImpl implements ITaskService {
 			int underReviewed = 0;
 			int reviewed = 0;
 			int taskCount = 0;
-			List<TaskQuestion> questions = task.getTaskQuestion();
-			for (TaskQuestion q : questions) {
-				taskCount += 1;
-				List<TaskSubmission> taskSubmission = taskSubmissionRepository
-						.getSubmittedTaskByTaskId(q.getQuestionId());
+			taskCount += 1;
+			List<TaskSubmission> taskSubmission = taskSubmissionRepository.getSubmittedTaskByTaskId(task.getTaskId());
 
-				System.out.println("2222222" + taskSubmission);
-				System.out.println("2222222" + q.getQuestionId());
-
-				totalSubmitted += taskSubmission.size();
-				for (TaskSubmission submission : taskSubmission) {
-					if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
-						underReviewed += 1;
-					} else if (submission.getStatus().equals(SubmissionStatus.Reviewing)
-							|| submission.getStatus().equals(SubmissionStatus.Accepted)
-							|| submission.getStatus().equals(SubmissionStatus.Rejected)) {
-						reviewed += 1;
-					}
+			totalSubmitted += taskSubmission.size();
+			for (TaskSubmission submission : taskSubmission) {
+				if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
+					underReviewed += 1;
+				} else if (submission.getStatus().equals(SubmissionStatus.Reviewing)
+						|| submission.getStatus().equals(SubmissionStatus.Accepted)
+						|| submission.getStatus().equals(SubmissionStatus.Rejected)) {
+					reviewed += 1;
 				}
-				assignmentTaskStatus.setTaskId(q.getQuestionId());
-				assignmentTaskStatus.setTaskCount(taskCount);
-				assignmentTaskStatus.setUnderReveiwed(underReviewed);
-				assignmentTaskStatus.setReveiwed(reviewed);
-				assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-				assignmentTaskStatusList.add(assignmentTaskStatus);
 			}
+			assignmentTaskStatus.setTaskId(task.getTaskId());
+			assignmentTaskStatus.setTaskCount(taskCount);
+			assignmentTaskStatus.setUnReveiwed(underReviewed);
+			assignmentTaskStatus.setReveiwed(reviewed);
+			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+			assignmentTaskStatus.setTaskTitle(task.getTaskName());
+			assignmentTaskStatusList.add(assignmentTaskStatus);
 		});
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
@@ -263,5 +259,36 @@ public class TaskServiceImpl implements ITaskService {
 		}
 		return new ResponseEntity<>(taskSubmissionRepository.findBySubmissionId(submissionId), HttpStatus.CREATED);
 	}
+    
+	@Override
+	public ResponseEntity<?> getOverAllTaskStatusforBarChart() {
+		List<Task> tasks = taskRepo.findByIsActiveTrue();
+		SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
+		int totalSubmitted = 0;
+		int underReviewed = 0;
+		int reviewed = 0;
+		int taskCount = 0;
 
+		 for(Task task:tasks){
+			taskCount += 1;
+			List<TaskSubmission> taskSubmission = taskSubmissionRepository.getSubmittedTaskByTaskId(task.getTaskId());
+
+			totalSubmitted += taskSubmission.size();
+			for (TaskSubmission submission : taskSubmission) {
+				if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
+					underReviewed += 1;
+				} else if (submission.getStatus().equals(SubmissionStatus.Reviewing)
+						|| submission.getStatus().equals(SubmissionStatus.Accepted)
+						|| submission.getStatus().equals(SubmissionStatus.Rejected)) {
+					reviewed += 1;
+				}
+			}
+
+		}
+		assignmentTaskStatus.setTaskCount(taskCount);
+		assignmentTaskStatus.setUnReveiwed(underReviewed);
+		assignmentTaskStatus.setReveiwed(reviewed);
+		assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+		return ResponseEntity.ok(assignmentTaskStatus);
+	}
 }

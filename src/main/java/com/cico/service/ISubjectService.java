@@ -24,7 +24,8 @@ public interface ISubjectService {
 
 	void updateSubjectStatus(Integer subjectId);
 
-	List<SubjectResponse> getAllSubjects(Integer studentId);
+	List<SubjectResponse> getAllSubjects();
+	List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId);
 
 	List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId);
 
