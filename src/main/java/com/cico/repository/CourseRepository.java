@@ -1,5 +1,6 @@
 package com.cico.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -30,5 +31,7 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 	
 	@Query("SELECT c From Course c  Where c.courseId =:courseId AND c.isDeleted = 0")
 	public Optional<Course> findByCourseId(@Param("courseId") Integer courseId);
+
+	public List<Course> findAllByIsDeletedAndIsStarterCourse(boolean b,boolean c);
 
 }

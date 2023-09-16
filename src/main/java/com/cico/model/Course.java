@@ -35,6 +35,7 @@ public class Course {
 	private LocalDate createdDate;
 	private LocalDate updatedDate;
     private Boolean isDeleted=false;
+    private Boolean isStarterCourse=false;
 	
     @OneToOne
     private TechnologyStack technologyStack;
@@ -47,7 +48,7 @@ public class Course {
    
     
 	public Course(String courseName, String courseFees, String duration, String sortDescription,
-			TechnologyStack technologyStack) {
+			TechnologyStack technologyStack,Boolean isStarterCourse) {
 		super();
 		this.courseName = courseName;
 		this.courseFees = courseFees;
@@ -55,6 +56,7 @@ public class Course {
 		this.sortDescription = sortDescription;
 		
 		this.technologyStack = technologyStack;
+		this.isStarterCourse=isStarterCourse;
 	}
 	
 }

@@ -42,7 +42,7 @@ public class CourseServiceImpl implements ICourseService {
 	@Override
 	public ResponseEntity<?> createCourse(CourseRequest request) {
 		Map<String, Object> response = new HashMap<>();
-		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(), request.getSortDescription(), null);
+		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(), request.getSortDescription(), null,request.getIsStarterCourse());
 		List<Subject> subjects = course.getSubjects();
 		for (Integer id : request.getSubjectIds()) {
 			subjects.add( subjectRepository.findBySubjectIdAndIsDeleted(id, false).get());
@@ -97,7 +97,7 @@ public class CourseServiceImpl implements ICourseService {
 	@Override
 	public ResponseEntity<?> findAllCourses() {
 		// TODO Auto-generated method stub
-		List<Course> findAll = courseRepository.findAll();
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,true);
 		return  new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 
