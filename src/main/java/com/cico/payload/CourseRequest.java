@@ -14,4 +14,5 @@ public class CourseRequest {
 	private String sortDescription;
 	private Integer technologyStack;
 	private Integer subjectIds[];
+	private Boolean isStarterCourse;
 }

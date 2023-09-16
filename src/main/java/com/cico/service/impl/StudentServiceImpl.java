@@ -59,6 +59,7 @@ import com.cico.payload.StudentResponse;
 import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
+import com.cico.repository.FeesRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
 import com.cico.repository.QrManageRepository;
@@ -81,6 +82,9 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private StudentRepository studRepo;
 
+	@Autowired 
+	private FeesRepository feesRepo;
+	
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
@@ -1420,7 +1424,7 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> allStudent() {
 		// TODO Auto-generated method stub
-	   List<Student> findAll = studRepo.findAllByOrderByStudentIdDesc();
+	   List<Student> findAll = studRepo.getIsCompleted();
 	   return new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 
