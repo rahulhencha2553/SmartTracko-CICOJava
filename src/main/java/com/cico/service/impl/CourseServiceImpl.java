@@ -19,11 +19,13 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Course;
+import com.cico.model.Student;
 import com.cico.model.Subject;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.CourseRequest;
 import com.cico.payload.PageResponse;
 import com.cico.repository.CourseRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.ICourseService;
@@ -38,6 +40,8 @@ public class CourseServiceImpl implements ICourseService {
 	private TechnologyStackRepository repository;
 	@Autowired
 	private SubjectRepository subjectRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Override
 	public ResponseEntity<?> createCourse(CourseRequest request) {
@@ -99,6 +103,23 @@ public class CourseServiceImpl implements ICourseService {
 		// TODO Auto-generated method stub
 		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,true);
 		return  new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllCourseApi() {
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,false);
+		return  new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
+	@Override
+	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId) {
+		  Student findByStudentId = studentRepository.findByStudentId(studnetId);
+		  Optional<Course> findByCourseId = courseRepository.findByCourseId(courseId);
+		  findByStudentId.setApplyForCourse(findByCourseId.get().getCourseName());
+		  Student save = studentRepository.save(findByStudentId);
+		  if(Objects.nonNull(save))
+				return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+			return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 
 }
