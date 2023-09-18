@@ -66,4 +66,15 @@ public class CourseController {
 				.body(new ApiResponse(Boolean.FALSE, AppConstants.SOMETHING_WENT_WRONG , HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 
+	@GetMapping("/getAllCourseApi")
+	public ResponseEntity<?> getAllCourseApi(){
+		return courseService.getAllCourseApi();
+	}
+	
+	@PutMapping("/studentUpgradeCourse")
+	public ResponseEntity<?> studentUpgradeCourse(@RequestParam("studentId") Integer studnetId
+			,@RequestParam("courseId") Integer courseId){
+		ApiResponse studentUpgradeCourse = courseService.studentUpgradeCourse(studnetId,courseId);
+		return ResponseEntity.status(HttpStatus.CREATED).body(studentUpgradeCourse);
+	}
 }

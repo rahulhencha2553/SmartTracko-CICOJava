@@ -24,4 +24,8 @@ public interface ICourseService {
 
 	public ResponseEntity<?> findAllCourses();
 
+	public ResponseEntity<?> getAllCourseApi();
+
+	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId);
+
 }
