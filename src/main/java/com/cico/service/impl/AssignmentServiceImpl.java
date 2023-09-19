@@ -96,8 +96,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> getAllAssignments() {
 		this.getAllSubmissionAssignmentTaskStatus();
 		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
-		System.out.println(assignments.toString());
-		// return null;
 		return new ResponseEntity<>(assignments, HttpStatus.OK);
 	}
 
@@ -140,6 +138,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> getAllSubmitedAssginments() {
 		List<AssignmentSubmission> obj = submissionRepository.findAll();
 		return new ResponseEntity<>(obj, HttpStatus.OK);
+
 	}
 
 	@Override
@@ -237,7 +236,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
 
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
-         
+
 		assignments.forEach(assignment -> {
 			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
 			assignmentTaskStatus.setAssignmentId(assignment.getId());
@@ -247,7 +246,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			int taskCount = 0;
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
-				
+
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
@@ -260,7 +259,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 						reviewed += 1;
 					}
 				}
-			    //assignmentTaskStatus.setTaskId(q.getQuestionId());
+				// assignmentTaskStatus.setTaskId(q.getQuestionId());
 				assignmentTaskStatus.setTaskCount(++taskCount);
 				assignmentTaskStatus.setUnReveiwed(underReviewed);
 				assignmentTaskStatus.setReveiwed(reviewed);
@@ -273,23 +272,23 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
 
-	
 	@Override
 	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
-		
-		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue(); 
-	//	List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
+
+		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
+		// List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new
+		// ArrayList<>();
 		int totalSubmitted = 0;
 		int underReviewed = 0;
 		int reviewed = 0;
 		SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
-		 for(Assignment assignment :assignments) {	
+		for (Assignment assignment : assignments) {
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
-			
+
 				for (AssignmentSubmission submission : submissionAssignments) {
 					if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
 						underReviewed += 1;
@@ -301,10 +300,68 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				}
 			}
 		}
-			assignmentTaskStatus.setUnReveiwed(underReviewed);
-			assignmentTaskStatus.setReveiwed(reviewed);
-			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-          
+		assignmentTaskStatus.setUnReveiwed(underReviewed);
+		assignmentTaskStatus.setReveiwed(reviewed);
+		assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
 		return ResponseEntity.ok(assignmentTaskStatus);
+	}
+
+	@SuppressWarnings("unlikely-arg-type")
+	@Override
+	public ResponseEntity<?> getAllLockedAndUnlockedAssignment() {
+
+		Map<String, Object> response = new HashMap<>();
+		List<Assignment> lockedAssignment = new ArrayList<>();
+		List<Assignment> unLockedAssignment = new ArrayList<>();
+
+		List<Assignment> allAssignment = assignmentRepository.findAll();
+
+		unLockedAssignment.add(allAssignment.get(0));
+		// allAssignment.remove(0);
+
+		// unlocking the assignments
+		int index = 0;
+		for (int i=0;i<allAssignment.size();i++) {
+
+			List<AssignmentTaskQuestion> questions = allAssignment.get(i).getAssignmentQuestion();
+			List<AssignmentSubmission> submittedAssignment = submissionRepository.findByAssignmentId(allAssignment.get(i).getId());
+
+			int taskCount = 0;
+			for (AssignmentSubmission submission : submittedAssignment) {  
+			    if ("Accepted".equals(submission.getStatus().name())) {
+			        taskCount++;
+			    }
+			}
+			if (taskCount == questions.size()) {
+				
+				if(i!=allAssignment.size()-1) {
+					unLockedAssignment.add(allAssignment.get(index + 1));
+				}else {
+					unLockedAssignment.add(allAssignment.get(index));
+				}
+				
+			    
+			} else {
+				for (int j = index; j < allAssignment.size(); j++) {
+					lockedAssignment.add(allAssignment.get(i));
+				}
+				break;
+			}
+			index++;
+		}  
+
+		response.put("lockedAssignment", lockedAssignment);
+		response.put("unLockedAssignment", unLockedAssignment);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId) {
+       AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionId(assignmentId,questionId);
+	  if(Objects.nonNull(submission)) {
+		  return new ResponseEntity<>(true, HttpStatus.OK);
+	  }else {
+		  return new ResponseEntity<>(false, HttpStatus.OK);
+	  }
 	}
 }

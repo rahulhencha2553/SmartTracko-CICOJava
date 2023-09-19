@@ -40,4 +40,8 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getOverAllAssignmentTaskStatus();
 
+	ResponseEntity<?> getAllLockedAndUnlockedAssignment();
+
+	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId);
+
 }
