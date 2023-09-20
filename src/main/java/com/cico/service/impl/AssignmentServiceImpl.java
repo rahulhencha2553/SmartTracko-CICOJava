@@ -305,8 +305,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
 		return ResponseEntity.ok(assignmentTaskStatus);
 	}
-
-	@SuppressWarnings("unlikely-arg-type")
+	
 	@Override
 	public ResponseEntity<?> getAllLockedAndUnlockedAssignment() {
 
