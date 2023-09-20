@@ -84,7 +84,9 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ApiResponse updateCourse(Course course) {
-		Course save = courseRepository.save(course);
+		
+ 	Course save = courseRepository.save(course);
+ 
 		if(Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
@@ -116,6 +118,7 @@ public class CourseServiceImpl implements ICourseService {
 		  Student findByStudentId = studentRepository.findByStudentId(studnetId);
 		  Optional<Course> findByCourseId = courseRepository.findByCourseId(courseId);
 		  findByStudentId.setApplyForCourse(findByCourseId.get().getCourseName());
+		  findByStudentId.setCourse(findByCourseId.get());
 		  Student save = studentRepository.save(findByStudentId);
 		  if(Objects.nonNull(save))
 				return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
