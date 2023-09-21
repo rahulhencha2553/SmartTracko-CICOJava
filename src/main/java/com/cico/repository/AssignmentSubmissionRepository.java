@@ -23,11 +23,11 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
 	@Query("UPDATE AssignmentSubmission a SET a.status=:status , a.review=:review WHERE a.submissionId=:submissionId")
 	void updateSubmitAssignmentStatus(@Param("submissionId") Long submissionId,@Param("status") SubmissionStatus status,@Param("review") String review);
     
-	@Query("SELECT  a FROM AssignmentSubmission a  WHERE a.assignmentId = :id")
-	List<AssignmentSubmission> findByAssignmentId(@Param("id") Long id);
+	@Query("SELECT  a FROM AssignmentSubmission a  WHERE a.assignmentId = :id AND a.student.studentId =:studentId")
+	List<AssignmentSubmission> findByAssignmentIdAndStudentId(@Param("id") Long id ,@Param("studentId")Integer studentId);
 	
-	@Query("SELECT a FROM AssignmentSubmission a WHERE a.assignmentId = :assignmentId AND a.taskId = :taskId")
-	AssignmentSubmission findByAssignmentIdAndQuestionId(@Param("assignmentId") Long assignmentId, @Param("taskId") Long taskId);
+	@Query("SELECT a FROM AssignmentSubmission a WHERE a.assignmentId = :assignmentId AND a.taskId = :taskId AND a.student.studentId =:studentId")
+	AssignmentSubmission findByAssignmentIdAndQuestionIdAndStudentId(@Param("assignmentId") Long assignmentId, @Param("taskId") Long taskId,@Param("studentId")Integer studentId);
 
 
 }

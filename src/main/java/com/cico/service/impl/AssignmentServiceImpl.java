@@ -308,14 +308,13 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 	
 	@Override
-	public ResponseEntity<?> getAllLockedAndUnlockedAssignment() {
+	public ResponseEntity<?> getAllLockedAndUnlockedAssignment(Integer studentId) {
 
 		Map<String, Object> response = new HashMap<>();
 		List<Assignment> lockedAssignment = new ArrayList<>();
 		List<Assignment> unLockedAssignment = new ArrayList<>();
-
-		List<Assignment> allAssignment = assignmentRepository.findAll();
-
+        
+		List<Assignment> allAssignment = assignmentRepository.findAllByCourseId(studentRepository.findById(studentId).get().getCourse().getCourseId());
 		unLockedAssignment.add(allAssignment.get(0));
 		// allAssignment.remove(0);
 
@@ -324,7 +323,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		for (int i=0;i<allAssignment.size();i++) {
 
 			List<AssignmentTaskQuestion> questions = allAssignment.get(i).getAssignmentQuestion();
-			List<AssignmentSubmission> submittedAssignment = submissionRepository.findByAssignmentId(allAssignment.get(i).getId());
+			List<AssignmentSubmission> submittedAssignment = submissionRepository.findByAssignmentIdAndStudentId(allAssignment.get(i).getId(),studentId);
 
 			int taskCount = 0;
 			for (AssignmentSubmission submission : submittedAssignment) {  
@@ -332,15 +331,11 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			        taskCount++;
 			    }
 			}
+			
 			if (taskCount == questions.size()) {
-				
-				if(i!=allAssignment.size()-1) {
+				if(i<allAssignment.size()-1) {
 					unLockedAssignment.add(allAssignment.get(index + 1));
-				}else {
-					unLockedAssignment.add(allAssignment.get(index));
 				}
-				
-			    
 			} else {
 				for (int j = index; j < allAssignment.size(); j++) {
 					lockedAssignment.add(allAssignment.get(i));
@@ -356,8 +351,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId) {
-       AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionId(assignmentId,questionId);
+	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId,Integer studentId) {
+       AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(assignmentId,questionId,studentId);
 	  if(Objects.nonNull(submission)) {
 		  return new ResponseEntity<>(true, HttpStatus.OK);
 	  }else {
