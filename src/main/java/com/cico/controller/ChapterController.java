@@ -28,9 +28,9 @@ public class ChapterController {
 	private IChapterService chapterService;
 	
 	@PostMapping("/addChapter")
-	public ResponseEntity<Subject> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image){
-		 Subject subject = chapterService.addChapter(subjectId,chapterName,image);	
-		return new ResponseEntity<Subject>(subject,HttpStatus.OK);
+	public ResponseEntity<?> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image){
+		return  chapterService.addChapter(subjectId,chapterName,image);	
+		
 	}
 	
 	@PostMapping("/addExamToChapter")

@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -58,9 +57,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	private FileServiceImpl fileServiceImpl;
 
 	@Autowired
-	private ModelMapper mapper;
-
-	@Autowired
 	private AssignmentTaskQuestionRepository assignmentTaskQuestionRepository;
 
 	@Autowired
@@ -68,8 +64,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Autowired
 	private AssignmentSubmissionRepository submissionRepository;
-
-	private List<AssignmentTaskQuestion> assignmentQuestion;
 
 	@Override
 	public Assignment getAssignment(Long id) {
@@ -277,8 +271,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
 
 		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
-		// List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new
-		// ArrayList<>();
 		int totalSubmitted = 0;
 		int underReviewed = 0;
 		int reviewed = 0;
@@ -306,44 +298,50 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
 		return ResponseEntity.ok(assignmentTaskStatus);
 	}
-	
+
 	@Override
 	public ResponseEntity<?> getAllLockedAndUnlockedAssignment(Integer studentId) {
 
 		Map<String, Object> response = new HashMap<>();
 		List<Assignment> lockedAssignment = new ArrayList<>();
 		List<Assignment> unLockedAssignment = new ArrayList<>();
-        
-		List<Assignment> allAssignment = assignmentRepository.findAllByCourseId(studentRepository.findById(studentId).get().getCourse().getCourseId());
-		unLockedAssignment.add(allAssignment.get(0));
-		// allAssignment.remove(0);
+
+		List<Assignment> allAssignment = assignmentRepository
+				.findAllByCourseId(studentRepository.findById(studentId).get().getCourse().getCourseId());
+
+		if (!allAssignment.isEmpty()) {
+			unLockedAssignment.add(allAssignment.get(0));
+		}
 
 		// unlocking the assignments
 		int index = 0;
-		for (int i=0;i<allAssignment.size();i++) {
+		if (!allAssignment.isEmpty()) {
+			for (int i = 0; i < allAssignment.size(); i++) {
 
-			List<AssignmentTaskQuestion> questions = allAssignment.get(i).getAssignmentQuestion();
-			List<AssignmentSubmission> submittedAssignment = submissionRepository.findByAssignmentIdAndStudentId(allAssignment.get(i).getId(),studentId);
+				List<AssignmentTaskQuestion> questions = allAssignment.get(i).getAssignmentQuestion();
+				List<AssignmentSubmission> submittedAssignment = submissionRepository
+						.findByAssignmentIdAndStudentId(allAssignment.get(i).getId(), studentId);
 
-			int taskCount = 0;
-			for (AssignmentSubmission submission : submittedAssignment) {  
-			    if ("Accepted".equals(submission.getStatus().name())) {
-			        taskCount++;
-			    }
-			}
-			
-			if (taskCount == questions.size()) {
-				if(i<allAssignment.size()-1) {
-					unLockedAssignment.add(allAssignment.get(index + 1));
+				int taskCount = 0;
+				for (AssignmentSubmission submission : submittedAssignment) {
+					if ("Accepted".equals(submission.getStatus().name())) {
+						taskCount++;
+					}
 				}
-			} else {
-				for (int j = index; j < allAssignment.size(); j++) {
-					lockedAssignment.add(allAssignment.get(i));
+
+				if (taskCount == questions.size()) {
+					if (i < allAssignment.size() - 1) {
+						unLockedAssignment.add(allAssignment.get(index + 1));
+					}
+				} else {
+					for (int j = index; j < allAssignment.size(); j++) {
+						lockedAssignment.add(allAssignment.get(i));
+					}
+					break;
 				}
-				break;
+				index++;
 			}
-			index++;
-		}  
+		}
 
 		response.put("lockedAssignment", lockedAssignment);
 		response.put("unLockedAssignment", unLockedAssignment);
@@ -351,24 +349,23 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId,Integer studentId) {
-       AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(assignmentId,questionId,studentId);
-	  if(Objects.nonNull(submission)) {
-		  return new ResponseEntity<>(true, HttpStatus.OK);
-	  }else {
-		  return new ResponseEntity<>(false, HttpStatus.OK);
-	  }
+	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId, Integer studentId) {
+		AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(assignmentId,
+				questionId, studentId);
+		if (Objects.nonNull(submission)) {
+			return new ResponseEntity<>(true, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(false, HttpStatus.OK);
+		}
 	}
 
 	@Override
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
-		
-	     Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
-		if(Objects.nonNull(findByCourseId)) {
-			 assignmentRepository.findAllByCourseId(courseId);
-			List<Assignment> assignments =assignmentRepository.findAllByCourseId(courseId);
-			// List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new
-			// ArrayList<>();
+
+		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
+		if (Objects.nonNull(findByCourseId)) {
+			assignmentRepository.findAllByCourseId(courseId);
+			List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
 			int totalSubmitted = 0;
 			int underReviewed = 0;
 			int reviewed = 0;
@@ -398,6 +395,5 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		}
 		return ResponseEntity.notFound().build();
 	}
-	
-	
+
 }

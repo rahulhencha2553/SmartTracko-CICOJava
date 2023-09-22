@@ -10,7 +10,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -19,13 +18,12 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
+@Data
 public class Subject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,9 +32,6 @@ public class Subject {
 	@Column(unique = true)
 	private String subjectName;
     
-//	@ManyToMany
-//	private List<Course>course = new ArrayList<>();
-	
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Chapter> chapters = new ArrayList<>();
 
