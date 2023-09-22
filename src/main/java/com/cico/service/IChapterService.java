@@ -2,6 +2,7 @@ package com.cico.service;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Chapter;
@@ -10,7 +11,7 @@ import com.cico.model.Subject;
 
 public interface IChapterService {
 
-	Subject addChapter(Integer subjectId,String chapterName,MultipartFile image);
+	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image);
 
 	void addExamToChapter(Integer subjectId, String examName);
 
