@@ -89,7 +89,7 @@ public class StudentServiceImpl implements IStudentService {
 	
 	@Autowired
 	private CourseRepository courseRepository;
-	
+
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
