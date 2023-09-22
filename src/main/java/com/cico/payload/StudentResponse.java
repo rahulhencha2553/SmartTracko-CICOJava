@@ -2,6 +2,8 @@ package com.cico.payload;
 
 import java.time.LocalDate;
 
+import com.cico.model.Course;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ public class StudentResponse {
 	private String deviceId;
 	private String fcmId;
 	private String currentCourse;
+	private Course course;
 	
 	public StudentResponse(Integer studentId, String userId, String fullName, String mobile, String email,
 			LocalDate dob, String inUseDeviceId, String profilePic, String deviceId, String fcmId, String deviceType) {

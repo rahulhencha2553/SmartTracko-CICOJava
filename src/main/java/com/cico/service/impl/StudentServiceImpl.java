@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
+import com.cico.model.Course;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
@@ -59,6 +60,7 @@ import com.cico.payload.StudentResponse;
 import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
+import com.cico.repository.CourseRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
@@ -85,6 +87,9 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired 
 	private FeesRepository feesRepo;
 	
+	@Autowired
+	private CourseRepository courseRepository;
+
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
@@ -243,6 +248,9 @@ public class StudentServiceImpl implements IStudentService {
 	public Student registerStudent(Student student) {
 		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail(),student.getMobile());
 		if(!findByEmailAndMobile.isPresent()) {
+			Optional<Course> course = courseRepository.findByCourseId(student.getCourse().getCourseId());
+			student.setCourse(course.get());
+			student.setApplyForCourse(course.get().getCourseName());
 			Student student1 = studRepo.save(student);
 			student1.setPassword(passwordEncoder.encode("123456"));
 			student1.setContactFather(student.getContactFather());
@@ -255,7 +263,6 @@ public class StudentServiceImpl implements IStudentService {
 			return studRepo.save(student1);
 		}
 		throw new ResourceAlreadyExistException("Student is Already Exist");
-	
 	}
 
 	@Override

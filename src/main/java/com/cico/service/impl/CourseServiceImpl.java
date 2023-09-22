@@ -117,6 +117,7 @@ public class CourseServiceImpl implements ICourseService {
 	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId) {
 		  Student findByStudentId = studentRepository.findByStudentId(studnetId);
 		  Optional<Course> findByCourseId = courseRepository.findByCourseId(courseId);
+		  findByCourseId.get().setCourseFees(findByStudentId.getCourse().getCourseFees());
 		  findByStudentId.setApplyForCourse(findByCourseId.get().getCourseName());
 		  findByStudentId.setCourse(findByCourseId.get());
 		  Student save = studentRepository.save(findByStudentId);
