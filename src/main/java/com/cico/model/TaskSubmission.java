@@ -15,6 +15,7 @@ import com.cico.util.SubmissionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,22 +23,14 @@ import lombok.NoArgsConstructor;
 public class TaskSubmission {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long submissionId;
-	
-	private Long taskId;
-
+	private Integer id;
+	private String taskDescription;
+	private String submittionFileName;
 	@OneToOne
 	private Student student;
-
-	private String description;
-
-	private String submitFile;
-
+	private Integer taskId;
 	private LocalDateTime submissionDate;
-
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;
-       
 	private String review;
-
 }

@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -67,16 +68,21 @@ public class SubjectController {
 	}
 	
 	@GetMapping("/getAllSubjects")
-	public ResponseEntity<List<SubjectResponse>> getAllSubjects(){
+	public ResponseEntity<List<SubjectResponse>>getAllSubjects(){
 	      List<SubjectResponse> subjects = subjectService.getAllSubjects();
 	return ResponseEntity.ok(subjects);
 	}
+	@GetMapping("/getAllSubjectsWithChapterCompletedStatus/{studentId}")
+	public ResponseEntity<List<SubjectResponse>> getAllSubjects(@PathVariable("studentId")Integer studentId){
+	      List<SubjectResponse> subjects = subjectService.getAllSubjectsWithChapterCompletedStatus(studentId);
+	return ResponseEntity.ok(subjects);
+	}
+	
 	@GetMapping("/getAllSubjectsByCourseId")
 	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
 	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
 	return ResponseEntity.ok(subjects);
 	}
-	 
 	@PutMapping("/deleteSubjectById")
 	public ResponseEntity<ApiResponse>deleteSubjectById(@RequestParam("subjectId")Integer subjectId){
 		subjectService.deleteSubject(subjectId);

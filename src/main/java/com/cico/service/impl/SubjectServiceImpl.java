@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
+import com.cico.model.ChapterCompleted;
 import com.cico.model.Subject;
 import com.cico.payload.SubjectResponse;
+import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
@@ -33,6 +35,8 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Autowired
 	private TechnologyStackRepository technologyStackRepository;
+	
+	@Autowired ChapterCompletedRepository chapterCompletedRepository;
 
 	
 	@Override
@@ -140,8 +144,29 @@ public class SubjectServiceImpl implements ISubjectService {
 		return responseSend;
 	}
 
+
 	@Override
 	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
           return null;
+	}
+
+	@Override
+	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
+		List<Subject> subjects = subRepo.findByIsDeleted(false);
+		List<SubjectResponse> responseSend = new ArrayList<>();
+		for (Subject s : subjects) {
+			SubjectResponse response = new SubjectResponse();
+			response.setChapterCount(chapterRepo.findAllBySubject(s).size());
+			response.setTechnologyStack(s.getTechnologyStack());
+			response.setIsActive(s.getIsActive());
+			response.setIsDeleted(s.getIsDeleted());
+			response.setSubjectId(s.getSubjectId());
+			response.setSubjectName(s.getSubjectName());
+			response.setChapterCompleted(chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(),studentId));
+			responseSend.add(response);
+		}
+		if (subjects.isEmpty())
+			new ResourceNotFoundException("No subject available");
+		return responseSend;
 	}
 }

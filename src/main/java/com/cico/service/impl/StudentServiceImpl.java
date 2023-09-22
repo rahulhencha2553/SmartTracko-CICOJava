@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.aspectj.weaver.patterns.HasMemberTypePatternForPerThisMatching;
 import org.modelmapper.ModelMapper;
@@ -33,8 +34,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
+import com.cico.model.Course;
 import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
@@ -57,6 +60,8 @@ import com.cico.payload.StudentResponse;
 import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
+import com.cico.repository.CourseRepository;
+import com.cico.repository.FeesRepository;
 import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
 import com.cico.repository.QrManageRepository;
@@ -79,6 +84,12 @@ public class StudentServiceImpl implements IStudentService {
 	@Autowired
 	private StudentRepository studRepo;
 
+	@Autowired 
+	private FeesRepository feesRepo;
+	
+	@Autowired
+	private CourseRepository courseRepository;
+	
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
@@ -235,16 +246,23 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Override
 	public Student registerStudent(Student student) {
-		Student student1 = studRepo.save(student);
-		student1.setPassword(passwordEncoder.encode("123456"));
-		student1.setContactFather(student.getContactFather());
-		student1.setRole(Roles.STUDENT.toString());
-		student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
-		student1.setProfilePic("default.png");
-		student1.setDeviceId("");
-		student1.setInUseDeviceId("");
-		student1.setCreatedDate(LocalDateTime.now());
-		return studRepo.save(student1);
+		Optional<Student> findByEmailAndMobile = studRepo.findByEmailAndMobile(student.getEmail(),student.getMobile());
+		if(!findByEmailAndMobile.isPresent()) {
+			Optional<Course> course = courseRepository.findByCourseId(student.getCourse().getCourseId());
+			student.setCourse(course.get());
+			student.setApplyForCourse(course.get().getCourseName());
+			Student student1 = studRepo.save(student);
+			student1.setPassword(passwordEncoder.encode("123456"));
+			student1.setContactFather(student.getContactFather());
+			student1.setRole(Roles.STUDENT.toString());
+			student1.setUserId(student1.getFullName().split(" ")[0] + "@" + student1.getStudentId());
+			student1.setProfilePic("default.png");
+			student1.setDeviceId("");
+			student1.setInUseDeviceId("");
+			student1.setCreatedDate(LocalDateTime.now());
+			return studRepo.save(student1);
+		}
+		throw new ResourceAlreadyExistException("Student is Already Exist");
 	}
 
 	@Override
@@ -1413,7 +1431,7 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public ResponseEntity<?> allStudent() {
 		// TODO Auto-generated method stub
-	   List<Student> findAll = studRepo.findAllByOrderByStudentIdDesc();
+	   List<Student> findAll = studRepo.getIsCompleted();
 	   return new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 

@@ -19,11 +19,13 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Course;
+import com.cico.model.Student;
 import com.cico.model.Subject;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.CourseRequest;
 import com.cico.payload.PageResponse;
 import com.cico.repository.CourseRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.ICourseService;
@@ -38,11 +40,13 @@ public class CourseServiceImpl implements ICourseService {
 	private TechnologyStackRepository repository;
 	@Autowired
 	private SubjectRepository subjectRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 
 	@Override
 	public ResponseEntity<?> createCourse(CourseRequest request) {
 		Map<String, Object> response = new HashMap<>();
-		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(), request.getSortDescription(), null);
+		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(), request.getSortDescription(), null,request.getIsStarterCourse());
 		List<Subject> subjects = course.getSubjects();
 		for (Integer id : request.getSubjectIds()) {
 			subjects.add( subjectRepository.findBySubjectIdAndIsDeleted(id, false).get());
@@ -80,7 +84,9 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public ApiResponse updateCourse(Course course) {
-		Course save = courseRepository.save(course);
+		
+ 	Course save = courseRepository.save(course);
+ 
 		if(Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
@@ -97,8 +103,27 @@ public class CourseServiceImpl implements ICourseService {
 	@Override
 	public ResponseEntity<?> findAllCourses() {
 		// TODO Auto-generated method stub
-		List<Course> findAll = courseRepository.findAll();
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,true);
 		return  new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> getAllCourseApi() {
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,false);
+		return  new ResponseEntity<>(findAll, HttpStatus.OK);
+	}
+
+	@Override
+	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId) {
+		  Student findByStudentId = studentRepository.findByStudentId(studnetId);
+		  Optional<Course> findByCourseId = courseRepository.findByCourseId(courseId);
+		  findByCourseId.get().setCourseFees(findByStudentId.getCourse().getCourseFees());
+		  findByStudentId.setApplyForCourse(findByCourseId.get().getCourseName());
+		  findByStudentId.setCourse(findByCourseId.get());
+		  Student save = studentRepository.save(findByStudentId);
+		  if(Objects.nonNull(save))
+				return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+			return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 
 }

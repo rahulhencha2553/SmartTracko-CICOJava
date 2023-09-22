@@ -21,4 +21,5 @@ public class SubjectResponse {
 	private Boolean isDeleted;
 	private Boolean isActive;
 	public Integer chapterCount;
+	public Long chapterCompleted;
 }

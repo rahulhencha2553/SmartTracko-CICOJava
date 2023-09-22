@@ -101,14 +101,32 @@ public class AssigmentController {
 			@RequestParam("status") String status, @RequestParam("review") String review) {
 		return service.updateSubmitedAssignmentStatus(submissionId, status, review);
 	}
-	
+
 	@GetMapping("/getAllSubmissionAssignmentTaskStatus")
-	public  ResponseEntity<?>getAllSubmissionAssignmentTaskStatus(){
-		 return  service.getAllSubmissionAssignmentTaskStatus();
+	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatus() {
+		return service.getAllSubmissionAssignmentTaskStatus();
+	}
+
+	@GetMapping("getOverAllAssignmentTaskStatus")
+	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
+		return service.getOverAllAssignmentTaskStatus();
+	}
+
+	@GetMapping("/getAllLockedAndUnlockedAssignment")
+	public ResponseEntity<?> getAllLockedAndUnlockedAssignment(@RequestParam("studentId")Integer studentId) {
+		return service.getAllLockedAndUnlockedAssignment(studentId);
 	}
 	
-	@GetMapping("getOverAllAssignmentTaskStatus")
-	public ResponseEntity<?>getOverAllAssignmentTaskStatus(){
-		 return service.getOverAllAssignmentTaskStatus();
+	@GetMapping("/getAssignmentQuesSubmissionStatus")
+	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(@RequestParam("questionId") Long questionId,
+			@RequestParam("assignmentId") Long assignmentId,@RequestParam("studentId")Integer studentId) {
+		return service.getAssignmentQuesSubmissionStatus(questionId, assignmentId,studentId);
 	}
+	
+	@GetMapping("/getAllSubmissionAssignmentTaskStatusByCourseIdFilter")
+	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(@RequestParam("courseId") Integer courseId)
+	{
+		return service.getAllSubmissionAssignmentTaskStatusByCourseId(courseId);
+	}
+	
 }

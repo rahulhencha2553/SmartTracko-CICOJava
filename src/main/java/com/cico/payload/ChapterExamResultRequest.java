@@ -9,6 +9,7 @@ import lombok.Data;
 public class ChapterExamResultRequest {
 	private Integer chapterId;
 	private Integer studentId;
+	private Integer subjectId;
 	private Map<Integer,String>review = new HashMap<>();
 	
 }
