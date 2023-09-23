@@ -44,7 +44,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignmentQuesSubmissionStatus(Long questionId, Long assignmentId, Integer studentId);
 
-	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId);
+	ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,Integer subjectId);
 
 }
 
