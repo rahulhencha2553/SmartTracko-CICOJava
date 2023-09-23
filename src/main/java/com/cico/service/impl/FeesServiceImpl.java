@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Fees;
+import com.cico.model.Student;
 import com.cico.payload.FeesPayResponse;
 import com.cico.payload.FeesResponse;
 import com.cico.payload.PageResponse;
@@ -52,9 +53,9 @@ public class FeesServiceImpl implements IFeesService {
 		Fees fees=new Fees(null, null, finalFees, LocalDate.parse(date));
 		Fees findByStudent = feesRepository.findByStudent(studentRepository.findByStudentId(studentId));
 		if(Objects.isNull(findByStudent)) {
-
-		fees.setStudent(studentRepository.findById(studentId).get());
-		fees.setCourse(courseRepository.findByCourseId(courseId).get());
+		Student student = studentRepository.findById(studentId).get();
+		fees.setStudent(student);
+		fees.setCourse(student.getCourse());
 		fees.setRemainingFees(finalFees);
 		fees.setFeesPaid(0.0);
 		fees.setCreatedDate(LocalDate.now());

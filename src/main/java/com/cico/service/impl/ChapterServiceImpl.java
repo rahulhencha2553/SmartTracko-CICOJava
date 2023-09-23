@@ -2,8 +2,11 @@ package com.cico.service.impl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,8 +39,8 @@ public class ChapterServiceImpl implements IChapterService {
 //	@Value("${}")
 //	private String filePath;
 
-	@Override
-	public Subject addChapter(Integer subjectId, String chapterName,MultipartFile image) {
+	@Override 
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName,MultipartFile image) {
 		Chapter chapter = new Chapter();
 		chapter.setChapterName(chapterName);
 		chapter.setSubject(subjectRepo.findById(subjectId).get());
@@ -46,7 +49,12 @@ public class ChapterServiceImpl implements IChapterService {
 		Subject subject = subjectRepo.findById(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 		subject.setChapters(Arrays.asList(obj));
-		return subjectRepo.save(subject);
+		Subject obj1 = subjectRepo.save(subject);
+		if(Objects.nonNull(obj1)) {
+		return new  ResponseEntity<>(obj1,HttpStatus.OK); 
+		}
+		return new  ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	
 	}
 
 	@Override

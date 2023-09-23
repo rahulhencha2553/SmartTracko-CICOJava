@@ -18,13 +18,12 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
-@Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
+@Data
 public class Subject {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,7 +31,7 @@ public class Subject {
 
 	@Column(unique = true)
 	private String subjectName;
-
+    
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Chapter> chapters = new ArrayList<>();
 

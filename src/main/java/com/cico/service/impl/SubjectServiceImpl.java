@@ -15,10 +15,13 @@ import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterCompleted;
+import com.cico.model.Course;
 import com.cico.model.Subject;
 import com.cico.payload.SubjectResponse;
 import com.cico.repository.ChapterCompletedRepository;
 import com.cico.repository.ChapterRepository;
+import com.cico.repository.CourseRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.ISubjectService;
@@ -37,6 +40,11 @@ public class SubjectServiceImpl implements ISubjectService {
 	private TechnologyStackRepository technologyStackRepository;
 	
 	@Autowired ChapterCompletedRepository chapterCompletedRepository;
+	
+	@Autowired
+	private StudentRepository studentRepository;
+	@Autowired
+	private CourseRepository courseRepository;
 
 	
 	@Override
@@ -152,7 +160,8 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
-		List<Subject> subjects = subRepo.findByIsDeleted(false);
+		Course course = studentRepository.findById(studentId).get().getCourse();
+		List<Subject> subjects =courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();

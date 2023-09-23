@@ -113,14 +113,14 @@ public class AssigmentController {
 	}
 
 	@GetMapping("/getAllLockedAndUnlockedAssignment")
-	public ResponseEntity<?> getAllLockedAndUnlockedAssignment() {
-		return service.getAllLockedAndUnlockedAssignment();
+	public ResponseEntity<?> getAllLockedAndUnlockedAssignment(@RequestParam("studentId")Integer studentId) {
+		return service.getAllLockedAndUnlockedAssignment(studentId);
 	}
 	
 	@GetMapping("/getAssignmentQuesSubmissionStatus")
 	public ResponseEntity<?> getAssignmentQuesSubmissionStatus(@RequestParam("questionId") Long questionId,
-			@RequestParam("assignmentId") Long assignmentId) {
-		return service.getAssignmentQuesSubmissionStatus(questionId, assignmentId);
+			@RequestParam("assignmentId") Long assignmentId,@RequestParam("studentId")Integer studentId) {
+		return service.getAssignmentQuesSubmissionStatus(questionId, assignmentId,studentId);
 	}
 	
 	@GetMapping("/getAllSubmissionAssignmentTaskStatusByCourseIdFilter")
