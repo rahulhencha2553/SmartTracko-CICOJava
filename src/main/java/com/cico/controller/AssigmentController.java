@@ -124,9 +124,9 @@ public class AssigmentController {
 	}
 	
 	@GetMapping("/getAllSubmissionAssignmentTaskStatusByCourseIdFilter")
-	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(@RequestParam("courseId") Integer courseId)
+	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(@RequestParam("courseId") Integer courseId,@RequestParam("subjectId") Integer subjectId)
 	{
-		return service.getAllSubmissionAssignmentTaskStatusByCourseId(courseId);
+		return service.getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(courseId,subjectId);
 	}
 	
 }

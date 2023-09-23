@@ -22,6 +22,7 @@ import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
 import com.cico.model.Course;
+import com.cico.model.Subject;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
@@ -366,25 +367,30 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
+	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,Integer subjectId) {
 		
-	     Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
-		if(Objects.nonNull(findByCourseId)) {
-			 assignmentRepository.findAllByCourseId(courseId);
-			List<Assignment> assignments =assignmentRepository.findAllByCourseId(courseId);
-			// List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new
-			// ArrayList<>();
-			int totalSubmitted = 0;
-			int underReviewed = 0;
-			int reviewed = 0;
-			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
-			for (Assignment assignment : assignments) {
+	     List<Assignment>assignments = new ArrayList<>();
+	      if(subjectId==0) {
+	    	  assignments  =assignmentRepository.findAllByCourseId(courseId);
+	      }else {
+	 	    assignments = assignmentRepository.findAllByCourseIdAndSubjectId(courseId,subjectId);
+	      }
+     
+			List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
+
+			assignments.forEach(assignment -> {
+				SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
+				assignmentTaskStatus.setAssignmentId(assignment.getId());
+				int totalSubmitted = 0;
+				int underReviewed = 0;
+				int reviewed = 0;
+				int taskCount = 0;
 				List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 				for (AssignmentTaskQuestion q : questions) {
+
 					List<AssignmentSubmission> submissionAssignments = submissionRepository
 							.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 					totalSubmitted += submissionAssignments.size();
-
 					for (AssignmentSubmission submission : submissionAssignments) {
 						if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
 							underReviewed += 1;
@@ -394,14 +400,15 @@ public class AssignmentServiceImpl implements IAssignmentService {
 							reviewed += 1;
 						}
 					}
+					assignmentTaskStatus.setTaskCount(++taskCount);
+					assignmentTaskStatus.setUnReveiwed(underReviewed);
+					assignmentTaskStatus.setReveiwed(reviewed);
+					assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+					assignmentTaskStatus.setAssignmentTitle(assignment.getTitle());
+					assignmentTaskStatusList.add(assignmentTaskStatus);
 				}
-			}
-			assignmentTaskStatus.setUnReveiwed(underReviewed);
-			assignmentTaskStatus.setReveiwed(reviewed);
-			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-			return ResponseEntity.ok(assignmentTaskStatus);
-		}
-		return ResponseEntity.notFound().build();
+			});
+			return ResponseEntity.ok(assignmentTaskStatusList);
 	}
 	
 	
