@@ -1,6 +1,7 @@
 package com.cico.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,8 +64,8 @@ public class ChapterController {
 	}
 	
 	@GetMapping("/getChapterById")
-	public ResponseEntity<Chapter> getChapterById(@RequestParam("chapterId") Integer chapterId){
-	Chapter chapter=chapterService.getChapterById(chapterId);	
+	public ResponseEntity<?> getChapterById(@RequestParam("chapterId") Integer chapterId){
+	Map<String, Object> chapter=chapterService.getChapterById(chapterId);	
 	return ResponseEntity.ok(chapter);
 	}
 	

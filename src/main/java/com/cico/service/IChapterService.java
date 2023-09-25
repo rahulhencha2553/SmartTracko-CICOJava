@@ -1,6 +1,7 @@
 package com.cico.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,7 @@ public interface IChapterService {
 
 	Chapter updateChapter(Integer chapterId,Integer subjectId,String chapterName);
 
-	Chapter getChapterById(Integer chapterId);
+	Map<String, Object> getChapterById(Integer chapterId);
 
 	void deleteChapter(Integer chapterId, Integer subjectId);
 

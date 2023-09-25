@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -188,5 +189,18 @@ public class FileServiceImpl implements IFileService{
 			}
 		}
 		
+	}
+	
+	public String uplaoadFile(MultipartFile file,String destinationPath) {
+		String currentDir = System.getProperty("user.dir") + destinationPath;
+		System.out.println(currentDir);
+		String name = StringUtils.cleanPath(file.getOriginalFilename());
+		 Path path = Paths.get(currentDir , name );
+		 try {
+			 Files.copy(file.getInputStream(), path , StandardCopyOption.REPLACE_EXISTING);
+		 }catch(Exception e) {
+			 
+		 }
+		 return name;
 	}
 }
