@@ -40,7 +40,7 @@ public class TaskQuestion {
 
 	private String videoUrl;
 	
-	private Long  assignmentId;
+	private Long  taskId;
 
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<TaskSubmission> assignmentSubmissions;
