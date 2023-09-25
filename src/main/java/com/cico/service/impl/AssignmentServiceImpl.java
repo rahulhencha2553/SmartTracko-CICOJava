@@ -64,11 +64,14 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Autowired
 	private AssignmentSubmissionRepository submissionRepository;
+	
 
 	@Override
 	public Assignment getAssignment(Long id) {
-		return assignmentRepository.findByIdAndIsActive(id, true)
+		Assignment assignment = assignmentRepository.findByIdAndIsActive(id, true)
 				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
+		 assignment.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(assignment.getId()));
+		 return assignment;
 	}
 
 	@Override
@@ -89,8 +92,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> getAllAssignments() {
-		this.getAllSubmissionAssignmentTaskStatus();
 		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
+		assignments.forEach(obj->{
+			obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+		});
 		return new ResponseEntity<>(assignments, HttpStatus.OK);
 	}
 
@@ -202,7 +207,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId) {
-		assignmentRepository.deleteQuestionByIdAndId(assignmentId, questionId);
+		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(assignmentId, questionId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -233,15 +238,16 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 
 		assignments.forEach(assignment -> {
-			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
-			assignmentTaskStatus.setAssignmentId(assignment.getId());
-			int totalSubmitted = 0;
-			int underReviewed = 0;
-			int reviewed = 0;
 			int taskCount = 0;
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
-
+				int totalSubmitted = 0;
+				int underReviewed = 0;
+				int reviewed = 0;
+				
+				SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
+				assignmentTaskStatus.setAssignmentId(assignment.getId());
+				
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
@@ -254,8 +260,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 						reviewed += 1;
 					}
 				}
-				// assignmentTaskStatus.setTaskId(q.getQuestionId());
-				assignmentTaskStatus.setTaskCount(++taskCount);
+				assignmentTaskStatus.setTaskCount(taskCount+=1);
 				assignmentTaskStatus.setUnReveiwed(underReviewed);
 				assignmentTaskStatus.setReveiwed(reviewed);
 				assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
@@ -263,7 +268,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				assignmentTaskStatusList.add(assignmentTaskStatus);
 			}
 		});
-		this.getOverAllAssignmentTaskStatus();
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
 
@@ -308,7 +312,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> allAssignment = assignmentRepository
 				.findAllByCourseId(studentRepository.findById(studentId).get().getCourse().getCourseId());
-
+         
+		allAssignment.forEach(obj->{
+			obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+		});
 		if (!allAssignment.isEmpty()) {
 			unLockedAssignment.add(allAssignment.get(0));
 		}
@@ -334,7 +341,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 						unLockedAssignment.add(allAssignment.get(index + 1));
 					}
 				} else {
-					for (int j = index; j < allAssignment.size(); j++) {
+					for (int j = index+1; j < allAssignment.size(); j++) {
 						lockedAssignment.add(allAssignment.get(i));
 					}
 					break;
@@ -364,8 +371,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
 		if (Objects.nonNull(findByCourseId)) {
-			assignmentRepository.findAllByCourseId(courseId);
 			List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
+			assignments.forEach(obj->{
+				obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+			});
 			int totalSubmitted = 0;
 			int underReviewed = 0;
 			int reviewed = 0;

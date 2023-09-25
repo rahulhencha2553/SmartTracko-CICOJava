@@ -28,7 +28,7 @@ public class TaskSubmission {
 	private String submittionFileName;
 	@OneToOne
 	private Student student;
-	private Integer taskId;
+	private Long taskId;
 	private LocalDateTime submissionDate;
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;

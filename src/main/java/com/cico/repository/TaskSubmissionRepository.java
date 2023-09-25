@@ -16,7 +16,7 @@ import com.cico.util.SubmissionStatus;
 public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, Integer> {
 
 	@Query("SELECT a FROM TaskSubmission a WHERE a.taskId =:taskId")
-	List<TaskSubmission> getSubmittedTaskByTaskId(@Param("taskId")Integer taskId);
+	List<TaskSubmission> getSubmittedTaskByTaskId(@Param("taskId")Long taskId);
 
 	@Query("SELECT s FROM TaskSubmission s WHERE s.student.studentId=:studentId")
 	List<TaskSubmission> getSubmitedTaskForStudent(@Param("studentId") Integer studentId);

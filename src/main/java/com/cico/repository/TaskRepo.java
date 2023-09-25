@@ -5,17 +5,20 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.cico.model.Subject;
 import com.cico.model.Task;
 
-public interface TaskRepo extends JpaRepository<Task, Integer> {
+public interface TaskRepo extends JpaRepository<Task, Long> {
 
 	Task findByTaskNameAndIsActive(String taskName, boolean b);
 
 	Object findByTaskName(String taskName);
 
-	Optional<Task> findByTaskIdAndIsActive(Integer taskId, boolean b);
+	Optional<Task> findByTaskIdAndIsActive(Long taskId, boolean b);
 
 	List<Task> findByIsActiveTrue();
+
+    List<Task> findBySubjectAndIsActiveTrue(Subject subject);
      
 //    @Modifying
 //    @Transactional

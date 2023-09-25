@@ -13,22 +13,22 @@ public interface ITaskService {
 
 	Task createTask(TaskRequest taskRequest);
 
-	void updateTaskStatus(int taskId);
+	void updateTaskStatus(Long taskId);
 
 	List<Task> getFilteredTasks(TaskFilterRequest taskFilter);
 
-	Task getTaskById(Integer taskId);
+	Task getTaskById(Long taskId);
 
 	List<Task> getAllTask();
 	
-	ResponseEntity<?> studentTaskSubmittion(Integer taskId, Integer studentId, MultipartFile file, String taskDescription);
+	ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file, String taskDescription);
 
 	ResponseEntity<?> addQuestionInTask(String question, String videoUrl, List<MultipartFile> questionImages,
-			Integer taskId);
+			Long taskId);
 
-	ResponseEntity<?> addTaskAttachment(Integer taskId, MultipartFile attachment);
+	ResponseEntity<?> addTaskAttachment(Long taskId, MultipartFile attachment);
 
-	ResponseEntity<?> deleteTaskQuestion(Integer taskId, Long questionId);
+	ResponseEntity<?> deleteTaskQuestion(Long taskId, Long questionId);
 
 	ResponseEntity<?> getAllSubmitedTasks();
 
@@ -39,5 +39,7 @@ public interface ITaskService {
 	ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review);
 
 	ResponseEntity<?> getOverAllTaskStatusforBarChart();
+
+	List<Task> getAllTaskOfStudent(Integer studentId);
 
 }

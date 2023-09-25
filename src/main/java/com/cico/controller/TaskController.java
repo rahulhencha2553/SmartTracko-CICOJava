@@ -37,25 +37,30 @@ public class TaskController {
 	}
 
 	@PutMapping("/updateTaskStatus")    
-	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") int taskId) {
+	private ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId) {
 		taskService.updateTaskStatus(taskId);
 		return ResponseEntity.ok(new ApiResponse(true, "Task Created", HttpStatus.OK));
 	}
 
 	@GetMapping("/getTaskById")
-	public ResponseEntity<Task> getTaskById(@RequestParam("taskId") Integer taskId) {
+	public ResponseEntity<Task> getTaskById(@RequestParam("taskId") Long taskId) {
 		Task task = this.taskService.getTaskById(taskId);
 		return new ResponseEntity<Task>(task, HttpStatus.OK);
 	}
 
-	@GetMapping("/getAllTask")
+	@GetMapping("/getAllTask") 
 	public ResponseEntity<List<Task>> getAllTask() {
 		List<Task> tasks = taskService.getAllTask();
 		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
 	}
+	@GetMapping("/getAllTaskOfStudent") 
+	public ResponseEntity<List<Task>> getAllTaskOfStudent(@RequestParam("studentId")Integer studentId) {
+		List<Task> tasks = taskService.getAllTaskOfStudent(studentId);
+		return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+	}
 
 	@PostMapping("/studentTaskSubmittion")
-	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") 	Integer taskId,
+	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") 	Long taskId,
 			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
 			@RequestParam("taskDescription") String taskDescription) {
@@ -64,7 +69,7 @@ public class TaskController {
 	}
 
 	@PostMapping("/addQuestionInTask")
-	public ResponseEntity<?> addQuestionInTask(@RequestParam("taskId") Integer taskId,
+	public ResponseEntity<?> addQuestionInTask(@RequestParam("taskId") Long taskId,
 			@RequestParam("question") String question, @RequestParam("videoUrl") String videoUrl,
 			@RequestParam("questionImages") List<MultipartFile> questionImages) {
 		return taskService.addQuestionInTask(question, videoUrl, questionImages, taskId);
@@ -72,14 +77,14 @@ public class TaskController {
 	}
 
 	@PostMapping("/addTaskAttachment")
-	public ResponseEntity<?> addTaskAttachment(@RequestParam("taskId") Integer taskId,
+	public ResponseEntity<?> addTaskAttachment(@RequestParam("taskId") Long taskId,
 			@RequestParam("attachment") MultipartFile attachment) {
 		return this.taskService.addTaskAttachment(taskId, attachment);
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
 	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId,
-			@RequestParam("taskId") Integer taskId) {
+			@RequestParam("taskId") Long taskId) {
 		return taskService.deleteTaskQuestion(taskId, questionId);
 	}
 
