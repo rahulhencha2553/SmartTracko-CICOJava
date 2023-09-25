@@ -1,7 +1,9 @@
 package com.cico.service.impl;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
+import com.cico.model.Question;
 import com.cico.model.Subject;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
+import com.cico.repository.QuestionRepo;
 import com.cico.repository.SubjectRepository;
 import com.cico.service.IChapterService;
 
@@ -25,6 +29,9 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Autowired
 	ChapterRepository chapterRepo;
+	
+	@Autowired
+	private QuestionRepo questionRepo;
 
 	@Autowired
 	ExamRepo examRepo;
@@ -77,9 +84,14 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public Chapter getChapterById(Integer chapterId) {
-		return chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
+	public Map<String, Object> getChapterById(Integer chapterId) {
+		Map<String, Object> response = new HashMap<>();
+		 Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+		 List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
+		 response.put("chapter", chapter);
+		 response.put("questionLength", questions.size());
+		 return response;
 	}
 
 	@Override
