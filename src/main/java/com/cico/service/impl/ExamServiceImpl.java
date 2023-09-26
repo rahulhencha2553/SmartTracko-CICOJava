@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.hibernate.internal.build.AllowSysOut;
 import org.modelmapper.ModelMapper;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterCompleted;
@@ -165,6 +167,11 @@ public class ExamServiceImpl implements IExamService {
 	public ResponseEntity<?> addChapterExamResult(ChapterExamResultRequest chapterExamResult) {
         Student student = studentRepository.findById(chapterExamResult.getStudentId()).get();
 	    Chapter chapter = chapterRepo.findById(chapterExamResult.getChapterId()).get();
+	    
+	    Optional<ChapterExamResult> findByChapterAndStudent = chapterExamResultRepo.findByChapterAndStudent(chapter,student);
+	    if(findByChapterAndStudent.isPresent())
+	    	throw new ResourceAlreadyExistException("Your Are Already Submited This Test");
+	    
 	    ChapterExamResult examResult = new ChapterExamResult();
 	    Map<Integer, String> review = chapterExamResult.getReview();
 	    int correct=0;
