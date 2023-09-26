@@ -24,10 +24,34 @@ public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
 	Course findByCourse(Optional<Course> findByCourseId);
 
 	@Query("SELECT a FROM Assignment a WHERE a.course IN (SELECT c FROM Course c WHERE c.courseId = :courseId)")
-	List<Assignment> findAllByCourseId(@Param("courseId") Integer courseId);
+	List<Assignment> findAllByCourseIdAndIsActiveTrue(@Param("courseId") Integer courseId);
     
 	@Query("SELECT a FROM Assignment a WHERE a.course.courseId = :courseId  AND a.subject.subjectId =:subjectId")
-	List<Assignment> findAllByCourseIdAndSubjectId(@Param("courseId") Integer courseId,@Param("subjectId") Integer subjectId);
+	List<Assignment> findAllByCourseIdAndSubjectIdAndIsActiveTrue(@Param("courseId") Integer courseId,@Param("subjectId") Integer subjectId);
+	
+
+
+	
+	
+	
+	
+	
+//	@Query("SELECT a FROM Assignment a JOIN FETCH a.AssignmentQuestion q WHERE a.isActive = true AND q.isActive = true")
+//	Optional<Assignment> findByIdAndIsActive(Long id, boolean b);
+//
+//	@Query("SELECT a FROM Assignment a JOIN FETCH a.AssignmentQuestion q WHERE a.isActive = true AND q.isActive = true")
+//	List<Assignment> findByIsActiveTrue();
+//
+//	Course findByCourse(Optional<Course> findByCourseId);
+//
+//	@Query("SELECT a FROM Assignment a JOIN FETCH a.AssignmentQuestion q WHERE a.isActive = true AND  a.course.courseId = :courseId  AND q.isActive = true")
+//	// @Query("SELECT a FROM Assignment a WHERE a.course.courseId = :courseId")
+//	List<Assignment> findAllByCourseIdAndIsActiveTrue(@Param("courseId") Integer courseId);
+//
+//	@Query("SELECT a FROM Assignment a JOIN FETCH a.AssignmentQuestion q WHERE a.isActive = true AND  a.course.courseId = :courseId  AND a.subject.subjectId =:subjectId AND q.isActive = true")
+//	List<Assignment> findAllByCourseIdAndSubjectIdAndIsActiveTrue(@Param("courseId") Integer courseId,
+//			@Param("subjectId") Integer subjectId);
+
 
 
 }

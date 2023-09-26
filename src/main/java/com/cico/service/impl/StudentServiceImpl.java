@@ -983,7 +983,7 @@ public class StudentServiceImpl implements IStudentService {
 		}
 		return map;
 	}
-
+  
 	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { //working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
@@ -1424,6 +1424,25 @@ public class StudentServiceImpl implements IStudentService {
 		response.put("presents", present);
 		response.put("leaves", leavesCount);
 //		response.put("absent", absentCount);
+		
+//		List<Integer> leaves = new ArrayList<>();
+//		List<Integer> absent = new ArrayList<>();
+//
+//			// counting total leaves
+//			List<Leaves> leavesData = leaveRepository.findAllByStudentId(studentId);
+//			for (Leaves list : leavesData) {
+//				LocalDate startLeaveDate = list.getLeaveDate();
+//				LocalDate endLeaveDate = list.getLeaveEndDate();
+//					leaves.add(startLeaveDate.getDayOfMonth());
+//			}
+//
+//			// getting total present
+//			// Get total present
+//			List<Attendance> studentAttendanceList = attendenceRepository.findAllByStudentId(studentId);
+//			for (Attendance attendance : studentAttendanceList) {
+//				LocalDate attendanceDate = attendance.getCheckInDate();
+//					present.add(attendanceDate.getDayOfMonth());
+//			}
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
