@@ -21,7 +21,6 @@ import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
 import com.cico.model.Course;
-import com.cico.model.Subject;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
@@ -367,7 +366,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		}
 	}
 
-	@Override
 
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
 
@@ -384,10 +382,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			for (Assignment assignment : assignments) {
 				List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 				for (AssignmentTaskQuestion q : questions) {
-
 					List<AssignmentSubmission> submissionAssignments = submissionRepository
 							.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 					totalSubmitted += submissionAssignments.size();
+
 					for (AssignmentSubmission submission : submissionAssignments) {
 						if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
 							underReviewed += 1;
@@ -397,15 +395,21 @@ public class AssignmentServiceImpl implements IAssignmentService {
 							reviewed += 1;
 						}
 					}
-					assignmentTaskStatus.setTaskCount(++taskCount);
-					assignmentTaskStatus.setUnReveiwed(underReviewed);
-					assignmentTaskStatus.setReveiwed(reviewed);
-					assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-					assignmentTaskStatus.setAssignmentTitle(assignment.getTitle());
-					assignmentTaskStatusList.add(assignmentTaskStatus);
 				}
-			});
-			return ResponseEntity.ok(assignmentTaskStatusList);
+			}
+			assignmentTaskStatus.setUnReveiwed(underReviewed);
+			assignmentTaskStatus.setReveiwed(reviewed);
+			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
+			return ResponseEntity.ok(assignmentTaskStatus);
+		}
+		return ResponseEntity.notFound().build();
+	}
+
+	@Override
+	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseIdAndSubjectId(Integer courseId,
+			Integer subjectId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
