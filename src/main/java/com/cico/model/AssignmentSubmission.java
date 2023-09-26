@@ -2,6 +2,7 @@ package com.cico.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -34,6 +35,7 @@ public class AssignmentSubmission {
 	@OneToOne
 	private Student student;
 
+	@Column(columnDefinition = "longtext")
 	private String description;
 
 	private String submitFile;
