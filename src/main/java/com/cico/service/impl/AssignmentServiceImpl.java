@@ -20,7 +20,6 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
-import com.cico.model.Course;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
@@ -412,45 +411,4 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		});
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
-}
-
-	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
-
-		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
-		if (Objects.nonNull(findByCourseId)) {
-			List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
-			assignments.forEach(obj->{
-				obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
-			});
-			int totalSubmitted = 0;
-			int underReviewed = 0;
-			int reviewed = 0;
-			SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
-			for (Assignment assignment : assignments) {
-				List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
-				for (AssignmentTaskQuestion q : questions) {
-					List<AssignmentSubmission> submissionAssignments = submissionRepository
-							.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
-					totalSubmitted += submissionAssignments.size();
-
-					for (AssignmentSubmission submission : submissionAssignments) {
-						if (submission.getStatus().equals(SubmissionStatus.Unreviewed)) {
-							underReviewed += 1;
-						} else if (submission.getStatus().equals(SubmissionStatus.Reviewing)
-								|| submission.getStatus().equals(SubmissionStatus.Accepted)
-								|| submission.getStatus().equals(SubmissionStatus.Rejected)) {
-							reviewed += 1;
-						}
-					}
-				}
-			}
-			assignmentTaskStatus.setUnReveiwed(underReviewed);
-			assignmentTaskStatus.setReveiwed(reviewed);
-			assignmentTaskStatus.setTotalSubmitted(totalSubmitted);
-			return ResponseEntity.ok(assignmentTaskStatus);
-		}
-		return ResponseEntity.notFound().build();
-	}
-
-
 }

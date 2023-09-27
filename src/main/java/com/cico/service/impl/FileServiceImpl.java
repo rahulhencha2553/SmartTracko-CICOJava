@@ -17,12 +17,12 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.service.IFileService;
@@ -61,14 +61,60 @@ public class FileServiceImpl implements IFileService{
 //	    }
 //	}
 	
-	public String uploadFileInFolder(MultipartFile imageFile, String destinationPath) {
+	
+	public String uploadFileInFolder(MultipartFile file, String destinationPath) {
+	    String currentDir = System.getProperty("user.dir") + destinationPath;
+	    String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+	    String randomId = UUID.randomUUID().toString();
+	    String randomName = randomId.concat(originalFilename.substring(originalFilename.lastIndexOf(".")));
+	    String filePath = currentDir + randomName;
+
+	    // Check the file extension to determine the file type
+	    String fileExtension = getFileExtension(originalFilename);
+
+	    // Define the list of supported file extensions (PDF, image formats, etc.)
+	    String[] supportedExtensions = {"pdf", "jpg", "jpeg", "png", "gif", "bmp"};
+
+	    // Check if the file extension is in the list of supported extensions
+	    boolean isSupportedExtension = false;
+	    for (String ext : supportedExtensions) {
+	        if (ext.equalsIgnoreCase(fileExtension)) {
+	            isSupportedExtension = true;
+	            break;
+	        }
+	    }
+
+	    if (!isSupportedExtension) {
+	        return null; // Return null for unsupported file types
+	    }
+
+	    try {
+	        File destinationFile = new File(filePath);
+	        FileUtils.forceMkdirParent(destinationFile);
+	        file.transferTo(destinationFile);
+	        return randomName;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+
+	private String getFileExtension(String filename) {
+	    int lastDotIndex = filename.lastIndexOf(".");
+	    if (lastDotIndex >= 0) {
+	        return filename.substring(lastDotIndex + 1).toLowerCase();
+	    }
+	    return "";
+	}
+
+	public String uploadFileInFolder1(MultipartFile imageFile, String destinationPath) {
 		 int targetFileSizeKB=1;  
 		String currentDir = System.getProperty("user.dir") + destinationPath;
 	        String originalFilename = StringUtils.cleanPath(imageFile.getOriginalFilename());
 	        String randomId = UUID.randomUUID().toString();
 	        String randomName = randomId.concat(originalFilename.substring(originalFilename.lastIndexOf(".")));
 	        String imagePath = currentDir + randomName;
-
+	        
 	        try {
 	            File destinationFile = new File(imagePath);
 	            imageFile.transferTo(destinationFile);
