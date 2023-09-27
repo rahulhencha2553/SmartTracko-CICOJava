@@ -77,4 +77,10 @@ public class CourseController {
 		ApiResponse studentUpgradeCourse = courseService.studentUpgradeCourse(studnetId,courseId);
 		return ResponseEntity.status(HttpStatus.CREATED).body(studentUpgradeCourse);
 	}
+	
+	@GetMapping("/getCourseProgress")
+	public ResponseEntity<?> getCourseProgress(@RequestParam("studentId") Integer studentId)
+	{
+		return courseService.getCourseProgress(studentId);
+	}
 }
