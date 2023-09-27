@@ -31,4 +31,6 @@ public interface IExamService {
 
 	ResponseEntity<?> getChapterExamResult(Integer id);
 
+	ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId);
+
 }
