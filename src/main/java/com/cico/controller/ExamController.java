@@ -3,6 +3,7 @@ package com.cico.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,5 +85,10 @@ public class ExamController {
 	@GetMapping("/getChapterExamResult")
 	public ResponseEntity<?> getChapterExamResult(@RequestParam("resultId") Integer id){
 		return examService.getChapterExamResult(id);
+	}
+	
+	@GetMapping("/checkExamCompleteOrNot")
+	public ResponseEntity<?> checkExamCompletedOrNot(@RequestParam("chapterId") Integer chapterId,@RequestParam("studentId") Integer studentId){
+		return examService.getChapterExamIsCompleteOrNot(chapterId,studentId);
 	}
 }

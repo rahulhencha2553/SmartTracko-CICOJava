@@ -412,13 +412,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		});
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
-}
 
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
 
 		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
 		if (Objects.nonNull(findByCourseId)) {
-			List<Assignment> assignments = assignmentRepository.findAllByCourseId(courseId);
+			List<Assignment> assignments = assignmentRepository.findAllByCourseIdAndIsActiveTrue(courseId);
 			assignments.forEach(obj->{
 				obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
 			});
