@@ -1,6 +1,8 @@
 package com.cico.service.impl;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -125,5 +127,30 @@ public class CourseServiceImpl implements ICourseService {
 				return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
 			return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
+	
+	@Override
+	public ResponseEntity<?> getCourseProgress(Integer studentId) {
+	    Student findByStudentId = studentRepository.findByStudentId(studentId);
+	    String duration = findByStudentId.getCourse().getDuration();
+
+	    double durationValue = Double.parseDouble(duration);
+
+	    LocalDate joinDate = findByStudentId.getJoinDate();
+	    LocalDate currentDate = LocalDate.now();
+
+	    long monthsBetween = ChronoUnit.MONTHS.between(joinDate, currentDate);
+
+	    double percentage = (double) monthsBetween / durationValue * 100.0;
+
+	    // Ensure the percentage is within the range of 0% to 100%
+	    percentage = Math.min(percentage, 100.0);
+
+	    // Format the percentage to one decimal place
+	    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+	    String formattedPercentage = decimalFormat.format(percentage);
+
+	    return new ResponseEntity<>(formattedPercentage, HttpStatus.OK);
+	}
+
 
 }
