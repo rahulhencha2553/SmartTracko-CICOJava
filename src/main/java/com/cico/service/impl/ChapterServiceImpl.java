@@ -52,13 +52,14 @@ public class ChapterServiceImpl implements IChapterService {
 		chapter.setChapterName(chapterName);
 		chapter.setSubject(subjectRepo.findById(subjectId).get());
 		chapter.setIsCompleted(false);
-		Chapter obj = chapterRepo.save(chapter);
+		chapterRepo.save(chapter);
 		Subject subject = subjectRepo.findById(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		subject.setChapters(Arrays.asList(obj));
-		Subject obj1 = subjectRepo.save(subject);
-		if(Objects.nonNull(obj1)) {
-		return new  ResponseEntity<>(obj1,HttpStatus.OK); 
+		List<Chapter> chapters = subject.getChapters();
+		//subject.setChapters(chapters);
+		//Subject obj1 = subjectRepo.save(subject);
+		if(Objects.nonNull(subject)) {
+		return new  ResponseEntity<>(subject,HttpStatus.OK); 
 		}
 		return new  ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	
@@ -95,14 +96,13 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public void deleteChapter(Integer chapterId,Integer subjectId) {
-//		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false).get();
-//		Chapter chapter = chapterRepo.findByChapterIdAndSubjectAndIsDeleted(chapterId,subject, false)
-//				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-//          System.out.println("222222222222222222222222222222222222"+chapter);
-//		chapter.setIsDeleted(true);
-//		chapterRepo.save(chapter);
-
+	public ResponseEntity<?> deleteChapter(Integer chapterId,Integer subjectId) {
+		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false).get();
+		Chapter chapter = chapterRepo.findByChapterIdAndSubjectAndIsDeleted(chapterId,subject, false)
+				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+		chapter.setIsDeleted(true);
+		chapterRepo.save(chapter);
+		return new  ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@Override

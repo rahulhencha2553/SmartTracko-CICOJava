@@ -44,7 +44,5 @@ public class AssignmentSubmission {
 	private SubmissionStatus status;
        
 	private String review;
-
-//	@ManyToOne
-//	private TaskQuestion taskQuestion;
+    private String title;
 }
