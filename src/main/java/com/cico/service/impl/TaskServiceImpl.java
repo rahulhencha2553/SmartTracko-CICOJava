@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
+import com.cico.model.AssignmentSubmission;
 import com.cico.model.Course;
 import com.cico.model.Student;
 import com.cico.model.Subject;
@@ -168,7 +169,7 @@ public class TaskServiceImpl implements ITaskService {
 				System.out.println(fileName);
 				list.add(fileName);
 			});
-            taskQuestion.setTaskId(taskId);
+			taskQuestion.setTaskId(taskId);
 			taskQuestion.setQuestionImages(list);
 
 			Task task = taskOptional.get();
@@ -242,9 +243,24 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	public ResponseEntity<?> getSubmitedTaskForStudent(Integer studentId) {
-		List<TaskSubmission> submitedTaskForStudent = taskSubmissionRepository.getSubmitedTaskForStudent(studentId);
-		return new ResponseEntity<>(submitedTaskForStudent, HttpStatus.OK);
+
+		List<Object[]> list1 = taskSubmissionRepository.getSubmitedTaskForStudent(studentId);
+		List<TaskSubmission> list = new ArrayList<>();
+		list1.forEach(obj -> {
+			TaskSubmission submission = new TaskSubmission();
+			submission.setReview((String) obj[0]);
+			submission.setStatus((SubmissionStatus) obj[1]);
+			submission.setSubmissionDate((LocalDateTime) obj[2]);
+			submission.setSubmittionFileName((String) obj[3]);
+			submission.setTaskDescription((String) obj[4]);
+			submission.setTaskId((Long) obj[5]);
+			submission.setTaskName((String) obj[6]);
+			list.add(submission);
+		});
+		
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
+
 
 	@Override
 	public ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review) {

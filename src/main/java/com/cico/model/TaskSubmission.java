@@ -33,4 +33,5 @@ public class TaskSubmission {
 	@Enumerated(EnumType.STRING)
 	private SubmissionStatus status;
 	private String review;
+	private String taskName;
 }

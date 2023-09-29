@@ -20,7 +20,7 @@ public interface IChapterService {
 
 	Map<String, Object> getChapterById(Integer chapterId);
 
-	void deleteChapter(Integer chapterId, Integer subjectId);
+	ResponseEntity<?> deleteChapter(Integer chapterId, Integer subjectId);
 
 	void updateChapterStatus(Integer chapterId);
 

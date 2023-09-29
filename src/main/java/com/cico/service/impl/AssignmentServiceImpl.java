@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -129,9 +130,22 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId) {
-		List<AssignmentSubmission> assignmentByStudentId = submissionRepository
+        List<AssignmentSubmission>list = new ArrayList<>();
+		 List<Object[]> submitAssignmentByStudentId = submissionRepository
 				.getSubmitAssignmentByStudentId(studentId);
-		return new ResponseEntity<>(assignmentByStudentId, HttpStatus.OK);
+		 submitAssignmentByStudentId.forEach(obj->{
+			AssignmentSubmission submission = new AssignmentSubmission();
+			submission.setReview((String)obj[0]);
+			submission.setStatus((SubmissionStatus)obj[1]);
+			submission.setSubmissionDate((LocalDateTime)obj[2]);
+			submission.setSubmitFile((String)obj[3]);
+			submission.setDescription((String)obj[4]);
+			submission.setTaskId((Long)obj[5]);
+			submission.setAssignmentId((Long)obj[6]);
+			submission.setTitle((String)obj[7]);
+			list.add(submission);
+		 });
+      return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@Override

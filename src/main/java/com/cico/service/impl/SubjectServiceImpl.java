@@ -38,15 +38,15 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Autowired
 	private TechnologyStackRepository technologyStackRepository;
-	
-	@Autowired ChapterCompletedRepository chapterCompletedRepository;
-	
+
+	@Autowired
+	ChapterCompletedRepository chapterCompletedRepository;
+
 	@Autowired
 	private StudentRepository studentRepository;
 	@Autowired
 	private CourseRepository courseRepository;
 
-	
 	@Override
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
@@ -91,14 +91,16 @@ public class SubjectServiceImpl implements ISubjectService {
 	public Subject updateSubject(Subject subject) {
 		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId(), false)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-	return 	subRepo.save(subject);
-
+		Subject obj = subRepo.save(subject);
+		obj.setChapters(chapterRepo.findAllSubjectIdAndIsDeleted(subject, false));
+		return obj;
 	}
 
 	@Override
 	public Map<String, Object> getSubjectById(Integer subjectId) {
 		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
+		 subject.setChapters(chapterRepo.findAllSubjectIdAndIsDeleted(subject, false));
 		int size = subject.getChapters().size();
 		List<Chapter> chapters = subject.getChapters();
 
@@ -152,16 +154,15 @@ public class SubjectServiceImpl implements ISubjectService {
 		return responseSend;
 	}
 
-
 	@Override
 	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
-          return null;
+		return null;
 	}
 
 	@Override
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 		Course course = studentRepository.findById(studentId).get().getCourse();
-		List<Subject> subjects =courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
+		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
@@ -171,7 +172,8 @@ public class SubjectServiceImpl implements ISubjectService {
 			response.setIsDeleted(s.getIsDeleted());
 			response.setSubjectId(s.getSubjectId());
 			response.setSubjectName(s.getSubjectName());
-			response.setChapterCompleted(chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(),studentId));
+			response.setChapterCompleted(
+					chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(), studentId));
 			responseSend.add(response);
 		}
 		if (subjects.isEmpty())
