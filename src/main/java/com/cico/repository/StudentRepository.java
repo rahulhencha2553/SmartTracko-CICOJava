@@ -80,4 +80,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	@Query("SELECT s FROM Student s Where s.isCompleted=0")
 	List<Student> getIsCompleted();
+
+	@Query("SELECT COUNT(s) FROM Student s WHERE s.course.courseId IN :courseIds AND s.isActive = 1 AND s.isCompleted = 0")
+	long findBycourseIdInAndIsActiveTrueAndIsCompletedFalse(@Param("courseIds") List<Integer> courseIds);
 }

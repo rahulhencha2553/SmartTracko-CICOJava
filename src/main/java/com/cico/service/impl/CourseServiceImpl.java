@@ -78,10 +78,16 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public PageResponse<Course> getAllCourses(Integer page, Integer size) {
-		PageRequest p = PageRequest.of(page, size, Sort.by(Direction.DESC, "courseId"));
-		 Page<Course> coursePageList = courseRepository.findAllByIsDeleted(false,p);
-		return new PageResponse<>(coursePageList.getContent(), coursePageList.getNumber(), coursePageList.getSize(), coursePageList.getNumberOfElements(), coursePageList.getTotalPages(), coursePageList.isLast());
+	public ResponseEntity<?> getAllCourses(Integer page, Integer size) {
+		if(page != -1) {
+			PageRequest p = PageRequest.of(page, size, Sort.by(Direction.DESC, "courseId"));
+			 Page<Course> coursePageList = courseRepository.findAllByIsDeleted(false,p);
+			 PageResponse<Course> pageResponse = new PageResponse<>(coursePageList.getContent(), coursePageList.getNumber(), coursePageList.getSize(), coursePageList.getNumberOfElements(), coursePageList.getTotalPages(), coursePageList.isLast());
+			 return new ResponseEntity<>(pageResponse,HttpStatus.OK);
+		}else {
+			List<Course> findAll = courseRepository.findByIsDeleted(false);
+			 return new ResponseEntity<>(findAll,HttpStatus.OK);
+		}
 	}
 
 	@Override
@@ -154,3 +160,5 @@ public class CourseServiceImpl implements ICourseService {
 
 
 }
+
+

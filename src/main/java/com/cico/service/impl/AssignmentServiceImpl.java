@@ -20,6 +20,7 @@ import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
+import com.cico.model.Course;
 import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
@@ -411,7 +412,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		});
 		return ResponseEntity.ok(assignmentTaskStatusList);
 	}
-}
 
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatusByCourseId(Integer courseId) {
 

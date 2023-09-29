@@ -16,7 +16,7 @@ public interface ICourseService {
 
 	public Course findCourseById(Integer courseId);
 
-	public PageResponse<Course> getAllCourses(Integer page, Integer size);
+	public ResponseEntity<?> getAllCourses(Integer page, Integer size);
 
 	public ApiResponse updateCourse(Course course);
 
