@@ -34,4 +34,8 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
 
 	public List<Course> findAllByIsDeletedAndIsStarterCourse(boolean b,boolean c);
 
+	public List<Course> findByIsDeleted(boolean b);
+
+	public List<Course> findBycourseIdInAndIsDeletedFalse(List<Integer> courseId);
+
 }
