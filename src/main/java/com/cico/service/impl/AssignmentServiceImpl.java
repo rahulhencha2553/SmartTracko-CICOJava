@@ -130,22 +130,21 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId) {
-        List<AssignmentSubmission>list = new ArrayList<>();
-		 List<Object[]> submitAssignmentByStudentId = submissionRepository
-				.getSubmitAssignmentByStudentId(studentId);
-		 submitAssignmentByStudentId.forEach(obj->{
+		List<AssignmentSubmission> list = new ArrayList<>();
+		List<Object[]> submitAssignmentByStudentId = submissionRepository.getSubmitAssignmentByStudentId(studentId);
+		submitAssignmentByStudentId.forEach(obj -> {
 			AssignmentSubmission submission = new AssignmentSubmission();
-			submission.setReview((String)obj[0]);
-			submission.setStatus((SubmissionStatus)obj[1]);
-			submission.setSubmissionDate((LocalDateTime)obj[2]);
-			submission.setSubmitFile((String)obj[3]);
-			submission.setDescription((String)obj[4]);
-			submission.setTaskId((Long)obj[5]);
-			submission.setAssignmentId((Long)obj[6]);
-			submission.setTitle((String)obj[7]);
+			submission.setReview((String) obj[0]);
+			submission.setStatus((SubmissionStatus) obj[1]);
+			submission.setSubmissionDate((LocalDateTime) obj[2]);
+			submission.setSubmitFile((String) obj[3]);
+			submission.setDescription((String) obj[4]);
+			submission.setTaskId((Long) obj[5]);
+			submission.setAssignmentId((Long) obj[6]);
+			submission.setTitle((String) obj[7]);
 			list.add(submission);
-		 });
-      return new ResponseEntity<>(list, HttpStatus.OK);
+		});
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@Override
@@ -324,8 +323,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<Assignment> lockedAssignment = new ArrayList<>();
 		List<Assignment> unLockedAssignment = new ArrayList<>();
 
-		List<Assignment> allAssignment = assignmentRepository
-				.findAllByCourseIdAndIsActiveTrue(studentRepository.findById(studentId).get().getCourse().getCourseId());
+		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsActiveTrue(
+				studentRepository.findById(studentId).get().getCourse().getCourseId());
 
 		allAssignment.forEach(obj -> {
 			obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
@@ -345,7 +344,9 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 				int taskCount = 0;
 				for (AssignmentSubmission submission : submittedAssignment) {
-					if ("Accepted".equals(submission.getStatus().name())) {
+					if ("Accepted".equals(submission.getStatus().name())
+							|| "Rejected".equals(submission.getStatus().name())
+							|| "Reviewing".equals(submission.getStatus().name())) {
 						taskCount++;
 					}
 				}
@@ -374,7 +375,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(assignmentId,
 				questionId, studentId);
 		if (Objects.nonNull(submission)) {
-			return new ResponseEntity<>(true, HttpStatus.OK);
+			if ( "Rejected".equals(submission.getStatus().name()))
+				return new ResponseEntity<>(false, HttpStatus.OK);
+			else
+				return new ResponseEntity<>(true, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(false, HttpStatus.OK);
 		}
@@ -388,7 +392,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		if (subjectId == 0) {
 			assignments = assignmentRepository.findAllByCourseIdAndIsActiveTrue(courseId);
 		} else {
-            assignments  = assignmentRepository.findAllByCourseIdAndSubjectIdAndIsActiveTrue(courseId, subjectId);
+			assignments = assignmentRepository.findAllByCourseIdAndSubjectIdAndIsActiveTrue(courseId, subjectId);
 		}
 
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
@@ -432,8 +436,9 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
 		if (Objects.nonNull(findByCourseId)) {
 			List<Assignment> assignments = assignmentRepository.findAllByCourseIdAndIsActiveTrue(courseId);
-			assignments.forEach(obj->{
-				obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+			assignments.forEach(obj -> {
+				obj.setAssignmentQuestion(
+						assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
 			});
 			int totalSubmitted = 0;
 			int underReviewed = 0;
@@ -464,6 +469,5 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		}
 		return ResponseEntity.notFound().build();
 	}
-
 
 }
