@@ -40,4 +40,9 @@ public class AnnouncementController {
 	public ResponseEntity<?> getAnnouncementForStudent(@RequestParam("studentId") Integer studentId){
 		return announcementService.getAnnouncementForStudent(studentId);
 	}
+	
+	@GetMapping("/getNotificationCountForStudent")
+	public ResponseEntity<?> countUnseenNotificationForStudent(@RequestParam("studentId") Integer studentId){
+		return announcementService.countUnseenNotificationForStudent(studentId);
+	}
 }

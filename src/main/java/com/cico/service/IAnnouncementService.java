@@ -14,4 +14,6 @@ public interface IAnnouncementService {
 
 	ResponseEntity<?> getAnnouncementForStudent(Integer studentId);
 
+	ResponseEntity<?> countUnseenNotificationForStudent(Integer studentId);
+
 }

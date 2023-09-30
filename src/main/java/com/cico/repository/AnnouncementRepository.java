@@ -15,4 +15,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
 	@Query("SELECT a FROM Announcement a WHERE :course MEMBER OF a.course AND :student NOT MEMBER OF a.students")
 	public List<Announcement> getAnnouncementForStudentByCourse(@Param("course") Course course,@Param("student") Student student);
 
+	@Query("SELECT COUNT(a) FROM Announcement a WHERE :course MEMBER OF a.course AND :student NOT MEMBER OF a.students")
+	public Long countUnseenNotificationForStudent(Course course, Student student);
+
 }

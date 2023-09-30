@@ -44,7 +44,7 @@ public class Announcement {
 	@OneToOne(cascade = CascadeType.ALL)
 	private MessageSeenBy seenBy;
 	
-	@OneToMany
+	@ManyToMany
 	private List<Student> students;
 	
 }
