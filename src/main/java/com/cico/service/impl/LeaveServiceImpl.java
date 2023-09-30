@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.LeaveType;
 import com.cico.model.Leaves;
@@ -62,6 +64,11 @@ public class LeaveServiceImpl implements ILeaveService {
 				util.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
 		Student student = studRepo.findByUserIdAndIsActive(username, true).get();
 		Boolean validateToken = util.validateToken(header.getFirst(AppConstants.AUTHORIZATION), student.getUserId());
+		
+		Optional<Leaves> checkLeavesData = leavesRepository.findByStudentIdAndLeaveStartDateAndEndDate(studentId,LocalDate.parse(leaveStartDate));
+		if(checkLeavesData.isPresent())
+			throw new ResourceAlreadyExistException("Already Leave Apply For Given Date");
+		
 		LocalDate toDate = null;
 		LocalDate fromDate = null;
 

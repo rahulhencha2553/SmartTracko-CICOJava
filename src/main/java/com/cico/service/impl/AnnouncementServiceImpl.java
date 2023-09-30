@@ -72,6 +72,7 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 		Student student = studentRepository.findByStudentId(studentId);
 		if(!announcement.getStudents().contains(student)) {
 			announcement.getStudents().add(student);
+			announcement.getSeenBy().setSeenBy(announcement.getSeenBy().getSeenBy()+1);
 			return new ResponseEntity<>(announcementRepository.save(announcement),HttpStatus.CREATED);
 		}else {
 			throw new ResourceAlreadyExistException("Already Seen");
@@ -82,6 +83,13 @@ public class AnnouncementServiceImpl implements IAnnouncementService {
 	public ResponseEntity<?> getAnnouncementForStudent(Integer studentId) {
 		Student student = studentRepository.findById(studentId).get();
 		List<Announcement> announcements = announcementRepository.getAnnouncementForStudentByCourse(student.getCourse(),student);
+		return new ResponseEntity<>(announcements,HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<?> countUnseenNotificationForStudent(Integer studentId) {
+		Student student = studentRepository.findById(studentId).get();
+		Long announcements = announcementRepository.countUnseenNotificationForStudent(student.getCourse(),student);
 		return new ResponseEntity<>(announcements,HttpStatus.OK);
 	}
 

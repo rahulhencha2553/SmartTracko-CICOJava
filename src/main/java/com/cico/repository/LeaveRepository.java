@@ -1,6 +1,8 @@
 package com.cico.repository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -58,5 +60,8 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 
 	@Query("SELECT MONTH(l.leaveDate) AS month, SUM(l.leaveDuration) AS total_leave_days  FROM  Leaves l WHERE YEAR(l.leaveDate) =:year AND l.studentId=:studentId AND l.leaveDayType='Full Day' AND l.leaveStatus=1 GROUP BY MONTH(l.leaveDate)")
 	public List<Object[]> getMonthWiseLeavesForYear(@Param("year") Integer year,@Param("studentId") Integer studentId);
+
+	@Query("SELECT l FROM Leaves l WHERE l.studentId =:studentId AND :startDate BETWEEN l.leaveDate AND l.leaveEndDate")
+	public Optional<Leaves> findByStudentIdAndLeaveStartDateAndEndDate(@Param("studentId") Integer studentId,@Param("startDate") LocalDate startDate);
 	
 }
