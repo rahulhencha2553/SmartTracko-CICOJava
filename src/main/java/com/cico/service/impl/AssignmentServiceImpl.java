@@ -76,19 +76,26 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) {
-		System.out.println(assignmentRequest);
-		Assignment assignment = new Assignment();
-		assignment.setTitle(assignmentRequest.getTitle());
+	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception {
+	  
+		 Optional<Assignment> obj = assignmentRepository.findByName(assignmentRequest.getTitle());
+		if(obj.isPresent()) {
+			Assignment assignment = new Assignment();
+			assignment.setTitle(assignmentRequest.getTitle());
 
-		assignment.setCourse(courseRepo.findById(assignmentRequest.getCourseId()).get());
+			assignment.setCourse(courseRepo.findById(assignmentRequest.getCourseId()).get());
 
-		if (assignmentRequest.getSubjectId() != null)
-			assignment.setSubject(subjectRepo.findById(assignmentRequest.getSubjectId()).get());
+			if (assignmentRequest.getSubjectId() != null)
+				assignment.setSubject(subjectRepo.findById(assignmentRequest.getSubjectId()).get());
 
-		assignment.setCreatedDate(LocalDateTime.now());
-		Assignment savedAssignment = assignmentRepository.save(assignment);
-		return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
+			assignment.setCreatedDate(LocalDateTime.now());
+			Assignment savedAssignment = assignmentRepository.save(assignment);
+			return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
+		}else {
+			throw new Exception("Assignmnet Already Present With This Title");
+		}
+		
+		
 	}
 
 	@Override

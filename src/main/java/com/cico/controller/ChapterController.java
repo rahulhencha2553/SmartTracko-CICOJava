@@ -29,7 +29,7 @@ public class ChapterController {
 	private IChapterService chapterService;
 	
 	@PostMapping("/addChapter")
-	public ResponseEntity<?> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image){
+	public ResponseEntity<?> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image) throws Exception{
 		return  chapterService.addChapter(subjectId,chapterName,image);	
 		
 	}

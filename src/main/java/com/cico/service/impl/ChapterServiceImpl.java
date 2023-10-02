@@ -47,19 +47,21 @@ public class ChapterServiceImpl implements IChapterService {
 //	private String filePath;
 
 	@Override 
-	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName,MultipartFile image) {
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName,MultipartFile image) throws Exception {
+	 
+		
+		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
+		 if(Objects.nonNull(obj)) {
+			 throw new Exception("Chapter already present with name..");
+		 }
 		Chapter chapter = new Chapter();
 		chapter.setChapterName(chapterName);
 		chapter.setSubject(subjectRepo.findById(subjectId).get());
 		chapter.setIsCompleted(false);
-		chapterRepo.save(chapter);
-		Subject subject = subjectRepo.findById(subjectId)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		List<Chapter> chapters = subject.getChapters();
-		//subject.setChapters(chapters);
-		//Subject obj1 = subjectRepo.save(subject);
-		if(Objects.nonNull(subject)) {
-		return new  ResponseEntity<>(subject,HttpStatus.OK); 
+		Chapter obj1 = chapterRepo.save(chapter);
+		
+		if(Objects.nonNull(obj1)) {
+		return new  ResponseEntity<>(HttpStatus.OK); 
 		}
 		return new  ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	
