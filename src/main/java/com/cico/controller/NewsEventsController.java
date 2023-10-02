@@ -43,7 +43,7 @@ public class NewsEventsController {
 			@RequestParam(name = "shortDescriptoin",required = false) String shortDescription,
 			@RequestParam("briefDescription") String briefDescription,
 			@RequestParam("title") String title,
-			@RequestParam("file") MultipartFile file){
+			@RequestParam("fileName") MultipartFile file){
 		
 		NewsEvents newsEvents = newsEventsService.updateNewsEvents(id, shortDescription, briefDescription, title, file);
 		return new ResponseEntity<>(newsEvents,HttpStatus.CREATED);

@@ -185,7 +185,7 @@ public class JobAlertServiceImpl implements IJobAlertService {
 
 	@Override
 	public ApiResponse update(JobAlert jobAlert) {
-		
+		System.out.println(jobAlert);
 		JobAlert save = repository.save(jobAlert);
 		if(Objects.nonNull(save))
 			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
