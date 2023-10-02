@@ -34,7 +34,6 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 	@Override
 	public NewsEvents createNewsEvents(String shortDescription, String briefDescription, String title,
 			MultipartFile file) {
-
 		NewsEvents newsEvents = new NewsEvents();
 
 		if (file != null && !file.isEmpty()) {
@@ -68,6 +67,8 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 	@Override
 	public NewsEvents updateNewsEvents(Integer id, String shortDescription, String briefDescription, String title,
 			MultipartFile file) {
+		System.out.println(shortDescription);
+		System.out.println(file.getOriginalFilename());
 		NewsEvents newsEvents = newsEventsRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 
@@ -91,7 +92,7 @@ public class NewsEventsServiceImpl implements INewsEventsService {
 		}
 
 		newsEvents.setUpdatedDate(LocalDateTime.now());
-		return newsEvents;
+		return newsEventsRepository.save(newsEvents);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package com.cico.model;
 import java.time.LocalDateTime;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -26,6 +27,8 @@ public class JobAlert {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer jobId;
 	private String jobTitle;
+	
+	@Column(columnDefinition = "longtext")
 	private String jobDescription;
 	private String companyName;
 	private String experienceRequired;
