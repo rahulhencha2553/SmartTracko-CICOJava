@@ -35,7 +35,7 @@ public class AssigmentController {
 	private ObjectMapper objectMapper;
 
 	@PostMapping("/createAssignment")
-	public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest assignmentRequest) {
+	public ResponseEntity<?> createAssignment(@RequestBody AssignmentRequest assignmentRequest) throws Exception {
 		return service.createAssignment(assignmentRequest);
 	}
 

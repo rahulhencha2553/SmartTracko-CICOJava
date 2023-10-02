@@ -12,7 +12,7 @@ import com.cico.model.Subject;
 
 public interface IChapterService {
 
-	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image);
+	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image) throws Exception;
 
 	void addExamToChapter(Integer subjectId, String examName);
 
