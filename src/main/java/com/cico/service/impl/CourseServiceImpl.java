@@ -136,26 +136,40 @@ public class CourseServiceImpl implements ICourseService {
 	
 	@Override
 	public ResponseEntity<?> getCourseProgress(Integer studentId) {
+		Map<String, Object> response = new HashMap<>();
 	    Student findByStudentId = studentRepository.findByStudentId(studentId);
 	    String duration = findByStudentId.getCourse().getDuration();
-
-	    double durationValue = Double.parseDouble(duration);
+	    System.out.println(duration);
+	     long months = Long.parseLong(duration);
 
 	    LocalDate joinDate = findByStudentId.getJoinDate();
+	    LocalDate endDate = joinDate.plusMonths(months);
 	    LocalDate currentDate = LocalDate.now();
 
-	    long monthsBetween = ChronoUnit.MONTHS.between(joinDate, currentDate);
+	     // Calculate the number of days between join date and current date
+        long daysElapsed = ChronoUnit.DAYS.between(joinDate, currentDate);
 
-	    double percentage = (double) monthsBetween / durationValue * 100.0;
+        // Calculate the total number of days between join date and end date
+        long totalDays = ChronoUnit.DAYS.between(joinDate, endDate);
 
-	    // Ensure the percentage is within the range of 0% to 100%
-	    percentage = Math.min(percentage, 100.0);
-
-	    // Format the percentage to one decimal place
-	    DecimalFormat decimalFormat = new DecimalFormat("#.#");
-	    String formattedPercentage = decimalFormat.format(percentage);
-
-	    return new ResponseEntity<>(formattedPercentage, HttpStatus.OK);
+        // Calculate the percentage of completion
+        double percentageCompletion = (double) daysElapsed / totalDays * 100;
+  
+//	    long monthsBetween = ChronoUnit.MONTHS.between(joinDate, currentDate);
+//
+//	    double percentage = (double) monthsBetween / durationValue * 100.0;
+//
+//	    // Ensure the percentage is within the range of 0% to 100%
+//	    percentage = Math.min(percentage, 100.0);
+//
+//	    // Format the percentage to one decimal place
+//	    DecimalFormat decimalFormat = new DecimalFormat("#.#");
+//	    String formattedPercentage = decimalFormat.format(percentage);
+        response.put("percentage", percentageCompletion>100?100:percentageCompletion);
+        response.put("courseName", findByStudentId.getCourse().getCourseName());
+        response.put("joinDate", joinDate);
+        response.put("endDate", endDate);
+	    return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 
