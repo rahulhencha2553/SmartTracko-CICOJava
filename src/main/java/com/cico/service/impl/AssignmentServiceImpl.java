@@ -119,20 +119,24 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) {
-		AssignmentSubmission submission = new AssignmentSubmission();
-		submission.setStudent(studentRepository.findByStudentId(readValue.getStudentId()));
-		submission.setAssignmentId(readValue.getAssignmentId());
-		submission.setTaskId(readValue.getTaskId());
-		submission.setDescription(readValue.getDescription());
-		submission.setSubmissionDate(LocalDateTime.now());
-		submission.setStatus(SubmissionStatus.Unreviewed);
-		;
-		if (Objects.nonNull(file)) {
-			String fileName = fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
-			submission.setSubmitFile(fileName);
-		}
-		return new ResponseEntity<>(submissionRepository.save(submission), HttpStatus.CREATED);
+	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception {
+		AssignmentSubmission obj = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(readValue.getAssignmentId(),readValue.getTaskId(),readValue.getStudentId());
+	 if(!Objects.nonNull(obj)) {
+		 AssignmentSubmission submission = new AssignmentSubmission();
+			submission.setStudent(studentRepository.findByStudentId(readValue.getStudentId()));
+			submission.setAssignmentId(readValue.getAssignmentId());
+			submission.setTaskId(readValue.getTaskId());
+			submission.setDescription(readValue.getDescription());
+			submission.setSubmissionDate(LocalDateTime.now());
+			submission.setStatus(SubmissionStatus.Unreviewed);
+			if (Objects.nonNull(file)) {
+				String fileName = fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
+				submission.setSubmitFile(fileName);
+			}
+			return new ResponseEntity<>(submissionRepository.save(submission), HttpStatus.CREATED);
+	 }else {
+		  throw new Exception("ALREADY THIS ASSIGNMENT TASK SUBMITED!!");
+	 }
 	}
 
 	@Override

@@ -134,23 +134,28 @@ public class TaskServiceImpl implements ITaskService {
 
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
-			String taskDescription) {
+			String taskDescription) throws Exception {
 
-		TaskSubmission submittion = new TaskSubmission();
-		submittion.setStudent(studentRepository.findByStudentId(studentId));
-		if (Objects.nonNull(file)) {
-			String f = fileService.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
-			submittion.setSubmittionFileName(f);
+		AssignmentSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
+		if (!Objects.nonNull(obj)) {
+			TaskSubmission submittion = new TaskSubmission();
+			submittion.setStudent(studentRepository.findByStudentId(studentId));
+			if (Objects.nonNull(file)) {
+				String f = fileService.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
+				submittion.setSubmittionFileName(f);
+			}
+			submittion.setTaskId(taskId);
+			submittion.setStatus(SubmissionStatus.Unreviewed);
+			submittion.setSubmissionDate(LocalDateTime.now());
+			submittion.setTaskDescription(taskDescription);
+			TaskSubmission object = taskSubmissionRepository.save(submittion);
+			if (!Objects.isNull(object)) {
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} else {
+			throw new Exception("ALREADY TASK SUBMITED");
 		}
-		submittion.setTaskId(taskId);
-		submittion.setStatus(SubmissionStatus.Unreviewed);
-		submittion.setSubmissionDate(LocalDateTime.now());
-		submittion.setTaskDescription(taskDescription);
-		TaskSubmission object = taskSubmissionRepository.save(submittion);
-		if (!Objects.isNull(object)) {
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@Override
@@ -257,10 +262,9 @@ public class TaskServiceImpl implements ITaskService {
 			submission.setTaskName((String) obj[6]);
 			list.add(submission);
 		});
-		
+
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
-
 
 	@Override
 	public ResponseEntity<?> updateSubmitedTaskStatus(Integer submissionId, String status, String review) {
@@ -316,5 +320,19 @@ public class TaskServiceImpl implements ITaskService {
 			list.addAll(taskRepo.findBySubjectAndIsActiveTrue(obj));
 		});
 		return list;
+	}
+
+	@Override
+	public ResponseEntity<?> isTaskSubmitted(Long taskId, Integer studentId) {
+
+		AssignmentSubmission submission = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
+		if (Objects.nonNull(submission)) {
+			if ("Rejected".equals(submission.getStatus().name()))
+				return new ResponseEntity<>(false, HttpStatus.OK);
+			else
+				return new ResponseEntity<>(true, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(false, HttpStatus.OK);
+		}
 	}
 }

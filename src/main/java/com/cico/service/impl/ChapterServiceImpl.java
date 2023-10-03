@@ -47,19 +47,20 @@ public class ChapterServiceImpl implements IChapterService {
 //	private String filePath;
 
 	@Override 
-	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName,MultipartFile image) throws Exception {
-	 
-		
+	public ResponseEntity<?> addChapter(Integer subjectId, String chapterName,MultipartFile image) throws Exception {	
 		Chapter obj = chapterRepo.findByChapterNameAndIsDeleted(chapterName, false);
-		 if(Objects.nonNull(obj)) {
+		if (Objects.nonNull(obj)) {
 			 throw new Exception("Chapter already present with name..");
 		 }
+		 Subject subject = subjectRepo.findById(subjectId).get();
+		 
 		Chapter chapter = new Chapter();
 		chapter.setChapterName(chapterName);
-		chapter.setSubject(subjectRepo.findById(subjectId).get());
+		chapter.setSubject(subject);
 		chapter.setIsCompleted(false);
 		Chapter obj1 = chapterRepo.save(chapter);
-		
+//		subject.getChapters().add(chapter);
+//		subjectRepo.save(subject);
 		if(Objects.nonNull(obj1)) {
 		return new  ResponseEntity<>(HttpStatus.OK); 
 		}
@@ -92,6 +93,7 @@ public class ChapterServiceImpl implements IChapterService {
 		 Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 		 List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
+		 System.out.println(chapterId);
 		 response.put("chapter", chapter);
 		 response.put("questionLength", questions.size());
 		 return response;
