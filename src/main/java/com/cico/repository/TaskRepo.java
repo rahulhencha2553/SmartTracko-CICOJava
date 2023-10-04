@@ -15,7 +15,8 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
 	Object findByTaskName(String taskName);
 
 	Optional<Task> findByTaskIdAndIsActive(Long taskId, boolean b);
-
+  
+	
 	List<Task> findByIsActiveTrue();
 
     List<Task> findBySubjectAndIsActiveTrue(Subject subject);

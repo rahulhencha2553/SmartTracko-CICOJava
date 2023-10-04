@@ -22,7 +22,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> getAssignmentQuesById(Long questionId,Long assignmentId);
 
-	ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue);
+	ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception;
 
 	ResponseEntity<?> getSubmitedAssignmetByStudentId(Integer studentId);
 

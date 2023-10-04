@@ -2,6 +2,8 @@ package com.cico.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,12 +13,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -66,4 +65,10 @@ public class Student {
 	@OneToOne
 	//@JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
 	private Course course;
+	
+	@JoinTable(name = "studentSeatingAlloatmentTable", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "seat_id"))
+	@OneToOne(cascade = CascadeType.ALL)
+	private StudentSeatingAlloatment studentSeatingAlloatment;
+
+
 }

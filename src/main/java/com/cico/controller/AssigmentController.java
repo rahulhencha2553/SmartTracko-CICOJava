@@ -19,8 +19,6 @@ import com.cico.model.Assignment;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.service.IAssignmentService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -78,7 +76,7 @@ public class AssigmentController {
 	@PostMapping("/submitAssignment")
 	public ResponseEntity<?> submitAssignmentByStudent(@RequestParam("file") MultipartFile file,
 			@RequestParam("assignmentSubmissionRequest") String assignmentSubmissionRequest)
-			throws JsonMappingException, JsonProcessingException {
+			throws Exception {
 		AssignmentSubmissionRequest readValue = objectMapper.readValue(assignmentSubmissionRequest,
 				AssignmentSubmissionRequest.class);
 		return service.submitAssignment(file, readValue);

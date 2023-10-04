@@ -63,7 +63,7 @@ public class TaskController {
 	public ResponseEntity<?> StudentTaskSubmittion(@RequestParam("taskId") 	Long taskId,
 			@RequestParam("studentId") Integer studentId,
 			@RequestParam(name = "submittionFileName", required = false) MultipartFile file,
-			@RequestParam("taskDescription") String taskDescription) {
+			@RequestParam("taskDescription") String taskDescription) throws Exception {
 		return taskService.studentTaskSubmittion(taskId, studentId, file, taskDescription);
 
 	}
@@ -112,4 +112,10 @@ public class TaskController {
 	public ResponseEntity<?>getOverAllTaskStatusforBarChart(){
 	   return taskService.getOverAllTaskStatusforBarChart();
 	}
+	
+	@GetMapping("/isTaskSubmitted")
+	public ResponseEntity<?> isTaskSubmitted(@RequestParam("taskId") Long taskId,@RequestParam("studentId")Integer studentId) {
+		return taskService.isTaskSubmitted(taskId,studentId);
+	}
+	
 }
