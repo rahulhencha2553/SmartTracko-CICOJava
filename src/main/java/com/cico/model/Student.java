@@ -63,6 +63,7 @@ public class Student {
 	private Boolean isActive =true;
 	private String role;
 	
+	
 	@OneToOne
 	//@JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
 	private Course course;
