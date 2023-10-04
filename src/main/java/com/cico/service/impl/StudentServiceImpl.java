@@ -5,21 +5,17 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.time.YearMonth;
-import java.time.format.TextStyle;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 
-import org.aspectj.weaver.patterns.HasMemberTypePatternForPerThisMatching;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,15 +39,14 @@ import com.cico.model.Leaves;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
 import com.cico.model.Student;
+import com.cico.model.StudentSeatingAlloatment;
 import com.cico.model.StudentWorkReport;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.AttendanceLogResponse;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
 import com.cico.payload.DashboardResponse;
-import com.cico.payload.LeaveResponse;
 import com.cico.payload.MispunchResponse;
-import com.cico.payload.MonthWiseAttendanceDTO;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
@@ -67,6 +62,7 @@ import com.cico.repository.LeaveRepository;
 import com.cico.repository.OrganizationInfoRepository;
 import com.cico.repository.QrManageRepository;
 import com.cico.repository.StudentRepository;
+import com.cico.repository.StudentSeatingAlloatmentRepo;
 import com.cico.repository.StudentWorkReportRepository;
 import com.cico.security.JwtUtil;
 import com.cico.service.IFileService;
@@ -126,6 +122,9 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+
+	@Autowired
+	private StudentSeatingAlloatmentRepo studentSeatingAlloatmentRepo;
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -395,7 +394,9 @@ public class StudentServiceImpl implements IStudentService {
 				Attendance attendanceData = attendenceRepository.findByStudentIdAndCheckInDate(studentId,
 						LocalDate.parse(date));
 				if (type.equals(AppConstants.CHECK_IN)) {
+
 					if (Objects.isNull(attendanceData)) {
+ 
 						Attendance checkInAttenedanceData = new Attendance();
 						checkInAttenedanceData.setStudentId(studentId);
 						checkInAttenedanceData.setCheckInDate(LocalDate.now());
@@ -410,6 +411,48 @@ public class StudentServiceImpl implements IStudentService {
 						checkInAttenedanceData.setCheckOutStatus("Pending");
 						Attendance saveAttendenceCheckInData = attendenceRepository.save(checkInAttenedanceData);
 						if (saveAttendenceCheckInData != null) {
+							
+							
+							// optional code  
+//							Optional<StudentSeatingAlloatment>optional = studentSeatingAlloatmentRepo.findByDate(LocalDate.now());
+//							// provide seat number
+//							if(optional.isPresent()) {
+								//if(optional.get().getSeatAllocatedDate()!=LocalDate.now()) {
+						//			studentSeatingAlloatmentRepo.updateSeatNumber(LocalDate.now());
+							//	}
+							//}
+							
+							// refresh the seatNumber by 0 to all seats 
+							studentSeatingAlloatmentRepo.updateSeatNumber(LocalDate.now());
+							
+							List<Integer> generatedNumbers = new ArrayList<>();
+							List<StudentSeatingAlloatment> obj = studentSeatingAlloatmentRepo.findAll();
+							for (StudentSeatingAlloatment ran : obj) {
+								generatedNumbers.add(ran.getSeatNumber());
+							}
+							int minRange = 1;
+							int maxRange = 100;
+							Random random = new Random();
+							int seatId = 0;
+							while (true) {
+								seatId = random.nextInt(maxRange - minRange + 1) + minRange;
+								if (!generatedNumbers.contains(seatId)) {
+									generatedNumbers.add(seatId);
+									break;
+								}
+							}
+							Optional<StudentSeatingAlloatment> obj1 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
+
+							if (obj1.isPresent()) { 
+								studentSeatingAlloatmentRepo.updateSeatNumber(studentId, seatId,LocalDate.now());
+							} else {
+								StudentSeatingAlloatment obj2 = new StudentSeatingAlloatment();
+								obj2.setSeatNumber(seatId);
+								obj2.setStudentId(studentId);
+								obj2.setSeatAllocatedDate(LocalDate.now());
+								studentSeatingAlloatmentRepo.save(obj2);
+							}
+
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							return new ResponseEntity<>(response, HttpStatus.OK);
 						} else {
@@ -455,7 +498,6 @@ public class StudentServiceImpl implements IStudentService {
 									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								}
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
-									;
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
@@ -475,7 +517,9 @@ public class StudentServiceImpl implements IStudentService {
 						return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 					}
 				}
-			} else {
+			} else
+
+			{
 				response.put(AppConstants.MESSAGE, AppConstants.ALL_REQUIRED);
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 
@@ -557,10 +601,21 @@ public class StudentServiceImpl implements IStudentService {
 				dashboardResponseDto.setIsMispunch(false);
 
 			if (Objects.nonNull(dashboardResponseDto)) {
+
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				QrManage findByUserId = qrManageRepository.findByUserId(username);
 				if (Objects.nonNull(findByUserId))
 					dashboardResponseDto.setIsWebLoggedIn(true);
+				   
+				Optional<StudentSeatingAlloatment> obj = studentSeatingAlloatmentRepo.findByStudentIdAndDate(studentId,LocalDate.now());
+				      if(obj.isEmpty()) {
+	                         Optional<StudentSeatingAlloatment> obj3 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
+	                      if(obj3.isPresent()) {
+	                    	  obj3.get().setSeatNumber(0); 
+	 	  				     studentSeatingAlloatmentRepo.save(obj3.get());
+	                      }
+				      }
+				dashboardResponseDto.setSeatNumber(student.getStudentSeatingAlloatment().getSeatNumber());
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -1418,9 +1473,8 @@ public class StudentServiceImpl implements IStudentService {
 		for (Object[] object : leaveForYear)
 			leavesCount.put((Integer) object[0], (Long) object[1]);
 
-		
-		int j= studRepo.findById(studentId).get().getJoinDate().getMonthValue();
-		for (int i=j; i <= LocalDate.now().getMonthValue(); i++) {
+		int j = studRepo.findById(studentId).get().getJoinDate().getMonthValue();
+		for (int i = j; i <= LocalDate.now().getMonthValue(); i++) {
 			Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
 			StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
 			absentCount.put(i, response1.getAbsent().size());
@@ -1445,6 +1499,10 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(AppConstants.DELETE_SUCCESS, HttpStatus.OK);
 	}
 
-
-
+	public int randomNumberGeneratore() {
+		Random r = new Random();
+		int s = 1;
+		int e = 100;
+		return r.nextInt(s - e) + e;
+	}
 }
