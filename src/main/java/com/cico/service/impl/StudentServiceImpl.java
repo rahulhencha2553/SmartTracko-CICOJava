@@ -126,9 +126,6 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
-	private int lastAllocatedSeatNo = 0;
-
-	private LocalDate lastCheckInDate = null;
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -397,30 +394,20 @@ public class StudentServiceImpl implements IStudentService {
 						.getHeader(header.getFirst(AppConstants.AUTHORIZATION), AppConstants.STUDENT_ID).toString());
 				Attendance attendanceData = attendenceRepository.findByStudentIdAndCheckInDate(studentId,
 						LocalDate.parse(date));
-
 				if (type.equals(AppConstants.CHECK_IN)) {
 					if (Objects.isNull(attendanceData)) {
-
 						Attendance checkInAttenedanceData = new Attendance();
 						checkInAttenedanceData.setStudentId(studentId);
-						LocalDate checkInDate = LocalDate.now();
-						if (lastCheckInDate == null || !lastCheckInDate.equals(checkInDate)) {
-							lastCheckInDate = checkInDate;
-							lastAllocatedSeatNo = 0;
-						}
-
 						checkInAttenedanceData.setCheckInDate(LocalDate.now());
 						checkInAttenedanceData.setCheckInTime(LocalTime.now());
 						checkInAttenedanceData.setCheckInLat(latitude);
 						checkInAttenedanceData.setCheckInLong(longitude);
+//						String savePath = helperService.saveImage(studentImage, IMG_UPLOAD_DIR);
 						String imageName = fileService.uploadFileInFolder(studentImage, IMG_UPLOAD_DIR);
-						//String savePath = helperService.saveImage(studentImage, IMG_UPLOAD_DIR);
 						checkInAttenedanceData.setCheckInImage(imageName);
 						checkInAttenedanceData.setCreatedDate(LocalDateTime.now());
 						checkInAttenedanceData.setUpdatedDate(LocalDateTime.now());
 						checkInAttenedanceData.setCheckOutStatus("Pending");
-						checkInAttenedanceData.setTodayAllottedSeatNo(++lastAllocatedSeatNo);
-
 						Attendance saveAttendenceCheckInData = attendenceRepository.save(checkInAttenedanceData);
 						if (saveAttendenceCheckInData != null) {
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -524,7 +511,7 @@ public class StudentServiceImpl implements IStudentService {
 					dashboardResponseDto.setCheckInDate(attendance.getCheckInDate());
 					dashboardResponseDto.setCheckInTime(attendance.getCheckInTime());
 					dashboardResponseDto.setCheckInImage(attendance.getCheckInImage());
-					dashboardResponseDto.setTodayAllottedSeatNo(attendance.getTodayAllottedSeatNo());
+
 				} else {
 					dashboardResponseDto.setAttendanceStatus(AppConstants.CHECK_OUT);
 					dashboardResponseDto.setCheckInDate(attendance.getCheckInDate());
@@ -1395,7 +1382,6 @@ public class StudentServiceImpl implements IStudentService {
 			studentTvResponse.setCheckOutTime((LocalTime) row[6]);
 			studentTvResponse.setCheckInImage((String) row[7]);
 			studentTvResponse.setCheckOutImage((String) row[8]);
-			studentTvResponse.setTodayAllottedSeatNo((Integer) row[9]);
 			tvResponse.add(studentTvResponse);
 		}
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
@@ -1432,8 +1418,9 @@ public class StudentServiceImpl implements IStudentService {
 		for (Object[] object : leaveForYear)
 			leavesCount.put((Integer) object[0], (Long) object[1]);
 
-		int j = studRepo.findById(studentId).get().getJoinDate().getMonthValue();
-		for (int i = j; i <= LocalDate.now().getMonthValue(); i++) {
+		
+		int j= studRepo.findById(studentId).get().getJoinDate().getMonthValue();
+		for (int i=j; i <= LocalDate.now().getMonthValue(); i++) {
 			Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
 			StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
 			absentCount.put(i, response1.getAbsent().size());
@@ -1457,5 +1444,7 @@ public class StudentServiceImpl implements IStudentService {
 		attendenceRepository.deleteAttendanceToday(id, LocalDate.now());
 		return new ResponseEntity<>(AppConstants.DELETE_SUCCESS, HttpStatus.OK);
 	}
+
+
 
 }
