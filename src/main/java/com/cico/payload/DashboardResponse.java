@@ -28,5 +28,4 @@ public class DashboardResponse {
      MispunchResponse mispunchResponseDto;
     StudentResponse studentResponseDto;
     OrganizationInfo organizationInfo;
-    Integer todayAllottedSeatNo;
 }

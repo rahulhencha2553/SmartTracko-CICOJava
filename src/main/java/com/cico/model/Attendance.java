@@ -44,6 +44,5 @@ public class Attendance {
 	private LocalDateTime createdDate;
 	@DateTimeFormat(pattern ="yyyy-MM-dd hh:mm:ss")
 	private LocalDateTime updatedDate;
-	private Integer todayAllottedSeatNo;
 }
 

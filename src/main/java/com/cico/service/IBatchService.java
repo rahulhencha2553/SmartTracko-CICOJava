@@ -14,7 +14,7 @@ public interface IBatchService {
 
 	Batch getBatchById(Integer batchId);
 
-	List<Batch> getAllBatches(Integer studentId);
+	List<Batch> getAllBatches();
 
 	List<Batch> getUpcomingBatches();
 	

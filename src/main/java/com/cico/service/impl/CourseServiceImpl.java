@@ -3,14 +3,12 @@ package com.cico.service.impl;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.cico.exception.ResourceNotFoundException;
-import com.cico.model.Batch;
 import com.cico.model.Course;
 import com.cico.model.Student;
 import com.cico.model.Subject;
@@ -72,93 +69,26 @@ public class CourseServiceImpl implements ICourseService {
 
 	@Override
 	public Course findCourseById(Integer courseId) {
-	    // Find the course by courseId and ensure it's not deleted
-	    Course course = courseRepository.findByCourseIdAndIsDeleted(courseId, false);
+		Optional<Course> findById = courseRepository.findByCourseId(courseId);
+		if (!findById.isPresent()) {
+			throw new ResourceNotFoundException("Course is not found from given Id");
+		}
 
-	    // Check if the course exists
-	    if (course == null) {
-	        throw new ResourceNotFoundException("Course is not found for the given ID");
-	    }
-
-	    // Filter out batches that are not deleted
-	    List<Batch> activeBatches = course.getBatches().stream()
-	            .filter(batch -> !batch.isDeleted())
-	            .collect(Collectors.toList());
-
-	    // Check if there are active batches
-	    if (activeBatches.isEmpty()) {
-	        throw new ResourceNotFoundException("No active batches found for the current course");
-	    }
-
-	    // Set the active batches in the course
-	    course.setBatches(activeBatches);
-
-	    return course;
+		return findById.get();
 	}
-
-//	public Course findCourseById(Integer courseId) {
-//		
-//		Optional<Course> findById = courseRepository.findByCourseId(courseId);
-//		if (!findById.isPresent()) {
-//			throw new ResourceNotFoundException("Course is not found from given Id");
-//		}
-//
-//		return findById.get();
-//	}
 
 	@Override
 	public ResponseEntity<?> getAllCourses(Integer page, Integer size) {
-	    if (page != -1) {
-	        PageRequest p = PageRequest.of(page, size, Sort.by(Direction.DESC, "courseId"));
-	        Page<Course> coursePageList = courseRepository.findAllByIsDeleted(false, p);
-	        
-	        // Fetch non-deleted batches for each course
-	        List<Course> coursesWithBatches = new ArrayList<>();
-	        for (Course course : coursePageList.getContent()) {
-	            List<Batch> nonDeletedBatches = course.getBatches().stream()
-	                    .filter(batch -> !batch.isDeleted())
-	                    .collect(Collectors.toList());
-	            course.setBatches(nonDeletedBatches);
-	            coursesWithBatches.add(course);
-	        }
-	        
-	        PageResponse<Course> pageResponse = new PageResponse<>(
-	            coursesWithBatches,
-	            coursePageList.getNumber(),
-	            coursePageList.getSize(),
-	            coursePageList.getNumberOfElements(),
-	            coursePageList.getTotalPages(),
-	            coursePageList.isLast()
-	        );
-	        return new ResponseEntity<>(pageResponse, HttpStatus.OK);
-	    } else {
-	        List<Course> findAll = courseRepository.findByIsDeleted(false);
-	        
-	        // Fetch non-deleted batches for each course
-	        List<Course> coursesWithBatches = new ArrayList<>();
-	        for (Course course : findAll) {
-	            List<Batch> nonDeletedBatches = course.getBatches().stream()
-	                    .filter(batch -> !batch.isDeleted())
-	                    .collect(Collectors.toList());
-	            course.setBatches(nonDeletedBatches);
-	            coursesWithBatches.add(course);
-	        }
-	        
-	        return new ResponseEntity<>(coursesWithBatches, HttpStatus.OK);
-	    }
+		if(page != -1) {
+			PageRequest p = PageRequest.of(page, size, Sort.by(Direction.DESC, "courseId"));
+			 Page<Course> coursePageList = courseRepository.findAllByIsDeleted(false,p);
+			 PageResponse<Course> pageResponse = new PageResponse<>(coursePageList.getContent(), coursePageList.getNumber(), coursePageList.getSize(), coursePageList.getNumberOfElements(), coursePageList.getTotalPages(), coursePageList.isLast());
+			 return new ResponseEntity<>(pageResponse,HttpStatus.OK);
+		}else {
+			List<Course> findAll = courseRepository.findByIsDeleted(false);
+			 return new ResponseEntity<>(findAll,HttpStatus.OK);
+		}
 	}
-
-//	public ResponseEntity<?> getAllCourses(Integer page, Integer size) {
-//		if(page != -1) {
-//			PageRequest p = PageRequest.of(page, size, Sort.by(Direction.DESC, "courseId"));
-//			 Page<Course> coursePageList = courseRepository.findAllByIsDeleted(false,p);
-//			 PageResponse<Course> pageResponse = new PageResponse<>(coursePageList.getContent(), coursePageList.getNumber(), coursePageList.getSize(), coursePageList.getNumberOfElements(), coursePageList.getTotalPages(), coursePageList.isLast());
-//			 return new ResponseEntity<>(pageResponse,HttpStatus.OK);
-//		}else {
-//			List<Course> findAll = courseRepository.findByIsDeleted(false);
-//			 return new ResponseEntity<>(findAll,HttpStatus.OK);
-//		}
-//	}
 
 	@Override
 	public ApiResponse updateCourse(Course course) {
