@@ -42,7 +42,7 @@ public class Chapter {
 	private String chapterScore;
 	private String chapterImage;
 	
-    @JsonBackReference
+    //@JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
 	private Subject subject;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

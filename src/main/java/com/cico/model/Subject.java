@@ -29,7 +29,7 @@ public class Subject {
 
 	@Column(unique = true)
 	private String subjectName;
-	@JsonManagedReference
+//	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Chapter> chapters = new ArrayList<>();
 
