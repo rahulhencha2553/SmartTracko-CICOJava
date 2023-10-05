@@ -16,5 +16,9 @@ public interface BatchRepository extends JpaRepository<Batch, Integer> {
 	@Query("SELECT b FROM Batch b WHERE b.batchStartDate > :currentDate")
 	List<Batch> findAllByBatchStartDate();
 
+	List<Batch> findAllByIsDeleted(Boolean b);
+
+	List<Batch> findByBatchIdAndIsDeleted(Integer batchId, boolean b);
+
 }
 
