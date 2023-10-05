@@ -80,7 +80,7 @@ public interface IStudentService {
 
 	public ResponseEntity<?> getMonthwiseAttendence(Integer month);
 
-	public ResponseEntity<?> getStudentsAttendanceDataForTv();
+	public ResponseEntity<?> getStudentsAttendanceDataForTv(String date);
 
 	public ResponseEntity<?> getMonthwiseAdmissionCountForYear(Integer year);
 
@@ -88,8 +88,6 @@ public interface IStudentService {
 
 	public ResponseEntity<?> allStudent();
 
-	public ResponseEntity<?> deleteTodayAttendance(Integer id);
-
-	
+	public ResponseEntity<?> deleteTodayAttendance(Integer id);	
 
 }

@@ -20,12 +20,17 @@ public class DashboardResponse {
 	String checkOutImage;
 	LocalTime checkOutTime;
 	LocalDate checkOutDate;
-    Boolean isFeesDue;
-    LocalDate feesDueDate;
-    Boolean isMispunch;
-    Boolean isWebLoggedIn = false;
-     MispunchResponse mispunchResponseDto;
-    StudentResponse studentResponseDto;
-    OrganizationInfo organizationInfo;
-    private Integer seatNumber;
+	Boolean isFeesDue;
+	LocalDate feesDueDate;
+	Boolean isMispunch;
+	Boolean isWebLoggedIn = false;
+	MispunchResponse mispunchResponseDto;
+	StudentResponse studentResponseDto;
+	OrganizationInfo organizationInfo;
+	private Integer seatNumber;
+	private Long totalPresent;
+	private Long totalAbsent;
+	private Long totalMispunch;
+	private Long totalEarlyCheckOut;
+
 }

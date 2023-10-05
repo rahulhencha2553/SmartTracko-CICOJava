@@ -30,8 +30,8 @@ public interface StudentSeatingAlloatmentRepo extends JpaRepository<StudentSeati
 
 	@Modifying
 	@Transactional
-	@Query("UPDATE   StudentSeatingAlloatment  a SET a.seatNumber =:seatNumber  , a.seatAllocatedDate =:localDate WHERE a.student.studentId =:studentId  ")
-	void updateSeatNumber(@Param("studentId") Integer studentId, @Param("seatNumber") int seatNumber,@Param("localDate")LocalDate localDate);
+	@Query("UPDATE   StudentSeatingAlloatment  a SET a.seatNumber =:seatNumber  , a.seatAllocatedDate = CURRENT_DATE WHERE a.student.studentId =:studentId  ")
+	void updateSeatNumber(@Param("studentId") Integer studentId, @Param("seatNumber") int seatNumber);
  
 	@Query("SELECT a FROM StudentSeatingAlloatment a WHERE a.student.studentId =:studentId AND a.seatAllocatedDate =:date")
 	Optional< StudentSeatingAlloatment> findByStudentIdAndDate(@Param("studentId") Integer studentId,@Param("date") LocalDate date);

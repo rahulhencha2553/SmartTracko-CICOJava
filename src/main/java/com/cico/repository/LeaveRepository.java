@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
+import javax.websocket.server.PathParam;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -63,5 +64,14 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 
 	@Query("SELECT l FROM Leaves l WHERE l.studentId =:studentId AND :startDate BETWEEN l.leaveDate AND l.leaveEndDate")
 	public Optional<Leaves> findByStudentIdAndLeaveStartDateAndEndDate(@Param("studentId") Integer studentId,@Param("startDate") LocalDate startDate);
+  
+	@Query("SELECT COUNT(l) FROM Leaves l " +
+		       "WHERE FUNCTION('MONTH', l.leaveDate) = FUNCTION('MONTH', CURRENT_DATE) " +
+		       "AND l.studentId = :studentId " +
+		       "AND l.leaveDayType = 'Full Day' " +
+		       "AND l.leaveStatus = 1 " +
+		       "GROUP BY FUNCTION('MONTH', l.leaveDate)")
+		public Long countTotalLeavesForCurrentMonth(@Param("studentId") Integer studentId);
+
 	
 }

@@ -14,8 +14,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,7 +40,7 @@ public class Chapter {
 	private String chapterScore;
 	private String chapterImage;
 	
-    @JsonBackReference
+    //@JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
 	private Subject subject;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
