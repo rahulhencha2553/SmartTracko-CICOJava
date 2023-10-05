@@ -66,9 +66,6 @@ public class Student {
 	//@JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
 	private Course course;
 	
-	@JoinTable(name = "studentSeatingAlloatmentTable", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "seat_id"))
-	@OneToOne(cascade = CascadeType.ALL)
-	private StudentSeatingAlloatment studentSeatingAlloatment;
 
 
 }
