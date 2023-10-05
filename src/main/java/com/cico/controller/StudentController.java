@@ -1,5 +1,6 @@
 package com.cico.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,8 @@ import com.cico.payload.StudentResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
+
+import net.bytebuddy.asm.Advice.Local;
 
 @RequestMapping("/student")
 @RestController
@@ -249,8 +252,8 @@ public class StudentController {
 	}
 	
 	@GetMapping("/getStudentsAttendanceDataForTv")
-	public ResponseEntity<?> getStudentsAttendanceDataForTv(){
-		return studentService.getStudentsAttendanceDataForTv();
+	public ResponseEntity<?> getStudentsAttendanceDataForTv(@RequestParam("date")String date){
+		return studentService.getStudentsAttendanceDataForTv(date);
 	}
 	
 	@GetMapping("/getMonthwiseAdmissionCountForYear")

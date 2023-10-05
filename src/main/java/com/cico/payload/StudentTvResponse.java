@@ -21,5 +21,6 @@ public class StudentTvResponse {
 	private LocalTime checkInTime;
 	private String checkOutImage;
 	private String checkInImage;
+	private Integer seatNumber;
 	
 }

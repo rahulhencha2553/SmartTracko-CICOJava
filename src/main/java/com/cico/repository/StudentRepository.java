@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -55,12 +54,25 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 	@Query("select count(s) from Student s where s.isCompleted=0")
 	Long countTotalStudents();
 
-	@Query("SELECT s.userId, s.fullName, s.profilePic, a.checkInDate, a.checkOutDate, a.checkInTime, a.checkOutTime, a.checkInImage, a.checkOutImage " +
+//	@Query("SELECT  s.userId, s.fullName, s.profilePic, a.checkInDate, a.checkOutDate, a.checkInTime, a.checkOutTime, a.checkInImage, a.checkOutImage , s.seatNumber " +
+//		       "FROM Student s " +
+//		       "INNER JOIN Attendance a ON a.studentId = s.studentId " +
+//		       "INNER JOIN StudentSeatingAlloatment seat ON seat.student.studentId = s.studentId " +
+//		       "WHERE s.isCompleted = 0 AND a.checkInDate =:date "+
+//		       "ORDER BY a.workingHour DESC")
+//	List<Object[]> getStudentAttendanceDataForTv(@Param("date")LocalDate date);
+	@Query("SELECT s.userId AS userId, s.fullName AS fullName, s.profilePic AS profilePic, " +
+		       "a.checkInDate AS checkInDate, a.checkOutDate AS checkOutDate, " +
+		       "a.checkInTime AS checkInTime, a.checkOutTime AS checkOutTime, " +
+		       "a.checkInImage AS checkInImage, a.checkOutImage AS checkOutImage, " +
+		       "seat.seatNumber AS seatNumber " +
 		       "FROM Student s " +
 		       "INNER JOIN Attendance a ON a.studentId = s.studentId " +
-		       "WHERE s.isCompleted = 0 AND a.checkInDate = CURRENT_DATE "+
+		       "INNER JOIN StudentSeatingAlloatment seat ON seat.student.studentId = s.studentId " +
+		       "WHERE s.isCompleted = 0 AND a.checkInDate = :date " +
 		       "ORDER BY a.workingHour DESC")
-	List<Object[]> getStudentAttendanceDataForTv();
+		List<Object[]> getStudentAttendanceDataForTv(@Param("date") LocalDate date);
+
 	
 	@Query("SELECT MONTH(s.joinDate) AS month, COUNT(s.studentId) AS count FROM Student s "
 			+ "WHERE YEAR(s.joinDate) = :year GROUP BY MONTH(s.joinDate)")

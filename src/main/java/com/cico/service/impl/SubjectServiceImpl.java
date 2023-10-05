@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
-import com.cico.model.ChapterCompleted;
 import com.cico.model.Course;
 import com.cico.model.Subject;
 import com.cico.payload.SubjectResponse;
