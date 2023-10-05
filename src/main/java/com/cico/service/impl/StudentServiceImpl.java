@@ -411,24 +411,15 @@ public class StudentServiceImpl implements IStudentService {
 						checkInAttenedanceData.setCheckOutStatus("Pending");
 						Attendance saveAttendenceCheckInData = attendenceRepository.save(checkInAttenedanceData);
 						if (saveAttendenceCheckInData != null) {
-							
-							
-							// optional code  
-//							Optional<StudentSeatingAlloatment>optional = studentSeatingAlloatmentRepo.findByDate(LocalDate.now());
-//							// provide seat number
-//							if(optional.isPresent()) {
-								//if(optional.get().getSeatAllocatedDate()!=LocalDate.now()) {
-						//			studentSeatingAlloatmentRepo.updateSeatNumber(LocalDate.now());
-							//	}
-							//}
-							
 							// refresh the seatNumber by 0 to all seats 
-							studentSeatingAlloatmentRepo.updateSeatNumber(LocalDate.now());
+						//	studentSeatingAlloatmentRepo.updateSeatNumber(LocalDate.now());
 							
-							List<Integer> generatedNumbers = new ArrayList<>();
-							List<StudentSeatingAlloatment> obj = studentSeatingAlloatmentRepo.findAll();
-							for (StudentSeatingAlloatment ran : obj) {
-								generatedNumbers.add(ran.getSeatNumber());
+							List<Integer>allocatedSeats = new ArrayList<>();
+							List<StudentSeatingAlloatment> obj = studentSeatingAlloatmentRepo.findAll(LocalDate.now());
+							if(obj.size()>0) {
+								for (StudentSeatingAlloatment ran : obj) {
+									allocatedSeats.add(ran.getSeatNumber());
+								}
 							}
 							int minRange = 1;
 							int maxRange = 100;
@@ -436,8 +427,7 @@ public class StudentServiceImpl implements IStudentService {
 							int seatId = 0;
 							while (true) {
 								seatId = random.nextInt(maxRange - minRange + 1) + minRange;
-								if (!generatedNumbers.contains(seatId)) {
-									generatedNumbers.add(seatId);
+								if (!allocatedSeats.contains(seatId)) {
 									break;
 								}
 							}
@@ -448,7 +438,7 @@ public class StudentServiceImpl implements IStudentService {
 							} else {
 								StudentSeatingAlloatment obj2 = new StudentSeatingAlloatment();
 								obj2.setSeatNumber(seatId);
-								obj2.setStudentId(studentId);
+								obj2.setStudent(student);
 								obj2.setSeatAllocatedDate(LocalDate.now());
 								studentSeatingAlloatmentRepo.save(obj2);
 							}
@@ -605,8 +595,8 @@ public class StudentServiceImpl implements IStudentService {
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				QrManage findByUserId = qrManageRepository.findByUserId(username);
 				if (Objects.nonNull(findByUserId))
-					dashboardResponseDto.setIsWebLoggedIn(true);
-				   
+					dashboardResponseDto.setIsWebLoggedIn(true);  
+				    
 				Optional<StudentSeatingAlloatment> obj = studentSeatingAlloatmentRepo.findByStudentIdAndDate(studentId,LocalDate.now());
 				      if(obj.isEmpty()) {
 	                         Optional<StudentSeatingAlloatment> obj3 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
@@ -615,7 +605,9 @@ public class StudentServiceImpl implements IStudentService {
 	 	  				     studentSeatingAlloatmentRepo.save(obj3.get());
 	                      }
 				      }
-				dashboardResponseDto.setSeatNumber(student.getStudentSeatingAlloatment().getSeatNumber());
+				  Optional<StudentSeatingAlloatment> obj1 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
+      				  if(obj1.isPresent())
+					  dashboardResponseDto.setSeatNumber(obj1.get().getSeatNumber());
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 

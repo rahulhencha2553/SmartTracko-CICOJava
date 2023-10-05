@@ -22,25 +22,23 @@ public interface StudentSeatingAlloatmentRepo extends JpaRepository<StudentSeati
 //	StudentSeatingAlloatment findByStudentIdSeatId(@Param("studentId") Integer studentId,
 //			@Param("seatNumber") int seatNumber);
 
+	@Query("SELECT a FROM StudentSeatingAlloatment a  WHERE a.seatAllocatedDate = :date")
+	List<StudentSeatingAlloatment>findAll(@Param("date")LocalDate date);
 	
-	@Query("SELECT a FROM StudentSeatingAlloatment a WHERE a.studentId =:studentId")
+	@Query("SELECT a FROM StudentSeatingAlloatment a WHERE a.student.studentId =:studentId")
 	Optional< StudentSeatingAlloatment>  findByStudentId(@Param("studentId") Integer studentId);
 
 	@Modifying
 	@Transactional
-	@Query("UPDATE   StudentSeatingAlloatment  a SET a.seatNumber =:seatNumber    WHERE a.studentId =:studentId AND a.seatAllocatedDate =:localDate ")
+	@Query("UPDATE   StudentSeatingAlloatment  a SET a.seatNumber =:seatNumber  , a.seatAllocatedDate =:localDate WHERE a.student.studentId =:studentId  ")
 	void updateSeatNumber(@Param("studentId") Integer studentId, @Param("seatNumber") int seatNumber,@Param("localDate")LocalDate localDate);
  
-	@Query("SELECT a FROM StudentSeatingAlloatment a WHERE a.studentId =:studentId AND a.seatAllocatedDate =:date")
+	@Query("SELECT a FROM StudentSeatingAlloatment a WHERE a.student.studentId =:studentId AND a.seatAllocatedDate =:date")
 	Optional< StudentSeatingAlloatment> findByStudentIdAndDate(@Param("studentId") Integer studentId,@Param("date") LocalDate date);
   
 	@Modifying
 	@Transactional
 	@Query("UPDATE StudentSeatingAlloatment a SET a.seatNumber = 0 WHERE a.seatAllocatedDate != :date")
 	void updateSeatNumber(@Param("date") LocalDate date);
-
-
-//	@Query("SELECT  a  FROM  StudentSeatingAlloatment  a     WHERE  a.seatAllocatedDate =:date ")
-//	Optional<StudentSeatingAlloatment> findByDate(@Param("date") LocalDate date);
 
 }
