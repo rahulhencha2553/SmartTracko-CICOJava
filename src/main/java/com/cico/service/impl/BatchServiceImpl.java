@@ -1,7 +1,9 @@
 package com.cico.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,10 +12,12 @@ import org.springframework.stereotype.Service;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Batch;
 import com.cico.model.Course;
+import com.cico.model.Student;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.BatchRequest;
 import com.cico.repository.BatchRepository;
 import com.cico.repository.CourseRepository;
+import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
 import com.cico.repository.TechnologyStackRepository;
 import com.cico.service.IBatchService;
@@ -36,6 +40,8 @@ public class BatchServiceImpl implements IBatchService {
 	
 	@Autowired
 	private SubjectRepository subjectRepository;
+	@Autowired
+	private StudentRepository studentRepository;
 	
 	
 	@Override
@@ -64,17 +70,31 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public Batch getBatchById(Integer batchId) {
-		return 	batchRepository.findById(batchId).orElseThrow(()->new ResourceNotFoundException(BATCH_NOT_FOUND));
+		List<Batch> findByBatchIdAndIsDeleted = batchRepository.findByBatchIdAndIsDeleted(batchId,false);
+		if(Objects.isNull(findByBatchIdAndIsDeleted)) {
+			throw new ResourceNotFoundException(BATCH_NOT_FOUND);
+		}
+		return (Batch) findByBatchIdAndIsDeleted;
+		//return 	batchRepository.findById(batchId).orElseThrow(()->new ResourceNotFoundException(BATCH_NOT_FOUND));
 	}
 
 	@Override
-	public List<Batch> getAllBatches() {
-		List<Batch> batches = batchRepository.findAll();
-	 	if(batches.isEmpty())
-	 		throw new ResourceNotFoundException(BATCH_NOT_FOUND);
-	 	
-	 	return batches;
+	public List<Batch> getAllBatches(Integer studentId) {
+
+	    Student student = studentRepository.findByStudentId(studentId);
+	    Course currentCourse = student.getCourse();
+
+	    List<Batch> batches = currentCourse.getBatches().stream()
+	            .filter(batch -> !batch.isDeleted())
+	            .collect(Collectors.toList());
+
+	    if (batches.isEmpty()) {
+	        throw new ResourceNotFoundException("No batches found for the current course");
+	    }
+
+	    return batches;
 	}
+
 
 	@Override
 	public List<Batch> getUpcomingBatches() {
