@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cico.model.Batch;
@@ -57,8 +58,8 @@ public class BatchController {
 	}
 
 	@GetMapping("/getAllBatches")
-	public ResponseEntity<List<Batch>> getAllBatches() {
-		List<Batch> batches = batchService.getAllBatches();
+	public ResponseEntity<List<Batch>> getAllBatches(@RequestParam("studentId") Integer studentId) {
+		List<Batch> batches = batchService.getAllBatches(studentId);
 		return ResponseEntity.ok(batches);
 
 	}
