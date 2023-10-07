@@ -18,7 +18,7 @@ public interface BatchRepository extends JpaRepository<Batch, Integer> {
 
 	List<Batch> findAllByIsDeleted(Boolean b);
 
-	List<Batch> findByBatchIdAndIsDeleted(Integer batchId, boolean b);
+	Batch findByBatchIdAndIsDeleted(Integer batchId, boolean b);
 
 }
 
