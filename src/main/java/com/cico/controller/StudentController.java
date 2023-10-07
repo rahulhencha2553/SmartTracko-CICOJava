@@ -276,6 +276,4 @@ public class StudentController {
 		return studentService.deleteTodayAttendance(id);
 	}
 	
-	
-	
 }

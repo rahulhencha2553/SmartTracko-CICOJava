@@ -14,13 +14,11 @@ public interface IChapterService {
 
 	ResponseEntity<?> addChapter(Integer subjectId,String chapterName,MultipartFile image) throws Exception;
 
-	void addExamToChapter(Integer subjectId, String examName);
-
-	Chapter updateChapter(Integer chapterId,Integer subjectId,String chapterName);
+	ResponseEntity<?> updateChapter(Integer chapterId,String chapterName) throws Exception;
 
 	Map<String, Object> getChapterById(Integer chapterId);
 
-	ResponseEntity<?> deleteChapter(Integer chapterId, Integer subjectId);
+	ResponseEntity<?> deleteChapter(Integer chapterId);
 
 	void updateChapterStatus(Integer chapterId);
 
@@ -30,10 +28,10 @@ public interface IChapterService {
 
 	Chapter addContentToChapter(Integer chapterId, String title, String subTitle, String content);
 
-	ChapterContent updateChapterContent(Integer chapterId, String title, String subTitle, String content,Integer contentId);
+	ChapterContent updateChapterContent(String title, String subTitle, String content,Integer contentId);
 
-	ChapterContent getChapterContent(Integer chapterId, Integer chapterContentId);
+	ChapterContent getChapterContent(Integer chapterContentId) throws Exception;
 
-	void deleteChapterContent(Integer chapterId, Integer contentId);
+	void deleteChapterContent(Integer contentId);
 
 }

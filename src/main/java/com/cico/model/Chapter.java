@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -34,15 +32,11 @@ public class Chapter {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer chapterId;
 
-	@Column(unique = true)
 	@NonNull
 	private String chapterName;
 	private String chapterScore;
 	private String chapterImage;
 	
-    //@JsonBackReference
-    @ManyToOne(fetch = FetchType.EAGER)
-	private Subject subject;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<ChapterContent> chapterContent;
 	@OneToOne(cascade = CascadeType.ALL)

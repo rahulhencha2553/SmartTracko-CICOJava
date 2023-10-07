@@ -135,9 +135,8 @@ public class TaskServiceImpl implements ITaskService {
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
 			String taskDescription) throws Exception {
-
 		AssignmentSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
-		if (!Objects.nonNull(obj)) {
+		if (Objects.nonNull(obj)  && obj.getStatus().name().equals("Rejected")  ||  !Objects.nonNull(obj)) {
 			TaskSubmission submittion = new TaskSubmission();
 			submittion.setStudent(studentRepository.findByStudentId(studentId));
 			if (Objects.nonNull(file)) {
@@ -171,7 +170,6 @@ public class TaskServiceImpl implements ITaskService {
 
 			questionImages.forEach((t) -> {
 				String fileName = fileService.uploadFileInFolder(t, QUESTION_IMAGES_DIR);
-				System.out.println(fileName);
 				list.add(fileName);
 			});
 			taskQuestion.setTaskId(taskId);

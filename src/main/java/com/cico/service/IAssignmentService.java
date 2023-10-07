@@ -16,7 +16,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception;
 
-	ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest);
+	//ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest);
 
 	ResponseEntity<?> getAllAssignments();
 

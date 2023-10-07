@@ -35,8 +35,6 @@ public class AdminController {
 			@RequestParam("password") String password) {
 		return ResponseEntity.ok(service.adminLogin(adminId, password));
 	}
-
-
 	@PostMapping("/createAdmin")
 	public ResponseEntity<ApiResponse> createAdmin(@RequestParam("adminName") String adminName,
 			@RequestParam("adminEmail") String adminEmail, @RequestParam("password") String password) {
@@ -72,11 +70,9 @@ public class AdminController {
 
 	@PostMapping("/uploadImage")
 	public ResponseEntity<AdminResponse> uploadImage(@RequestParam(name=AppConstants.ADMIN_ID) Integer adminId,
-			@RequestParam("file") MultipartFile file)
-
-	{
+			@RequestParam("file") MultipartFile file){
 		AdminResponse admin = service.profileUpload(file, adminId);
 		return ResponseEntity.ok(admin);
 	}
-
+   
 }

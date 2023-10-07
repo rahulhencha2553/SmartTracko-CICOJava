@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,12 +50,12 @@ public class SubjectServiceImpl implements ISubjectService {
 	@Override
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
-		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName, false);
+		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName.trim(), false);
 		if (Objects.nonNull(subject))
 			throw new ResourceAlreadyExistException("Subject already exist");
 
 		subject = new Subject();
-		subject.setSubjectName(subjectName);
+		subject.setSubjectName(subjectName.trim());
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
 		Subject save = subRepo.save(subject);
 		if (Objects.nonNull(save)) {
@@ -74,39 +75,38 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<Chapter> chapters = subject.getChapters();
 
 		for (Chapter chapter : chapters) {
-			if (chapter.getChapterName().equals(chapterName))
+			if (chapter.getChapterName().trim().equals(chapterName.trim()))
 				throw new ResourceAlreadyExistException(
 						"Chapter: " + chapterName + " already exist in the Subject " + subject.getSubjectName());
 		}
-		List<Chapter> chapters2 = subject.getChapters();
-		Chapter chapter3 = new Chapter();
-		chapter3.setChapterName(chapterName);
-		chapters2.add(chapter3);
-		subject.setChapters(chapters2);
+		Chapter obj = new Chapter();
+		obj.setChapterName(chapterName);
+		subject.getChapters().add(obj);
 		subRepo.save(subject);
 	}
 
 	@Override
-	public Subject updateSubject(Subject subject) {
+	public ResponseEntity<?> updateSubject(Subject subject) throws Exception {
 		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId(), false)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
+	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim(), false);
+		if(Objects.nonNull(sub)) {
+			throw new Exception("Already Subject Present With This Name..");
+		}	
 		Subject obj = subRepo.save(subject);
-		obj.setChapters(chapterRepo.findAllSubjectIdAndIsDeleted(subject, false));
-		return obj;
+		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
+        return new ResponseEntity<>(obj,HttpStatus.OK);
 	}
 
 	@Override
 	public Map<String, Object> getSubjectById(Integer subjectId) {
-		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
-				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		 subject.setChapters(chapterRepo.findAllSubjectIdAndIsDeleted(subject, false));
-		int size = subject.getChapters().size();
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false).orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
+		subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
 		List<Chapter> chapters = subject.getChapters();
-
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
 		Map<String, Object> map = new HashMap<>();
 		map.put("subject", subject);
-		map.put("Chapter Count", size);
+		map.put("Chapter Count", subject.getChapters().size());
 		map.put("Completed Chapter Count", completedCount);
 		return map;
 	}
@@ -115,7 +115,6 @@ public class SubjectServiceImpl implements ISubjectService {
 	public void deleteSubject(Integer subjectId) {
 		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-
 		subject.setIsDeleted(true);
 		subRepo.save(subject);
 	}
@@ -140,7 +139,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(chapterRepo.findAllBySubject(s).size());
+			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
@@ -154,18 +153,13 @@ public class SubjectServiceImpl implements ISubjectService {
 	}
 
 	@Override
-	public List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId) {
-		return null;
-	}
-
-	@Override
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 		Course course = studentRepository.findById(studentId).get().getCourse();
 		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(chapterRepo.findAllBySubject(s).size());
+			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size());
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());

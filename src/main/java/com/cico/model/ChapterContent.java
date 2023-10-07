@@ -22,7 +22,6 @@ public class ChapterContent {
 	private String subTitle;
 	@Column(columnDefinition = "longtext")
 	private String content;
-	private Integer chapterId;
 	private  Boolean isDeleted=false;
 	
 }

@@ -427,6 +427,7 @@ public class StudentServiceImpl implements IStudentService {
 							int maxRange = 100;
 							Random random = new Random();
 							int seatId = 0;
+						
 							while (true) {
 								seatId = random.nextInt(maxRange - minRange + 1) + minRange;
 								if (!allocatedSeats.contains(seatId)) {
@@ -445,13 +446,6 @@ public class StudentServiceImpl implements IStudentService {
 								obj2.setSeatAllocatedDate(LocalDate.now());
 								studentSeatingAlloatmentRepo.save(obj2);
 							} 
-							AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId);
-							
-                                 System.out.println(res.getTotalAbsent());
-                                 System.out.println(res.getTotalEarlyCheckOut());
-                                 System.out.println(res.getTotalMispunch());
-                                 System.out.println(res.getTotalPresent());
-							
 							
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							return new ResponseEntity<>(response, HttpStatus.OK);

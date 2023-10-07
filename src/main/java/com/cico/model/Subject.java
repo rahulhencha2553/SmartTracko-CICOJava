@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,9 +24,7 @@ public class Subject {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer subjectId;
 
-	@Column(unique = true)
 	private String subjectName;
-//	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Chapter> chapters = new ArrayList<>();
 
