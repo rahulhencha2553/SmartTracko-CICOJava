@@ -28,6 +28,8 @@ import com.cico.util.AppConstants;
 public class BatchServiceImpl implements IBatchService {
 	
 	public static final String BATCH_NOT_FOUND="BATCH NOT FOUND";
+	public static final String BATCH_ADD_SUCCESS="Batch Created Successfully";
+	public static final String BATCH_UPDATE_SUCCESS="Batch Update Successfully";
 	
 	@Autowired
 	private BatchRepository batchRepository;
@@ -54,7 +56,7 @@ public class BatchServiceImpl implements IBatchService {
 		course.setBatches(batches);
 		Course course2 = courseRepository.save(course);
 		if(Objects.nonNull(course2))
-			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS , HttpStatus.CREATED);
+			return new ApiResponse(Boolean.TRUE, BATCH_ADD_SUCCESS , HttpStatus.CREATED);
 		return new ApiResponse(Boolean.FALSE,AppConstants.FAILED,HttpStatus.OK);
 		
 	}
@@ -70,12 +72,11 @@ public class BatchServiceImpl implements IBatchService {
 
 	@Override
 	public Batch getBatchById(Integer batchId) {
-		List<Batch> findByBatchIdAndIsDeleted = batchRepository.findByBatchIdAndIsDeleted(batchId,false);
+		Batch findByBatchIdAndIsDeleted = batchRepository.findByBatchIdAndIsDeleted(batchId,false);
 		if(Objects.isNull(findByBatchIdAndIsDeleted)) {
 			throw new ResourceNotFoundException(BATCH_NOT_FOUND);
 		}
-		return (Batch) findByBatchIdAndIsDeleted;
-		//return 	batchRepository.findById(batchId).orElseThrow(()->new ResourceNotFoundException(BATCH_NOT_FOUND));
+		return findByBatchIdAndIsDeleted;
 	}
 
 	@Override
@@ -89,7 +90,7 @@ public class BatchServiceImpl implements IBatchService {
 	            .collect(Collectors.toList());
 
 	    if (batches.isEmpty()) {
-	        throw new ResourceNotFoundException("No batches found for the current course");
+	        throw new ResourceNotFoundException(BATCH_NOT_FOUND);
 	    }
 
 	    return batches;
@@ -125,7 +126,7 @@ public class BatchServiceImpl implements IBatchService {
 	public ApiResponse updateBatch(Batch batch) {
 		Batch save = batchRepository.save(batch);
 		if(Objects.nonNull(save))
-			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+			return new ApiResponse(Boolean.TRUE, BATCH_UPDATE_SUCCESS, HttpStatus.CREATED);
 		
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}

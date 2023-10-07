@@ -25,4 +25,6 @@ public interface IQRService {
 	public ResponseEntity<?> updateWebLoginStatus(String token, String os, String deviceType, String browser);
 
 	public ResponseEntity<?> getLinkedDeviceDataByUuid(String key);
+	
+	public  void jobEnd(String qrKey, String message);
 }

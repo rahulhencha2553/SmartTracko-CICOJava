@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class DashboardResponse {
 	String attendanceStatus;
@@ -32,5 +31,14 @@ public class DashboardResponse {
 	private Long totalAbsent;
 	private Long totalMispunch;
 	private Long totalEarlyCheckOut;
-
+	
+	
+	public DashboardResponse(){
+		this.totalAbsent = 0L;
+		this.totalEarlyCheckOut = 0L;
+		this.totalMispunch = 0L;
+		this.totalPresent = 0L;
+	}
+	
+	
 }
