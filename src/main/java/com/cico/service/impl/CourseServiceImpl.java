@@ -188,15 +188,8 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public ResponseEntity<?> findAllCourses() {
-		// TODO Auto-generated method stub
-		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,true);
-		return  new ResponseEntity<>(findAll, HttpStatus.OK);
-	}
-
-	@Override
-	public ResponseEntity<?> getAllCourseApi() {
-		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,false);
+	public ResponseEntity<?> getAllCourseApi(boolean isStarter) {
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,isStarter);
 		return  new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 
