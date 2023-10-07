@@ -45,11 +45,6 @@ public class CourseController {
 		return courseService.getAllCourses(page, size);
 		
 	}
-
-	@GetMapping("/findAllCourse")
-	public ResponseEntity<?> finAllCourses(){
-		return courseService.findAllCourses();
-	}
 	
 	@PutMapping("/updateCourseApi")
 	public ResponseEntity<?> updateCourse(@RequestBody Course course) {
@@ -67,8 +62,8 @@ public class CourseController {
 	}
 
 	@GetMapping("/getAllCourseApi")
-	public ResponseEntity<?> getAllCourseApi(){
-		return courseService.getAllCourseApi();
+	public ResponseEntity<?> getAllCourseApi(@RequestParam boolean isStarter){
+		return courseService.getAllCourseApi(isStarter);
 	}
 	
 	@PutMapping("/studentUpgradeCourse")
@@ -83,4 +78,6 @@ public class CourseController {
 	{
 		return courseService.getCourseProgress(studentId);
 	}
+	
+	
 }

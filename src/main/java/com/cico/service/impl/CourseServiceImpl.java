@@ -48,6 +48,11 @@ public class CourseServiceImpl implements ICourseService {
 	@Autowired
 	private StudentRepository studentRepository;
 
+	public static final String COURSE_ADD_SUCCESS = "Course Add Successfully"; 
+	public static final String COURSE_NOT_FOUND = "Course Not Found"; 
+	public static final String COURSE_UPDATE_SUCCESS = "Course Update Successfully"; 
+	public static final String COURSE_UPGRADE_SUCCESS = "Course Update Successfully"; 
+	
 	@Override
 	public ResponseEntity<?> createCourse(CourseRequest request) {
 		Map<String, Object> response = new HashMap<>();
@@ -62,7 +67,7 @@ public class CourseServiceImpl implements ICourseService {
 		course.setTechnologyStack(repository.findById(request.getTechnologyStack()).get());
 		Course savedCourse = courseRepository.save(course);
 		if(Objects.nonNull(savedCourse)){
-			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
+			response.put(AppConstants.MESSAGE, COURSE_ADD_SUCCESS);
 			response.put("course", savedCourse);
 			return new ResponseEntity<>(response,HttpStatus.CREATED);
 		}
@@ -77,7 +82,7 @@ public class CourseServiceImpl implements ICourseService {
 
 	    // Check if the course exists
 	    if (course == null) {
-	        throw new ResourceNotFoundException("Course is not found for the given ID");
+	        throw new ResourceNotFoundException(COURSE_NOT_FOUND);
 	    }
 
 	    // Filter out batches that are not deleted
@@ -85,14 +90,14 @@ public class CourseServiceImpl implements ICourseService {
 	            .filter(batch -> !batch.isDeleted())
 	            .collect(Collectors.toList());
 
-	    // Check if there are active batches
-	    if (activeBatches.isEmpty()) {
-	        throw new ResourceNotFoundException("No active batches found for the current course");
-	    }
-
+	    List<Subject> activeSubject = course.getSubjects().stream()
+	            .filter(subject -> !subject.getIsDeleted())
+	            .collect(Collectors.toList());
+	    
 	    // Set the active batches in the course
+	    course.setSubjects(activeSubject);
 	    course.setBatches(activeBatches);
-
+	    System.out.println(course);
 	    return course;
 	}
 
@@ -118,6 +123,10 @@ public class CourseServiceImpl implements ICourseService {
 	            List<Batch> nonDeletedBatches = course.getBatches().stream()
 	                    .filter(batch -> !batch.isDeleted())
 	                    .collect(Collectors.toList());
+	            List<Subject> nonDeletedSubjects = course.getSubjects().stream()
+	                    .filter(subject -> !subject.getIsDeleted())
+	                    .collect(Collectors.toList());
+	            course.setSubjects(nonDeletedSubjects);
 	            course.setBatches(nonDeletedBatches);
 	            coursesWithBatches.add(course);
 	        }
@@ -166,7 +175,7 @@ public class CourseServiceImpl implements ICourseService {
  	Course save = courseRepository.save(course);
  
 		if(Objects.nonNull(save))
-			return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+			return new ApiResponse(Boolean.TRUE, COURSE_UPDATE_SUCCESS, HttpStatus.CREATED);
 		return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 
@@ -179,15 +188,8 @@ public class CourseServiceImpl implements ICourseService {
 	}
 
 	@Override
-	public ResponseEntity<?> findAllCourses() {
-		// TODO Auto-generated method stub
-		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,true);
-		return  new ResponseEntity<>(findAll, HttpStatus.OK);
-	}
-
-	@Override
-	public ResponseEntity<?> getAllCourseApi() {
-		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,false);
+	public ResponseEntity<?> getAllCourseApi(boolean isStarter) {
+		List<Course> findAll = courseRepository.findAllByIsDeletedAndIsStarterCourse(false,isStarter);
 		return  new ResponseEntity<>(findAll, HttpStatus.OK);
 	}
 
@@ -200,7 +202,7 @@ public class CourseServiceImpl implements ICourseService {
 		  findByStudentId.setCourse(findByCourseId.get());
 		  Student save = studentRepository.save(findByStudentId);
 		  if(Objects.nonNull(save))
-				return new ApiResponse(Boolean.TRUE, AppConstants.CREATE_SUCCESS, HttpStatus.CREATED);
+				return new ApiResponse(Boolean.TRUE, COURSE_UPGRADE_SUCCESS, HttpStatus.CREATED);
 			return new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK);
 	}
 	

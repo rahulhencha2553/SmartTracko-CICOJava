@@ -252,7 +252,7 @@ public class StudentController {
 	}
 	
 	@GetMapping("/getStudentsAttendanceDataForTv")
-	public ResponseEntity<?> getStudentsAttendanceDataForTv(@RequestParam("date")String date){
+	public ResponseEntity<?> getStudentsAttendanceDataForTv(@RequestParam(name="date",required = false)String date){
 		return studentService.getStudentsAttendanceDataForTv(date);
 	}
 	

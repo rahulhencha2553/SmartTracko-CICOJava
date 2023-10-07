@@ -22,9 +22,7 @@ public interface ICourseService {
 
 	public Boolean deleteCourseById(Integer courseId);
 
-	public ResponseEntity<?> findAllCourses();
-
-	public ResponseEntity<?> getAllCourseApi();
+	public ResponseEntity<?> getAllCourseApi(boolean isStarter);
 
 	public ApiResponse studentUpgradeCourse(Integer studnetId, Integer courseId);
 	
