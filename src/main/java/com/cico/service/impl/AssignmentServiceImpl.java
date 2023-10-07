@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import com.cico.model.Assignment;
 import com.cico.model.AssignmentSubmission;
 import com.cico.model.AssignmentTaskQuestion;
 import com.cico.model.Course;
-import com.cico.payload.AssignmentQuestionRequest;
 import com.cico.payload.AssignmentRequest;
 import com.cico.payload.AssignmentSubmissionRequest;
 import com.cico.payload.SubmissionAssignmentTaskStatus;
@@ -121,7 +119,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception {
 		AssignmentSubmission obj = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(readValue.getAssignmentId(),readValue.getTaskId(),readValue.getStudentId());
-	 if(!Objects.nonNull(obj)) {
+	 if(Objects.nonNull(obj)  && obj.getStatus().name().equals("Rejected")  || !Objects.nonNull(obj)) {
 		 AssignmentSubmission submission = new AssignmentSubmission();
 			submission.setStudent(studentRepository.findByStudentId(readValue.getStudentId()));
 			submission.setAssignmentId(readValue.getAssignmentId());
@@ -133,7 +131,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				String fileName = fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
 				submission.setSubmitFile(fileName);
 			}
-			return new ResponseEntity<>(submissionRepository.save(submission), HttpStatus.CREATED);
+			submissionRepository.save(submission);
+			return new ResponseEntity<>( HttpStatus.CREATED);
 	 }else {
 		  throw new Exception("ALREADY THIS ASSIGNMENT TASK SUBMITED!!");
 	 }
@@ -177,29 +176,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		return new ResponseEntity<>(submissionRepository.findById(submissionId).get(), HttpStatus.CREATED);
 	}
 
-//	@Override
-//	public ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl,
-//			List<MultipartFile> questionImages, Long assignmentId) {
-//		System.out.println(question);
-//		System.out.println(videoUrl);
-//		System.out.println(questionImages.toString());
-//		Optional<Assignment> assignment = assignmentRepository.findByIdAndIsActive(assignmentId, true);
-//		if (Objects.nonNull(assignment)) {
-//			TaskQuestion taskQuestion = new TaskQuestion();
-//			taskQuestion.setQuestion(question);
-//			taskQuestion.setVideoUrl(videoUrl);
-//			List<String> list = new ArrayList<>();
-//			questionImages.forEach((t) -> {
-//				String fileName = fileServiceImpl.uploadFileInFolder(t, QUESTION_IMAGES_DIR);
-//				list.add(fileName);
-//			});
-//			taskQuestion.setQuestionImages(list);
-//			List<TaskQuestion> assignmentQuestion = assignment.get().getAssignmentQuestion();
-//			assignmentQuestion.add(taskQuestion);
-//		}
-//		return new ResponseEntity<>(assignmentRepository.save(assignment.get()), HttpStatus.OK);
-//	}
-
 	@Override
 	public ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl,
 			List<MultipartFile> questionImages, Long assignmentId) {
@@ -228,19 +204,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
-
-	@Override
-	public ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId) {
-		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(assignmentId, questionId);
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-
-	@Override
-	public ResponseEntity<?> addQuestionInAssignment(AssignmentQuestionRequest questionRequest) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public ResponseEntity<?> addAssignment(Long assignmentId, MultipartFile attachment) {
 
@@ -480,5 +443,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		}
 		return ResponseEntity.notFound().build();
 	}
+
+	@Override
+	public ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId) {
+		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(assignmentId, questionId);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 
 }

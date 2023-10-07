@@ -16,7 +16,7 @@ public interface ISubjectService {
 
 	void addChapterToSubject(Integer subjectId, String chapterName);
 
-	Subject updateSubject(Subject subject);
+	ResponseEntity<?> updateSubject(Subject subject) throws Exception;
 
 	Map<String,Object> getSubjectById(Integer subjectId);
 
@@ -27,6 +27,6 @@ public interface ISubjectService {
 	List<SubjectResponse> getAllSubjects();
 	List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId);
 
-	List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId);
+//	List<SubjectResponse> getAllSubjectsByCourseId(Integer courseId);
 
 }

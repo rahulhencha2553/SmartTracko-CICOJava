@@ -432,6 +432,7 @@ public class StudentServiceImpl implements IStudentService {
 							int maxRange = 100;
 							Random random = new Random();
 							int seatId = 0;
+						
 							while (true) {
 								seatId = random.nextInt(maxRange - minRange + 1) + minRange;
 								if (!allocatedSeats.contains(seatId)) {

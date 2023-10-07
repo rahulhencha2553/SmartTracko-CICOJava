@@ -43,9 +43,9 @@ public class SubjectController {
 	}
 	
 	@PutMapping("/updateSubject")
-	public ResponseEntity<Subject> updateSubject(@RequestBody Subject subject){
-	 Subject updateSubject = subjectService.updateSubject(subject);
-	return new ResponseEntity<Subject>(updateSubject,HttpStatus.OK);
+	public ResponseEntity<?> updateSubject(@RequestBody Subject subject) throws Exception{
+	  return subjectService.updateSubject(subject);
+
 	}
 	
 	@GetMapping("/getSubjectById")
@@ -53,7 +53,6 @@ public class SubjectController {
 		Map<String,Object> map=subjectService.getSubjectById(subjectId);	
 	return ResponseEntity.ok(map);
 	}
-	
 	
 	@PutMapping("/deleteSubject")
 	public ResponseEntity<String> deleteSubject(@RequestParam("subjectId") Integer subjectId){
@@ -78,11 +77,11 @@ public class SubjectController {
 	return ResponseEntity.ok(subjects);
 	}
 	
-	@GetMapping("/getAllSubjectsByCourseId")
-	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
-	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
-	return ResponseEntity.ok(subjects);
-	}
+//	@GetMapping("/getAllSubjectsByCourseId")
+//	public ResponseEntity<List<SubjectResponse>> getAllSubjectsByCourseId(@RequestParam("courseId")Integer courseId){
+//	      List<SubjectResponse> subjects = subjectService.getAllSubjectsByCourseId(courseId);
+//	return ResponseEntity.ok(subjects);
+//	}
 	@PutMapping("/deleteSubjectById")
 	public ResponseEntity<ApiResponse>deleteSubjectById(@RequestParam("subjectId")Integer subjectId){
 		subjectService.deleteSubject(subjectId);

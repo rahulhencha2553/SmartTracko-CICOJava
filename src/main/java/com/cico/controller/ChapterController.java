@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
-import com.cico.model.Subject;
 import com.cico.service.IChapterService;
 
 @RestController
@@ -30,15 +29,14 @@ public class ChapterController {
 	
 	@PostMapping("/addChapter")
 	public ResponseEntity<?> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image) throws Exception{
-		return  chapterService.addChapter(subjectId,chapterName,image);	
-		
+		return  chapterService.addChapter(subjectId,chapterName,image);		
 	}
 	
-	@PostMapping("/addExamToChapter")
-	public ResponseEntity<String> addExamToChapter(@RequestParam("subjectId") Integer subjectId,@RequestParam("examName")String examName){
-		chapterService.addExamToChapter( subjectId,  examName);	
-	return ResponseEntity.ok("Exam Added");
-	}
+//	@PostMapping("/addExamToChapter")
+//	public ResponseEntity<String> addExamToChapter(@RequestParam("subjectId") Integer subjectId,@RequestParam("examName")String examName){
+//		chapterService.addExamToChapter( subjectId,  examName);	
+//	return ResponseEntity.ok("Exam Added");
+//	}
 	@PostMapping("/addChapterContent")
 	public ResponseEntity<Chapter>addContentToChapter(@RequestParam("chapterId")Integer chapterId,@RequestParam("title")String title,@RequestParam("subTitle")String subTitle,@RequestParam("content")String content){
 	Chapter chapter = chapterService.addContentToChapter(chapterId,title,subTitle,content);
@@ -46,21 +44,20 @@ public class ChapterController {
 	}
 	
 	@PutMapping("/updateChapterContent")
-	public ResponseEntity<ChapterContent>updateChapterContent(@RequestParam("chapterId")Integer chapterId,@RequestParam("title")String title,@RequestParam("subTitle")String subTitle,@RequestParam("content")String content,@RequestParam("contentId")Integer contentId){
-	 ChapterContent chapterContent = chapterService.updateChapterContent(chapterId,title,subTitle,content,contentId);
+	public ResponseEntity<ChapterContent>updateChapterContent(@RequestParam("title")String title,@RequestParam("subTitle")String subTitle,@RequestParam("content")String content,@RequestParam("contentId")Integer contentId){
+	 ChapterContent chapterContent = chapterService.updateChapterContent(title,subTitle,content,contentId);
 	return new ResponseEntity<ChapterContent>(chapterContent,HttpStatus.OK);
 	}
 	
 	@GetMapping("/getChapterContent")
-	public ResponseEntity<ChapterContent> getChapterContent(@RequestParam("chapterId") Integer chapterId,@RequestParam("chapterContentId")Integer chapterContentId){
-	 ChapterContent chapterContent= chapterService.getChapterContent( chapterId,chapterContentId );	 
+	public ResponseEntity<ChapterContent> getChapterContent(@RequestParam("chapterContentId")Integer chapterContentId) throws Exception{
+	 ChapterContent chapterContent= chapterService.getChapterContent(chapterContentId );	 
     return new ResponseEntity<ChapterContent>(chapterContent,HttpStatus.OK);
 	}
 	
 	@PutMapping("/updateChapter")
-	public ResponseEntity<Chapter> updateChapter(@RequestParam("chapterId")Integer chapterId,@RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName")String chapterName){
-		 Chapter chapter = chapterService.updateChapter(chapterId,subjectId,chapterName);	
-	return  new ResponseEntity<Chapter>(chapter,HttpStatus.OK);
+	public ResponseEntity<?> updateChapter(@RequestParam("chapterId")Integer chapterId,@RequestParam("chapterName")String chapterName) throws Exception{
+	  return chapterService.updateChapter(chapterId,chapterName);	
 	}
 	
 	@GetMapping("/getChapterById")
@@ -71,14 +68,14 @@ public class ChapterController {
 	
 	
 	@PutMapping("/deleteChapterContent")
-	public ResponseEntity<String> deleteChapterContent(@RequestParam("chapterId") Integer chapterId,@RequestParam("contentId")Integer contentId){
-	 chapterService.deleteChapterContent(chapterId,contentId);	
+	public ResponseEntity<String> deleteChapterContent(@RequestParam("contentId")Integer contentId){
+	 chapterService.deleteChapterContent(contentId);	
 	return new ResponseEntity<String>("Success",HttpStatus.OK);
 	}
 	
 	@PutMapping("/deleteChapter")
-	public ResponseEntity<?> deleteChapter(@RequestParam("chapterId") Integer chapterId,@RequestParam("subjectId")Integer subjectId){
-	return chapterService.deleteChapter(chapterId,subjectId);	
+	public ResponseEntity<?> deleteChapter(@RequestParam("chapterId") Integer chapterId){
+	return chapterService.deleteChapter(chapterId);	
 	
 	}
 	
