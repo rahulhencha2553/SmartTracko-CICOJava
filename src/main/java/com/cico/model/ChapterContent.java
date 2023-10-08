@@ -17,11 +17,11 @@ import lombok.NoArgsConstructor;
 public class ChapterContent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	private Integer id;
 	private String title;
 	private String subTitle;
 	@Column(columnDefinition = "longtext")
 	private String content;
-	private  Boolean isDeleted=false;
-	
+	private Boolean isDeleted = false;
+
 }
