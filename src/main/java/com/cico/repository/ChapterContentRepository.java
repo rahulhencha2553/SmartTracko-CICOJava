@@ -19,7 +19,7 @@ public interface ChapterContentRepository extends JpaRepository<ChapterContent, 
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE ChapterContent c SET c.isDeleted = 1 WHERE c.id =:contentId")
-	void updateContent( @Param("contentId") Integer contentId);
-  
+	@Query("UPDATE ChapterContent c SET c.isDeleted = true WHERE c.id = :contentId")
+	void updateContent(@Param("contentId") Integer contentId);
+
 }

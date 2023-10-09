@@ -80,7 +80,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-		chapter.setChapterContent(chapter.getChapterContent().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
+		//chapter.setChapterContent(chapter.getChapterContent().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
 		response.put("chapter", chapter);
 		response.put("questionLength",questionRepo.findAllByChapterAndIsDeleted(chapter, false).size());
 		return response;
@@ -167,7 +167,7 @@ public class ChapterServiceImpl implements IChapterService {
 	@Override
 	public ChapterContent getChapterContent(Integer chapterContentId) throws Exception {
 		 Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
-		if (obj.isPresent()) {
+		if (obj.isEmpty()) {
 			throw new Exception("Chapter content not found");
 		}
 		return obj.get();
@@ -175,7 +175,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public void deleteChapterContent(Integer contentId) {
-		this.chapterContentRepository.updateContent(contentId);
+		this.chapterContentRepository.findById(contentId);
 	}
 
 }
