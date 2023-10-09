@@ -85,10 +85,11 @@ public class SubjectServiceImpl implements ISubjectService {
 	public ResponseEntity<?> updateSubject(Subject subject) throws Exception {
 		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim());
-		if (Objects.nonNull(sub)) {
-			throw new Exception("Already Subject Present With This Name..");
-		}
+
+	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim(), false);
+		if(Objects.nonNull(sub)) {
+			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
+		}	
 		Subject obj = subRepo.save(subject);
 		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
 		return new ResponseEntity<>(obj, HttpStatus.OK);
