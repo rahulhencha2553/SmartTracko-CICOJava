@@ -104,7 +104,6 @@ public class ChapterServiceImpl implements IChapterService {
 			chapter.setIsActive(true);
 
 		chapterRepo.save(chapter);
-
 	}
 
 	@Override
@@ -135,7 +134,8 @@ public class ChapterServiceImpl implements IChapterService {
 		chapterContent.setContent(content);
 		chapterContent.setSubTitle(subTitle);
 		chapterContent.setTitle(title);
-		chapters.add(chapterContent);
+		ChapterContent save = chapterContentRepository.save(chapterContent);
+		chapters.add(save);
 		return chapterRepo.save(chapter);
 	}
 
@@ -161,19 +161,16 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public ChapterContent getChapterContent(Integer chapterContentId) throws Exception {
+		System.out.println(chapterContentId);
 		Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
-		if (obj.isEmpty()) {
+		if (obj.isEmpty())
 			throw new Exception("Chapter content not found");
-		}
 		return obj.get();
 	}
 
 	@Override
 	public void deleteChapterContent(Integer contentId) {
 		chapterContentRepository.deleteChapterContent(contentId);
-//		Optional<ChapterContent> chapterContent = this.chapterContentRepository.findById(contentId);
-//		   chapterContent.get().setIsDeleted(true);
-//		   chapterContentRepository.save(chapterContent.get());
 	}
 
 }

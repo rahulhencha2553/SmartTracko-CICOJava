@@ -14,6 +14,7 @@ import com.cico.model.ChapterContent;
 @Repository
 public interface ChapterContentRepository extends JpaRepository<ChapterContent, Integer> {
 
+	
 	@Query("SELECT c FROM ChapterContent c WHERE c.isDeleted = 0 AND c.id =:contentId")
 	Optional<ChapterContent> findById(@Param("contentId") Integer contentId);
 
