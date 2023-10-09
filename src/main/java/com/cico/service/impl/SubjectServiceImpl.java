@@ -91,7 +91,7 @@ public class SubjectServiceImpl implements ISubjectService {
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim(), false);
 		if(Objects.nonNull(sub)) {
-			throw new Exception("Already Subject Present With This Name..");
+			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}	
 		Subject obj = subRepo.save(subject);
 		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
