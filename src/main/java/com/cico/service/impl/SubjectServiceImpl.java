@@ -19,7 +19,6 @@ import com.cico.model.Course;
 import com.cico.model.Subject;
 import com.cico.payload.SubjectResponse;
 import com.cico.repository.ChapterCompletedRepository;
-import com.cico.repository.ChapterRepository;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.StudentRepository;
 import com.cico.repository.SubjectRepository;
@@ -32,9 +31,6 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Autowired
 	private SubjectRepository subRepo;
-
-	@Autowired
-	private ChapterRepository chapterRepo;
 
 	@Autowired
 	private TechnologyStackRepository technologyStackRepository;
@@ -50,7 +46,7 @@ public class SubjectServiceImpl implements ISubjectService {
 	@Override
 	public ResponseEntity<?> addSubject(String subjectName, Integer imageId) {
 		Map<String, Object> response = new HashMap<>();
-		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName.trim(), false);
+		Subject subject = subRepo.findBySubjectNameAndIsDeleted(subjectName.trim());
 		if (Objects.nonNull(subject))
 			throw new ResourceAlreadyExistException("Subject already exist");
 
@@ -69,7 +65,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public void addChapterToSubject(Integer subjectId, String chapterName) {
-		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
 		List<Chapter> chapters = subject.getChapters();
@@ -87,21 +83,23 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public ResponseEntity<?> updateSubject(Subject subject) throws Exception {
-		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId(), false)
+		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim(), false);
-		if(Objects.nonNull(sub)) {
+		Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim());
+		if (Objects.nonNull(sub)) {
 			throw new Exception("Already Subject Present With This Name..");
-		}	
+		}
 		Subject obj = subRepo.save(subject);
-		//obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
-        return new ResponseEntity<>(obj,HttpStatus.OK);
+		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
+		return new ResponseEntity<>(obj, HttpStatus.OK);
 	}
 
 	@Override
 	public Map<String, Object> getSubjectById(Integer subjectId) {
-		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false).orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-	//	subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId)
+				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
+		subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()!=true).collect(Collectors.toList()));
+		
 		List<Chapter> chapters = subject.getChapters();
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
 		Map<String, Object> map = new HashMap<>();
@@ -113,7 +111,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public void deleteSubject(Integer subjectId) {
-		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 		subject.setIsDeleted(true);
 		subRepo.save(subject);
@@ -121,7 +119,7 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public void updateSubjectStatus(Integer subjectId) {
-		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false)
+		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
 		if (subject.getIsActive().equals(true))
@@ -135,12 +133,11 @@ public class SubjectServiceImpl implements ISubjectService {
 
 	@Override
 	public List<SubjectResponse> getAllSubjects() {
-		List<Subject> subjects = subRepo.findByIsDeleted(false);
+		List<Subject> subjects = subRepo.findByIsDeletedFalse();
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
-//			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
-			response.setChapterCount(s.getChapters().size());
+			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
@@ -157,12 +154,13 @@ public class SubjectServiceImpl implements ISubjectService {
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 		Course course = studentRepository.findById(studentId).get().getCourse();
 		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
+		List<Subject> list = subjects.parallelStream().filter(obj ->obj.getIsDeleted()==false).collect(Collectors.toList());
 		List<SubjectResponse> responseSend = new ArrayList<>();
-		for (Subject s : subjects) {
+		for (Subject s : list) {
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(s.getChapters().size());
+			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size());
 			response.setTechnologyStack(s.getTechnologyStack());
-			response.setIsActive(s.getIsActive());
+		    response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
 			response.setSubjectId(s.getSubjectId());
 			response.setSubjectName(s.getSubjectName());

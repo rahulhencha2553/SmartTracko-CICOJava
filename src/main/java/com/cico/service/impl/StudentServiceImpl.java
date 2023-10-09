@@ -451,8 +451,8 @@ public class StudentServiceImpl implements IStudentService {
 								obj2.setSeatAllocatedDate(LocalDate.now());
 								studentSeatingAlloatmentRepo.save(obj2);
 							}
-							QrManage qrManage = qrManageRepository.findByUserId(username);
-							qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_IN);
+							//QrManage qrManage = qrManageRepository.findByUserId(username);
+							//qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_IN);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							return new ResponseEntity<>(response, HttpStatus.OK);
 						} else {
@@ -498,8 +498,8 @@ public class StudentServiceImpl implements IStudentService {
 									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								}
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
-									QrManage qrManage = qrManageRepository.findByUserId(username);
-									qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_OUT);
+									//QrManage qrManage = qrManageRepository.findByUserId(username);
+									//qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_OUT);
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
@@ -618,11 +618,10 @@ public class StudentServiceImpl implements IStudentService {
 						studentSeatingAlloatmentRepo.save(obj3.get());
 					}
 				}
-				//Optional<StudentSeatingAlloatment> obj1 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
 				if (obj.isPresent())
 					dashboardResponseDto.setSeatNumber(obj.get().getSeatNumber());
 
-				AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId);
+				AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId,"CURRENT_MONTH");
 				dashboardResponseDto.setTotalPresent(res.getTotalPresent());
 				dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 				dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
@@ -759,7 +758,8 @@ public class StudentServiceImpl implements IStudentService {
 			}
 			dashboardResponseDto.setStudentResponseDto(studentResponseDto);
 			dashboardResponseDto.setOrganizationInfo(organizationInfoRepository.findById(1).get());
-			AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId);
+			
+			AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId,"CURRENT_YEAR");
 			dashboardResponseDto.setTotalPresent(res.getTotalPresent());
 			dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 			dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
@@ -1523,16 +1523,34 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(AppConstants.DELETE_SUCCESS, HttpStatus.OK);
 	}
 
-	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId) {
-
+	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId,String status) {
+         
+	 Student student = studRepo.findByStudentId(studentId);
+		
 		AttendenceOfMonth obj = new AttendenceOfMonth();
-		Long presents = attendenceRepository.countPresentStudentsForCurrentMonth(studentId);
-		Long mispunch = attendenceRepository.countTotalMishpunchForCurrentMonth(studentId);
-		Long earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentMonth(studentId);
-		Long totalLeaves = leaveRepository.countTotalLeavesForCurrentMonth(studentId);
+		Long totalLeaves=0l;
+		Long earlyCheckouts=0l;
+		Long mispunch=0l;
+		Long presents=0l;
+		if(status.equals("CURRENT_MONTH")) {
+			 presents = attendenceRepository.countPresentStudentsForCurrentMonth(studentId);
+		     mispunch = attendenceRepository.countTotalMishpunchForCurrentMonth(studentId);
+			 earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentMonth(studentId);
+			 totalLeaves = leaveRepository.countTotalLeavesForCurrentMonth(studentId);
+		}else if(status.equals("CURRENT_YEAR")){
+			System.out.println("1111");
+			presents = attendenceRepository.countTotalPresentStudentsForCurrentYear(studentId,student.getJoinDate());
+			mispunch = attendenceRepository.countTotalMishpunchForCurrentYear(studentId,student.getJoinDate());
+			earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentYear(studentId,student.getJoinDate());
+			totalLeaves = leaveRepository.countTotalLeavesForCurrentYear(studentId,student.getJoinDate());
+		   System.out.println(presents);	
+		   System.out.println(mispunch);	
+		   System.out.println(earlyCheckouts);	
+		   System.out.println(totalLeaves);	
+		}
 
 		Long totalAbsents = 0l;
-
+		
 		if (Objects.isNull(presents))
 			presents = 0L;
 
@@ -1542,8 +1560,11 @@ public class StudentServiceImpl implements IStudentService {
 		if (Objects.isNull(totalLeaves))
 			totalLeaves = 0L;
 
-		totalAbsents = (Long) (LocalDate.now().getDayOfMonth()
-				- (countSundaysInMonth(LocalDate.now()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		if(status.equals("CURRENT_MONTH")) 
+		    	totalAbsents = (Long) (LocalDate.now().getDayOfMonth()- (countSundaysInMonth(LocalDate.now()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		else  if(status.equals("CURRENT_YEAR"))
+				totalAbsents = (Long) ((countSundaysUntilCurrentDate(student.getJoinDate()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		
 
 		obj.setTotalPresent(presents);
 		obj.setTotalMispunch(mispunch);
@@ -1563,7 +1584,19 @@ public class StudentServiceImpl implements IStudentService {
 				sundays++;
 			}
 		}
-
 		return sundays;
+	}
+	
+	public long countSundaysUntilCurrentDate(LocalDate joiningDate) {
+	    LocalDate currentDate = LocalDate.now();
+	    long sundays = 0;
+
+	    while (!joiningDate.isAfter(currentDate)) {
+	        if (joiningDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+	            sundays++;
+	        }
+	        joiningDate = joiningDate.plusDays(1);
+	    }
+	    return sundays;
 	}
 }
