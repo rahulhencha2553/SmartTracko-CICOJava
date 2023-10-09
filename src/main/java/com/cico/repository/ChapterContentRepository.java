@@ -14,12 +14,12 @@ import com.cico.model.ChapterContent;
 @Repository
 public interface ChapterContentRepository extends JpaRepository<ChapterContent, Integer> {
 
-	@Query("SELECT c FROM ChapterContent c WHERE c.isDeleted = 0 AND c.id = :contentId")
+	@Query("SELECT c FROM ChapterContent c WHERE c.isDeleted = 0 AND c.id =:contentId")
 	Optional<ChapterContent> findById(@Param("contentId") Integer contentId);
 
 	@Transactional
 	@Modifying
-	@Query("UPDATE ChapterContent c SET c.isDeleted = true WHERE c.id = :contentId")
-	void updateContent(@Param("contentId") Integer contentId);
+	@Query("UPDATE ChapterContent c SET c.isDeleted = 1 WHERE c.id = :contentId")
+	void deleteChapterContent(@Param("contentId") Integer contentId);
 
 }
