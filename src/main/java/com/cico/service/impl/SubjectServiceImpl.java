@@ -94,14 +94,14 @@ public class SubjectServiceImpl implements ISubjectService {
 			throw new Exception("Already Subject Present With This Name..");
 		}	
 		Subject obj = subRepo.save(subject);
-		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
+		//obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
         return new ResponseEntity<>(obj,HttpStatus.OK);
 	}
 
 	@Override
 	public Map<String, Object> getSubjectById(Integer subjectId) {
 		Subject subject = subRepo.findBySubjectIdAndIsDeleted(subjectId, false).orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
-		subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
+	//	subject.setChapters(subject.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
 		List<Chapter> chapters = subject.getChapters();
 		long completedCount = chapters.stream().filter(Chapter::getIsCompleted).count();
 		Map<String, Object> map = new HashMap<>();
@@ -139,7 +139,8 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
+//			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
+			response.setChapterCount(s.getChapters().size());
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
@@ -159,7 +160,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
-			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size());
+			response.setChapterCount(s.getChapters().size());
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
