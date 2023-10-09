@@ -31,12 +31,7 @@ public class ChapterController {
 	public ResponseEntity<?> addChapter( @RequestParam("subjectId")Integer subjectId,@RequestParam("chapterName") String chapterName,@RequestParam(name = "image" ,required = false)MultipartFile image) throws Exception{
 		return  chapterService.addChapter(subjectId,chapterName,image);		
 	}
-	
-//	@PostMapping("/addExamToChapter")
-//	public ResponseEntity<String> addExamToChapter(@RequestParam("subjectId") Integer subjectId,@RequestParam("examName")String examName){
-//		chapterService.addExamToChapter( subjectId,  examName);	
-//	return ResponseEntity.ok("Exam Added");
-//	}
+
 	@PostMapping("/addChapterContent")
 	public ResponseEntity<Chapter>addContentToChapter(@RequestParam("chapterId")Integer chapterId,@RequestParam("title")String title,@RequestParam("subTitle")String subTitle,@RequestParam("content")String content){
 	Chapter chapter = chapterService.addContentToChapter(chapterId,title,subTitle,content);
