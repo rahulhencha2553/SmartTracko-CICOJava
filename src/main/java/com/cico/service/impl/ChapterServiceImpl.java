@@ -117,7 +117,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public List<Chapter> getChaptersBySubject(Integer subjectId) {
-		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false)
+		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject Not Found"));
 		List<Chapter> chapters = subject.getChapters();
 		if (chapters.isEmpty())
