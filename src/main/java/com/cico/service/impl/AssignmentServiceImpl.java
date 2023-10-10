@@ -66,18 +66,17 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Override
 	public Assignment getAssignment(Long id) {
-		Assignment assignment = assignmentRepository.findByIdAndIsActive(id, true)
+		Assignment assignment = assignmentRepository.findByIdAndIsDeleted(id,false)
 				.orElseThrow(() -> new ResourceNotFoundException("Assignment not found"));
-		assignment.setAssignmentQuestion(
-				assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(assignment.getId()));
+		assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 		return assignment;
 	}
 
 	@Override
 	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception {
 	  
-		 Optional<Assignment> obj = assignmentRepository.findByName(assignmentRequest.getTitle());
-		if(obj.isPresent()) {
+		 Optional<Assignment> obj = assignmentRepository.findByName(assignmentRequest.getTitle().trim());
+		if(obj.isEmpty()) {
 			Assignment assignment = new Assignment();
 			assignment.setTitle(assignmentRequest.getTitle());
 
@@ -87,20 +86,19 @@ public class AssignmentServiceImpl implements IAssignmentService {
 				assignment.setSubject(subjectRepo.findById(assignmentRequest.getSubjectId()).get());
 
 			assignment.setCreatedDate(LocalDateTime.now());
+			assignment.setIsDeleted(false);
 			Assignment savedAssignment = assignmentRepository.save(assignment);
 			return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
 		}else {
 			throw new Exception("Assignmnet Already Present With This Title");
 		}
-		
-		
 	}
 
 	@Override
 	public ResponseEntity<?> getAllAssignments() {
-		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
+		List<Assignment> assignments = assignmentRepository.findByIsDeletedFalse();
 		assignments.forEach(obj -> {
-			obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 		});
 		return new ResponseEntity<>(assignments, HttpStatus.OK);
 	}
@@ -110,7 +108,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		Map<String, Object> response = new HashMap<>();
 		AssignmentTaskQuestion assignmentTaskQuestion = assignmentTaskQuestionRepository.findByQuestionId(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-		Assignment assignment = assignmentRepository.findByIdAndIsActive(assignmentId, true).get();
+		Assignment assignment = assignmentRepository.findByIdAndIsDeleted(assignmentId, false).get();
 		response.put("question", assignmentTaskQuestion);
 		response.put("attachment", assignment.getTaskAttachment());
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -180,7 +178,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl,
 			List<MultipartFile> questionImages, Long assignmentId) {
 
-		Optional<Assignment> assignmentOptional = assignmentRepository.findByIdAndIsActive(assignmentId, true);
+		Optional<Assignment> assignmentOptional = assignmentRepository.findByIdAndIsDeleted(assignmentId, false);
 
 		if (assignmentOptional.isPresent()) {
 			Assignment assignment = assignmentOptional.get();
@@ -188,7 +186,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			AssignmentTaskQuestion assignmentTaskQuestion = new AssignmentTaskQuestion();
 			assignmentTaskQuestion.setQuestion(question);
 			assignmentTaskQuestion.setVideoUrl(videoUrl);
-			assignmentTaskQuestion.setAssignmentId(assignmentId);
+			assignmentTaskQuestion.setIsDeleted(false);
+			//assignmentTaskQuestion.setAssignmentId(assignmentId);
 			List<String> fileNames = questionImages.stream()
 					.map(file -> fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
 					.collect(Collectors.toList());
@@ -196,9 +195,9 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskQuestion.setQuestionImages(fileNames);
 
 			assignment.getAssignmentQuestion().add(assignmentTaskQuestion);
-
+           
 			Assignment updatedAssignment = assignmentRepository.save(assignment);
-
+			updatedAssignment.setAssignmentQuestion(updatedAssignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 			return new ResponseEntity<>(updatedAssignment, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -220,14 +219,15 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatus() {
 
-		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
-
+		List<Assignment> assignments = assignmentRepository.findByIsDeletedFalse();
+		assignments.forEach(obj -> {
+			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+		});
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 
 		assignments.forEach(assignment -> {
 			int taskCount = 0;
-			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
-			for (AssignmentTaskQuestion q : questions) {
+			for (AssignmentTaskQuestion q :assignment.getAssignmentQuestion()) {
 				int totalSubmitted = 0;
 				int underReviewed = 0;
 				int reviewed = 0;
@@ -261,14 +261,16 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
 
-		List<Assignment> assignments = assignmentRepository.findByIsActiveTrue();
+		List<Assignment> assignments = assignmentRepository.findByIsDeletedFalse();
+		assignments.forEach(obj -> {
+			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+		});
 		int totalSubmitted = 0;
 		int underReviewed = 0;
 		int reviewed = 0;
 		SubmissionAssignmentTaskStatus assignmentTaskStatus = new SubmissionAssignmentTaskStatus();
 		for (Assignment assignment : assignments) {
-			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
-			for (AssignmentTaskQuestion q : questions) {
+			for (AssignmentTaskQuestion q : assignment.getAssignmentQuestion()) {
 				List<AssignmentSubmission> submissionAssignments = submissionRepository
 						.getSubmitAssignmentByAssignmentId(assignment.getId(), q.getQuestionId());
 				totalSubmitted += submissionAssignments.size();
@@ -297,11 +299,12 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		List<Assignment> lockedAssignment = new ArrayList<>();
 		List<Assignment> unLockedAssignment = new ArrayList<>();
 
-		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsActiveTrue(
+		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(
 				studentRepository.findById(studentId).get().getCourse().getCourseId());
 
 		allAssignment.forEach(obj -> {
-			obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+			//obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsDeletedFalse(obj.getId()));
+		    obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 		});
 		if (!allAssignment.isEmpty()) {
 			unLockedAssignment.add(allAssignment.get(0));
@@ -364,15 +367,18 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> assignments = new ArrayList<>();
 		if (subjectId == 0) {
-			assignments = assignmentRepository.findAllByCourseIdAndIsActiveTrue(courseId);
+			assignments = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(courseId);
 		} else {
-			assignments = assignmentRepository.findAllByCourseIdAndSubjectIdAndIsActiveTrue(courseId, subjectId);
+			assignments = assignmentRepository.findAllByCourseIdAndSubjectIdAndIsDeletedFalse(courseId, subjectId);
 		}
 
+		assignments = assignments.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 
 		assignments.forEach(assignment -> {
 			int taskCount = 0;
+			assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+	
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
 				int totalSubmitted = 0;
@@ -409,10 +415,10 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
 		if (Objects.nonNull(findByCourseId)) {
-			List<Assignment> assignments = assignmentRepository.findAllByCourseIdAndIsActiveTrue(courseId);
+			List<Assignment> assignments = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(courseId);
+			assignments = assignments.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
 			assignments.forEach(obj -> {
-				obj.setAssignmentQuestion(
-						assignmentTaskQuestionRepository.findByAssignmentIdAndIsActiveTrue(obj.getId()));
+				 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 			});
 			int totalSubmitted = 0;
 			int underReviewed = 0;
@@ -445,8 +451,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	}
 
 	@Override
-	public ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId) {
-		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(assignmentId, questionId);
+	public ResponseEntity<?> deleteTaskQuestion(Long questionId){
+		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(questionId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

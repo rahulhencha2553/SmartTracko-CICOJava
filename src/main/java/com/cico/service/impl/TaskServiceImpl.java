@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,9 +109,11 @@ public class TaskServiceImpl implements ITaskService {
 		example = Example.of(task);
 
 		List<Task> list = taskRepo.findAll(example);
-		list.forEach(obj -> {
-			obj.setTaskQuestion(taskQuestionRepository.findByTaskIdAndIsActiveTrue(obj.getTaskId()));
+		list.parallelStream().forEach(obj -> {
+			obj.setTaskQuestion(obj.getTaskQuestion().parallelStream().filter(obj1 -> !obj1.getIsDeleted())
+					.collect(Collectors.toList()));
 		});
+
 		return list;
 
 	}
@@ -119,24 +122,32 @@ public class TaskServiceImpl implements ITaskService {
 	public Task getTaskById(Long taskId) {
 		Task task = taskRepo.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("TASK NOT FOUND WITH THIS ID"));
-		task.setTaskQuestion(taskQuestionRepository.findByTaskIdAndIsActiveTrue(task.getTaskId()));
+		task.setTaskQuestion(task.getTaskQuestion().parallelStream().filter(obj -> !obj.getIsDeleted())
+				.collect(Collectors.toList()));
 		return task;
 	}
 
 	@Override
 	public List<Task> getAllTask() {
+		
 		List<Task> list = taskRepo.findAll();
-		list.forEach(obj -> {
-			obj.setTaskQuestion(taskQuestionRepository.findByTaskIdAndIsActiveTrue(obj.getTaskId()));
-		});
-		return list;
+		
+		if (list.isEmpty()) {
+			throw new ResourceNotFoundException("Task not Found");
+		} else {
+			list.parallelStream().forEach(obj -> {
+				obj.setTaskQuestion(obj.getTaskQuestion().parallelStream().filter(obj1 -> !obj1.getIsDeleted())
+				.collect(Collectors.toList()));
+			});
+			return list;
+		}
 	}
 
 	@Override
 	public ResponseEntity<?> studentTaskSubmittion(Long taskId, Integer studentId, MultipartFile file,
 			String taskDescription) throws Exception {
 		AssignmentSubmission obj = taskSubmissionRepository.findByTaskIdAndStudentId(taskId, studentId);
-		if (Objects.nonNull(obj)  && obj.getStatus().name().equals("Rejected")  ||  !Objects.nonNull(obj)) {
+		if (Objects.nonNull(obj) && obj.getStatus().name().equals("Rejected") || !Objects.nonNull(obj)) {
 			TaskSubmission submittion = new TaskSubmission();
 			submittion.setStudent(studentRepository.findByStudentId(studentId));
 			if (Objects.nonNull(file)) {
@@ -172,13 +183,15 @@ public class TaskServiceImpl implements ITaskService {
 				String fileName = fileService.uploadFileInFolder(t, QUESTION_IMAGES_DIR);
 				list.add(fileName);
 			});
-			taskQuestion.setTaskId(taskId);
+			// taskQuestion.setTaskId(taskId);
 			taskQuestion.setQuestionImages(list);
 
 			Task task = taskOptional.get();
 			task.getTaskQuestion().add(taskQuestion);
 
 			Task save = taskRepo.save(task);
+			save.setTaskQuestion(save.getTaskQuestion().parallelStream().filter(obj -> !obj.getIsDeleted())
+					.collect(Collectors.toList()));
 			return new ResponseEntity<>(save, HttpStatus.OK);
 		}
 
@@ -199,8 +212,8 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	@Override
-	public ResponseEntity<?> deleteTaskQuestion(Long taskId, Long questionId) {
-		taskQuestionRepository.deleteTaskQuestion(taskId, questionId);
+	public ResponseEntity<?> deleteTaskQuestion(Long questionId) {
+		taskQuestionRepository.deleteTaskQuestion(questionId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

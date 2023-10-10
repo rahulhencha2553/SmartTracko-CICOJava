@@ -91,7 +91,7 @@ public class SubjectServiceImpl implements ISubjectService {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}	
 		Subject obj = subRepo.save(subject);
-		obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
+	obj.setChapters(obj.getChapters().stream().filter(obj1->obj1.getIsDeleted()==false).collect(Collectors.toList()));
 		return new ResponseEntity<>(obj, HttpStatus.OK);
 	}
 
@@ -139,6 +139,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		for (Subject s : subjects) {
 			SubjectResponse response = new SubjectResponse();
 			response.setChapterCount(s.getChapters().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()).size()); // all chapter with isDeleted False
+		//	response.setChapterCount(s.getChapters().size()); // all chapter with isDeleted False
 			response.setTechnologyStack(s.getTechnologyStack());
 			response.setIsActive(s.getIsActive());
 			response.setIsDeleted(s.getIsDeleted());
@@ -155,7 +156,7 @@ public class SubjectServiceImpl implements ISubjectService {
 	public List<SubjectResponse> getAllSubjectsWithChapterCompletedStatus(Integer studentId) {
 		Course course = studentRepository.findById(studentId).get().getCourse();
 		List<Subject> subjects = courseRepository.findByCourseId(course.getCourseId()).get().getSubjects();
-		List<Subject> list = subjects.parallelStream().filter(obj ->obj.getIsDeleted()==false).collect(Collectors.toList());
+		List<Subject> list = subjects.stream().filter(obj ->obj.getIsDeleted()==false).collect(Collectors.toList());
 		List<SubjectResponse> responseSend = new ArrayList<>();
 		for (Subject s : list) {
 			SubjectResponse response = new SubjectResponse();
@@ -165,8 +166,7 @@ public class SubjectServiceImpl implements ISubjectService {
 			response.setIsDeleted(s.getIsDeleted());
 			response.setSubjectId(s.getSubjectId());
 			response.setSubjectName(s.getSubjectName());
-			response.setChapterCompleted(
-					chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(), studentId));
+			response.setChapterCompleted(chapterCompletedRepository.countBySubjectIdAndStudentId(s.getSubjectId(), studentId));
 			responseSend.add(response);
 		}
 		if (subjects.isEmpty())

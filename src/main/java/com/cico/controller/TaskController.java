@@ -83,9 +83,8 @@ public class TaskController {
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
-	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId,
-			@RequestParam("taskId") Long taskId) {
-		return taskService.deleteTaskQuestion(taskId, questionId);
+	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId) {
+		return taskService.deleteTaskQuestion(questionId);
 	}
 
 	@GetMapping("/getSubmitedTaskForStudent")

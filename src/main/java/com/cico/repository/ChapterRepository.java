@@ -10,9 +10,9 @@ import com.cico.model.Chapter;
 
 public interface ChapterRepository extends JpaRepository<Chapter, Integer> {
 
-	@Query("SELECT c FROM Chapter c LEFT JOIN  FETCH c.chapterContent co WHERE c.chapterId = :chapterId AND c.isDeleted = :isDeleted  AND( co.isDeleted IS NULL OR co.isDeleted = :isDeleted)")
+	@Query("SELECT c FROM Chapter c LEFT JOIN  FETCH c.chapterContent as co WHERE c.chapterId = :chapterId AND c.isDeleted = :isDeleted  AND( co.isDeleted IS NULL OR co.isDeleted = :isDeleted)")
 	Optional<Chapter> findByChapterIdAndIsDeleted(@Param("chapterId") Integer chapterId,@Param("isDeleted") Boolean isDeleted);
 
-	@Query("SELECT c FROM Chapter  c LEFT JOIN  FETCH c.chapterContent co WHERE c.chapterName = :chapterName AND (c.isDeleted = :isDeleted OR co.isDeleted = :isDeleted)")
+	@Query("SELECT c FROM Chapter  c LEFT JOIN  FETCH c.chapterContent  as co WHERE c.chapterName = :chapterName AND c.isDeleted = :isDeleted  AND (co.isDeleted IS NULL  OR co.isDeleted = :isDeleted)")
 	Chapter findByChapterNameAndIsDeleted(@Param("chapterName") String chapterName,@Param("isDeleted") boolean isDeleted);
 }

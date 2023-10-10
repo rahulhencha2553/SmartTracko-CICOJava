@@ -40,10 +40,10 @@ public class TaskQuestion {
 
 	private String videoUrl;
 	
-	private Long  taskId;
+	//private Long  taskId;
 
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<TaskSubmission> assignmentSubmissions;
 	
-	private Boolean isActive=true;
+	private Boolean isDeleted=true;
 }

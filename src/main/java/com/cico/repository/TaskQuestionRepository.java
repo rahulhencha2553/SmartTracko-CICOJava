@@ -1,6 +1,5 @@
 package com.cico.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,10 +14,8 @@ public interface TaskQuestionRepository extends JpaRepository<TaskQuestion, Long
 
 	Optional<TaskQuestion> findByQuestionId(Long questionId);
 
-	List<TaskQuestion> findByTaskIdAndIsActiveTrue(Long taskId);
-
 	@Modifying
 	@Transactional
-	@Query("UPDATE TaskQuestion t set t.isActive =0 WHERE  t.taskId =:taskId AND t.questionId =:questionId ")
-	void deleteTaskQuestion( @Param("taskId") Long taskId, @Param("questionId")Long questionId);
+	@Query("UPDATE TaskQuestion t set t.isDeleted =1  WHERE   t.questionId =:questionId ")
+	void deleteTaskQuestion(@Param("questionId") Long questionId);
 }

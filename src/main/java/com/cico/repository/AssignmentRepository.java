@@ -17,17 +17,18 @@ import com.cico.model.Course;
 public interface AssignmentRepository extends JpaRepository<Assignment, Long> {
     
 	
-	Optional<Assignment> findByIdAndIsActive(Long id, boolean b);
+	Optional<Assignment> findByIdAndIsDeleted(Long id, boolean b);
 
-	List<Assignment> findByIsActiveTrue();
+	//List<Assignment> findByIsActiveTrue();
+	List<Assignment> findByIsDeletedFalse();
    
 	Course findByCourse(Optional<Course> findByCourseId);
 
-	@Query("SELECT a FROM Assignment a WHERE a.course IN (SELECT c FROM Course c WHERE c.courseId = :courseId)")
-	List<Assignment> findAllByCourseIdAndIsActiveTrue(@Param("courseId") Integer courseId);
+	@Query("SELECT a FROM Assignment a WHERE a.course.courseId = :courseId")
+     List<Assignment> findAllByCourseIdAndIsDeletedFalse(@Param("courseId") Integer courseId);
     
 	@Query("SELECT a FROM Assignment a WHERE a.course.courseId = :courseId  AND a.subject.subjectId =:subjectId")
-	List<Assignment> findAllByCourseIdAndSubjectIdAndIsActiveTrue(@Param("courseId") Integer courseId,@Param("subjectId") Integer subjectId);
+	List<Assignment> findAllByCourseIdAndSubjectIdAndIsDeletedFalse(@Param("courseId") Integer courseId,@Param("subjectId") Integer subjectId);
 
 	@Query("SELECT a FROM Assignment a WHERE a.title =:title")
     Optional<Assignment> findByName(@Param("title") String title);

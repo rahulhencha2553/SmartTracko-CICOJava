@@ -51,6 +51,7 @@ public class BatchServiceImpl implements IBatchService {
 		Course course = courseRepository.findById(request.getCourseId()).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
 		Batch batch=new Batch(request.getBatchName(), request.getBatchStartDate(), request.getBatchTiming(), request.getBatchDetails());
 		batch.setSubject(subjectRepository.findBySubjectIdAndIsDeleted(request.getSubjectId()).get());
+
 		List<Batch> batches = course.getBatches();
 		batches.add(batch);
 		course.setBatches(batches);
