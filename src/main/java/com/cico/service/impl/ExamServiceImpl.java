@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.internal.build.AllowSysOut;
@@ -227,6 +228,9 @@ public class ExamServiceImpl implements IExamService {
 	public ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
 		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId,studentId);
+		if(Objects.isNull(chapterCompleted))
+			throw new ResourceNotFoundException("NO DATA FOUND");
+		
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
 		Student student = studentRepository.findByStudentId(studentId);
 		ChapterExamResult examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student).get();

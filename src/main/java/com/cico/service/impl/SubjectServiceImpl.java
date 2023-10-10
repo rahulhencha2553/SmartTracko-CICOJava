@@ -86,7 +86,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		subRepo.findBySubjectIdAndIsDeleted(subject.getSubjectId())
 				.orElseThrow(() -> new ResourceNotFoundException("Subject not found"));
 
-	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim(), false);
+	    Subject sub = subRepo.findBySubjectNameAndIsDeleted(subject.getSubjectName().trim());
 		if(Objects.nonNull(sub)) {
 			throw new ResourceAlreadyExistException("Subject Already Present With This Name");
 		}	
