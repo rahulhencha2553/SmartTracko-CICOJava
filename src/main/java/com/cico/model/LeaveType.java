@@ -31,5 +31,13 @@ public class LeaveType {
 	  @JsonIgnore
 	  @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
 	  private LocalDateTime createdDate;
+	  
+	  
+	  public LeaveType(String leaveTypeName) {
+		  this.leaveTypeName = leaveTypeName;
+		  this.isActive = true;
+		  this.isDelete = false;
+		  this.createdDate = LocalDateTime.now();
+	  }
 }
 
