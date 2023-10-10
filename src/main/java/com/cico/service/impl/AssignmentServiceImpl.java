@@ -51,7 +51,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 	@Value("${attachmentFiles}")
 	private String ATTACHMENT_FILES_DIR;
-
+  
 	@Autowired
 	private FileServiceImpl fileServiceImpl;
 
@@ -71,7 +71,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 		return assignment;
 	}
-
+	
 	@Override
 	public ResponseEntity<?> createAssignment(AssignmentRequest assignmentRequest) throws Exception {
 	  
@@ -88,6 +88,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignment.setCreatedDate(LocalDateTime.now());
 			assignment.setIsDeleted(false);
 			Assignment savedAssignment = assignmentRepository.save(assignment);
+			savedAssignment = getAssignmentTemp(savedAssignment);
 			return new ResponseEntity<>(savedAssignment, HttpStatus.CREATED);
 		}else {
 			throw new Exception("Assignmnet Already Present With This Title");
@@ -197,7 +198,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignment.getAssignmentQuestion().add(assignmentTaskQuestion);
            
 			Assignment updatedAssignment = assignmentRepository.save(assignment);
-			updatedAssignment.setAssignmentQuestion(updatedAssignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+			updatedAssignment = getAssignmentTemp(updatedAssignment);
 			return new ResponseEntity<>(updatedAssignment, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -220,9 +221,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> getAllSubmissionAssignmentTaskStatus() {
 
 		List<Assignment> assignments = assignmentRepository.findByIsDeletedFalse();
-		assignments.forEach(obj -> {
-			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
-		});
+		assignments =AllAssignmentTemp(assignments);
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 
 		assignments.forEach(assignment -> {
@@ -262,9 +261,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	public ResponseEntity<?> getOverAllAssignmentTaskStatus() {
 
 		List<Assignment> assignments = assignmentRepository.findByIsDeletedFalse();
-		assignments.forEach(obj -> {
-			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
-		});
+		assignments = AllAssignmentTemp(assignments);
 		int totalSubmitted = 0;
 		int underReviewed = 0;
 		int reviewed = 0;
@@ -301,11 +298,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(
 				studentRepository.findById(studentId).get().getCourse().getCourseId());
-
-		allAssignment.forEach(obj -> {
-			//obj.setAssignmentQuestion(assignmentTaskQuestionRepository.findByAssignmentIdAndIsDeletedFalse(obj.getId()));
-		    obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
-		});
+		allAssignment = AllAssignmentTemp(allAssignment);
 		if (!allAssignment.isEmpty()) {
 			unLockedAssignment.add(allAssignment.get(0));
 		}
@@ -371,13 +364,11 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		} else {
 			assignments = assignmentRepository.findAllByCourseIdAndSubjectIdAndIsDeletedFalse(courseId, subjectId);
 		}
-
-		assignments = assignments.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+		 assignments = AllAssignmentTemp(assignments);
 		List<SubmissionAssignmentTaskStatus> assignmentTaskStatusList = new ArrayList<>();
 
 		assignments.forEach(assignment -> {
 			int taskCount = 0;
-			assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
 	
 			List<AssignmentTaskQuestion> questions = assignment.getAssignmentQuestion();
 			for (AssignmentTaskQuestion q : questions) {
@@ -416,10 +407,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		Optional<Course> findByCourseId = courseRepo.findByCourseId(courseId);
 		if (Objects.nonNull(findByCourseId)) {
 			List<Assignment> assignments = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(courseId);
-			assignments = assignments.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
-			assignments.forEach(obj -> {
-				 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
-			});
+			assignments =AllAssignmentTemp(assignments);
 			int totalSubmitted = 0;
 			int underReviewed = 0;
 			int reviewed = 0;
@@ -455,6 +443,18 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		assignmentTaskQuestionRepository.deleteQuestionByIdAndId(questionId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-
+    
+	public  List<Assignment>AllAssignmentTemp(List<Assignment>list) {
+		list = list.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+		list.forEach(obj -> {
+			 obj.setAssignmentQuestion(obj.getAssignmentQuestion().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+		});
+		return list;
+	}
+	
+	public  Assignment getAssignmentTemp(Assignment assignment) {
+		 assignment.setAssignmentQuestion(assignment.getAssignmentQuestion().parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList()));
+	     return assignment;
+	}
 
 }
