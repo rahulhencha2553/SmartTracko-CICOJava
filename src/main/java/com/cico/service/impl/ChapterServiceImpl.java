@@ -79,6 +79,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
+		
 		response.put("chapter", chapter);
 		response.put("questionLength", questionRepo.findAllByChapterAndIsDeleted(chapter, false).size());
 		return response;

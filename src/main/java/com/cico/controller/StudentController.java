@@ -117,14 +117,15 @@ public class StudentController {
 				studentImage, attachment);
 	}
 
+	
 	@GetMapping("/getStudentCheckInCheckOutHistory")
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(
 			@RequestHeader(name = AppConstants.AUTHORIZATION) HttpHeaders header,
 			@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate,
-			@RequestParam(name = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
-			@RequestParam(name = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size) {
+			@RequestParam(name = "offset") Integer offset,
+			@RequestParam(name = "limit") Integer limit) {
 
-		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, page, size);
+		return studentService.getStudentCheckInCheckOutHistory(header, startDate, endDate, offset, limit);
 	}
 
 	@GetMapping("/getStudentProfileApi")
