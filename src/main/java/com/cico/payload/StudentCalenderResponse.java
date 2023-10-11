@@ -14,4 +14,6 @@ public class StudentCalenderResponse {
 	List<Integer> present = new ArrayList<>();
 	List<Integer> leaves = new ArrayList<>();
 	List<Integer> absent = new ArrayList<>();
+	List<Integer>earlyCheckOut = new ArrayList<>();
+	List<Integer>mispunch = new ArrayList<>();
 }
