@@ -869,7 +869,7 @@ public class StudentServiceImpl implements IStudentService {
 	// get history data after checkout
 	@Override
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
-			Integer limit, Integer offset) {
+		 Integer offset ,Integer limit) {
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		System.out.println(username);
 		Integer studentId = Integer.parseInt(
@@ -879,13 +879,14 @@ public class StudentServiceImpl implements IStudentService {
 		Map<String, Object> response = new HashMap<>();
 
 		if (validateToken) {
-			Page<Attendance> attendanceHistory = attendenceRepository.findAttendanceHistory(studentId,
+			List<Attendance> attendanceHistory = attendenceRepository.findAttendanceHistory(studentId,
 					LocalDate.parse(startDate), LocalDate.parse(endDate),
-					PageRequest.of(limit, offset, Sort.by(Direction.DESC, "attendanceId")));
+					offset,limit);
+			Page<Attendance> pageData = attendenceRepository.findAttendanceHistory(studentId,LocalDate.parse(startDate), LocalDate.parse(endDate), PageRequest.of(0, 10));
 			List<CheckinCheckoutHistoryResponse> historyDto = new ArrayList<>();
 			if (!attendanceHistory.isEmpty()) {
-				List<Attendance> content = attendanceHistory.getContent();
-				for (Attendance attendance : content) {
+				//List<Attendance> content = attendanceHistory.getContent();
+				for (Attendance attendance : attendanceHistory) {
 					StudentWorkReport stdWorkReport = workReportRepository
 							.findByAttendanceId(attendance.getAttendanceId());
 					CheckinCheckoutHistoryResponse cicoHistoryObjDto = getCicoHistoryObjDto(attendance);
@@ -898,10 +899,10 @@ public class StudentServiceImpl implements IStudentService {
 
 				Map<String, Object> map = new HashMap<>();
 				map.put("attendance", historyDto);
-				map.put("totalPages", attendanceHistory.getTotalPages());
-				map.put("totalAttendance", attendanceHistory.getTotalElements());
-				map.put("currentPage", attendanceHistory.getNumber());
-				map.put("pageSize", attendanceHistory.getNumberOfElements());
+//				map.put("totalPages", attendanceHistory.getTotalPages());
+				map.put("totalAttendance", pageData.getTotalElements());
+//				map.put("currentPage", attendanceHistory.getNumber());
+//				map.put("pageSize", attendanceHistory.getNumberOfElements());
 				response.put("response", map);
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				return new ResponseEntity<>(response, HttpStatus.OK);
