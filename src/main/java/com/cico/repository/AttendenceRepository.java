@@ -91,12 +91,29 @@ public interface AttendenceRepository extends JpaRepository<Attendance, Integer>
 		       "WHERE a.studentId = :studentId " +
 		       "AND  YEAR(a.checkInDate)>= YEAR(:joinDate) AND a.checkInDate <= CURRENT_DATE() " +
 		       "AND a.workingHour < 32400 " +
-		       "AND a.isMispunch = 0 " +
-		       "GROUP BY FUNCTION('MONTH', a.checkInDate)")
+		       "AND a.isMispunch = 0 ")
 	public Long countTotalEarlyCheckOutForCurrentYear(Integer studentId, LocalDate joinDate);
 
 	
 	
 	
+	
+	
+	@Query("SELECT a FROM Attendance a WHERE a.studentId=:studentId AND MONTH(a.checkInDate)=:monthNo AND a.workingHour >=32400 AND a.isMispunch =0")
+	public List<Attendance> findByStudentIdForCurrentMonth(@Param("studentId") Integer studentId,
+			@Param("monthNo") Integer monthNo);
+
+	@Query("SELECT a FROM Attendance a " +
+		       "WHERE a.studentId = :studentId " +
+		       "AND MONTH(a.checkInDate)=:monthNo " +
+		       "AND a.workingHour < 32400 " +
+		       "AND a.isMispunch = 0 ")
+	public List<Attendance> countTotalEarlyCheckOutForCurrent1(Integer studentId, @Param("monthNo") Integer monthNo);
+	
+	
+	@Query("SELECT a FROM Attendance a WHERE a.studentId = :studentId " +
+		       "AND MONTH(a.checkInDate)=:monthNo " +
+		       "AND a.isMispunch = 1")
+	public List<Attendance> countTotalMishpunchForCurrentYear1(Integer studentId,@Param("monthNo") Integer monthNo);
 	
 }

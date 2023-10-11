@@ -45,5 +45,5 @@ public class TaskQuestion {
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<TaskSubmission> assignmentSubmissions;
 	
-	private Boolean isDeleted=true;
+	private Boolean isDeleted;
 }

@@ -198,7 +198,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignment.getAssignmentQuestion().add(assignmentTaskQuestion);
            
 			Assignment updatedAssignment = assignmentRepository.save(assignment);
-			updatedAssignment = getAssignmentTemp(updatedAssignment);
+			//updatedAssignment = getAssignmentTemp(updatedAssignment);
 			return new ResponseEntity<>(updatedAssignment, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

@@ -19,9 +19,6 @@ public interface TaskSubmissionRepository extends JpaRepository<TaskSubmission, 
 	@Query("SELECT a FROM TaskSubmission a WHERE a.taskId =:taskId")
 	List<TaskSubmission> getSubmittedTaskByTaskId(@Param("taskId") Long taskId);
 
-	// @Query("SELECT s FROM TaskSubmission s WHERE s.student.studentId=:studentId")
-//	@Query("SELECT a.review, a.status, a.submissionDate, a.submittionFileName, a.taskDescription, a.taskId, a1.taskName FROM TaskSubmission a INNER JOIN Task a1 ON a1.taskId = a.taskId WHERE a.student.studentId = :studentId ORDER BY a.submissionDate ASC")
-//	List<Object[]> getSubmitedTaskForStudent(@Param("studentId") Integer studentId);
 	@Query("SELECT a.review, a.status, a.submissionDate, a.submittionFileName, a.taskDescription, a.taskId, a1.taskName "
 			+ "FROM TaskSubmission a INNER JOIN Task a1 ON a1.taskId = a.taskId "
 			+ "WHERE a.student.studentId = :studentId "

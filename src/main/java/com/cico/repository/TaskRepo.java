@@ -10,16 +10,16 @@ import com.cico.model.Task;
 
 public interface TaskRepo extends JpaRepository<Task, Long> {
 
-	Task findByTaskNameAndIsActive(String taskName, boolean b);
+	Task findByTaskNameAndIsDeleted(String taskName, boolean b);
 
 	Object findByTaskName(String taskName);
 
-	Optional<Task> findByTaskIdAndIsActive(Long taskId, boolean b);
+	Optional<Task> findByTaskIdAndIsDeleted(Long taskId, boolean b);
   
 	
-	List<Task> findByIsActiveTrue();
+	List<Task> findByIsDeletedFalse();
 
-    List<Task> findBySubjectAndIsActiveTrue(Subject subject);
+    List<Task> findBySubjectAndIsDeletedFalse(Subject subject);
      
 //    @Modifying
 //    @Transactional
