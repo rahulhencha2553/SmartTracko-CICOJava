@@ -1,6 +1,7 @@
 package com.cico.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,9 @@ public class QuestionServiceImpl implements IQuestionService {
 	@Autowired
 	private ChapterRepository chapterRepository;
 
+	@Autowired
+	private ChapterServiceImpl chapterServiceImpl;
+
 	@Value("${fileUploadPath}")
 	private String IMG_UPLOAD_DIR;
 
@@ -50,21 +54,24 @@ public class QuestionServiceImpl implements IQuestionService {
 		questionObj.setOption3(option3);
 		questionObj.setOption4(option4);
 		questionObj.setCorrectOption(correctOption);
-	    
-		Chapter chapter = chapterRepository.findById(chapterId).get();
-		questionObj.setChapter(chapter);
-		if(image!=null) {
+		if (image != null) {
 			questionObj.setQuestionImage(image.getOriginalFilename());
 			String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
 			questionObj.setQuestionImage(file);
 		}
-		return questionRepo.save(questionObj);
 
+		Question save = questionRepo.save(questionObj);
+		Chapter chapter = chapterRepository.findById(chapterId).get();
+		Exam exam = chapter.getExam();
+		exam.getQuestions().add(save);
+		exam.setScore(exam.getQuestions().size());
+		examRepo.save(exam);
+		return save;
 	}
 
 	@Override
-	public Question updateQuestion(Integer chapterId, Integer questionId, String questionContent, String option1,
-			String option2, String option3, String option4, String correctOption,MultipartFile image) {
+	public Question updateQuestion(Integer questionId, String questionContent, String option1, String option2,
+			String option3, String option4, String correctOption, MultipartFile image) {
 
 		Question question = questionRepo.findByQuestionIdAndIsDeleted(questionId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found"));
@@ -94,28 +101,25 @@ public class QuestionServiceImpl implements IQuestionService {
 		else
 			question.setCorrectOption(question.getCorrectOption());
 
-		if(image!=null && !image.isEmpty()) {
-			if(image!=null) {
+		if (image != null && !image.isEmpty()) {
+			if (image != null) {
 				question.setQuestionImage(image.getOriginalFilename());
 				String file = fileService.uploadFileInFolder(image, IMG_UPLOAD_DIR);
 				question.setQuestionImage(file);
 			}
-		}else {
+		} else {
 			question.setQuestionImage(question.getQuestionImage());
 		}
-		Chapter chapter = chapterRepository.findById(chapterId).get();
-		question.setChapter(chapter);
 		return questionRepo.save(question);
 
 	}
 
 	@Override
 	public List<Question> getAllQuestionByChapterId(Integer chapterId) {
-		Chapter chapter = chapterRepository.findById(chapterId).get();
-		List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
-		return questions;
-
-	}  
+		Map<String, Object> chapter = chapterServiceImpl.getChapterById(chapterId);
+		Chapter chapter1 = (Chapter) chapter.get("chapter");
+		return chapter1.getExam().getQuestions();
+	}
 
 	@Override
 	public void deleteQuestion(Integer questionId) {

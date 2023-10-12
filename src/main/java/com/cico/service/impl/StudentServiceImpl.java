@@ -1527,8 +1527,8 @@ public class StudentServiceImpl implements IStudentService {
 		response.put("absents", absentCount);
 		response.put("presents", present);
 		response.put("leaves", leaves);
-		response.put("earlyCheckOut", earlyCheckOut);
-		response.put("mispunch", mispunch);
+		response.put("earlyCheckOuts", earlyCheckOut);
+		response.put("mispunchs", mispunch);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

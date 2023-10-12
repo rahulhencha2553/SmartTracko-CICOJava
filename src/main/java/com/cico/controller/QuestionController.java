@@ -36,8 +36,8 @@ public class QuestionController {
 		return new ResponseEntity<Question>(question, HttpStatus.OK);
 	}
 
-	@PutMapping("/updateQuestionById")// k
-	public ResponseEntity<Question> updateQuestion(@RequestParam("chapterId") Integer chapterId,
+	@PutMapping("/updateQuestionById")//   // changes remove chapter id
+	public ResponseEntity<Question> updateQuestion(
 			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
 			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
 			@RequestParam("option4") String option4,
@@ -45,7 +45,7 @@ public class QuestionController {
 			@RequestParam("correctOption") String correctOption,
 			@RequestParam(name = "image" ,required = false)MultipartFile image
 			) {
-		Question updateQuestion = questionService.updateQuestion(chapterId,questionId,questionContent,option1,option2,option3,option4,correctOption,image);
+		Question updateQuestion = questionService.updateQuestion(questionId,questionContent,option1,option2,option3,option4,correctOption,image);
 		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
 	}
 

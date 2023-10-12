@@ -32,9 +32,11 @@ public class ChapterExamResult {
 	private Chapter chapter;
 	@OneToOne
 	private Student student;
-    
+	private Integer scoreGet;
+	public Integer totalQuestion;
+
 	@ElementCollection
 	@CollectionTable
-	private Map<Integer,String>review = new HashMap<>();
-	
+	private Map<Integer, String> review = new HashMap<>();
+
 }
