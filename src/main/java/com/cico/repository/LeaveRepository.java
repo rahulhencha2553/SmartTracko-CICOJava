@@ -74,4 +74,16 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 		public Long countTotalLeavesForCurrentMonth(@Param("studentId") Integer studentId);
 
 	
+	@Query("SELECT COUNT(l) FROM Leaves l " +
+		       "WHERE  YEAR(l.leaveDate)>= YEAR(:joinDate) AND l.leaveDate <= CURRENT_DATE()" +
+		       "AND l.studentId = :studentId " +
+		       "AND l.leaveDayType = 'Full Day' " +
+		       "AND l.leaveStatus = 1 ")
+	public Long countTotalLeavesForCurrentYear(Integer studentId, LocalDate joinDate);
+
+	
+	
+	@Query("SELECT u FROM Leaves u where u.studentId =:id And u.leaveStatus = 1 AND MONTH(u.leaveDate)= :month")
+	public List<Leaves> findAllByStudentIdForCurrentMonth(@Param("id") Integer id,@Param("month")Integer month);
+	
 }

@@ -32,7 +32,7 @@ public interface IAssignmentService {
 
 	ResponseEntity<?> addQuestionInAssignment2(String question, String videoUrl, List<MultipartFile> questionImages, Long assignmentId);
 
-	ResponseEntity<?> deleteTaskQuestion(Long questionId, Long assignmentId);
+	ResponseEntity<?> deleteTaskQuestion(Long questionId);
 
 	ResponseEntity<?> addAssignment(Long assignmentId, MultipartFile attachment);
 

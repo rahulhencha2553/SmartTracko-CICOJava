@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,7 +33,7 @@ public class Task {
 	private String taskAttachment;
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<TaskQuestion>TaskQuestion = new ArrayList<>();;
+	private List<TaskQuestion> TaskQuestion = new ArrayList<>();;
 
 	@OneToOne
 	private Course course;
@@ -41,5 +43,5 @@ public class Task {
 
 	private String attachmentStatus;
 
-	private Boolean isActive = true;
+	private Boolean isDeleted;
 }

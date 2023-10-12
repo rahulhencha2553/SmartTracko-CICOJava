@@ -28,7 +28,7 @@ public interface ITaskService {
 
 	ResponseEntity<?> addTaskAttachment(Long taskId, MultipartFile attachment);
 
-	ResponseEntity<?> deleteTaskQuestion(Long taskId, Long questionId);
+	ResponseEntity<?> deleteTaskQuestion( Long questionId);
 
 	ResponseEntity<?> getAllSubmitedTasks();
 

@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
-import com.cico.model.Question;
 import com.cico.model.Subject;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
@@ -80,9 +79,9 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-		//chapter.setChapterContent(chapter.getChapterContent().stream().filter(obj->obj.getIsDeleted()==false).collect(Collectors.toList()));
+		
 		response.put("chapter", chapter);
-		response.put("questionLength",questionRepo.findAllByChapterAndIsDeleted(chapter, false).size());
+		response.put("questionLength", questionRepo.findAllByChapterAndIsDeleted(chapter, false).size());
 		return response;
 	}
 
@@ -106,14 +105,12 @@ public class ChapterServiceImpl implements IChapterService {
 			chapter.setIsActive(true);
 
 		chapterRepo.save(chapter);
-
 	}
 
 	@Override
 	public List<Chapter> getAllChapters(Integer subjectId) {
 		Subject subject = subjectRepo.findById(subjectId).get();
-		List<Chapter> chapters = subject.getChapters().stream().filter(obj -> obj.getIsDeleted() == false)
-				.collect(Collectors.toList());
+		List<Chapter> chapters = subject.getChapters();
 		if (chapters.isEmpty())
 			new ResourceNotFoundException("No chapter available");
 		return chapters;
@@ -121,10 +118,9 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public List<Chapter> getChaptersBySubject(Integer subjectId) {
-		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId, false)
+		Subject subject = subjectRepo.findBySubjectIdAndIsDeleted(subjectId)
 				.orElseThrow(() -> new ResourceNotFoundException("Subject Not Found"));
-		List<Chapter> chapters = subject.getChapters().stream().filter(obj -> obj.getIsDeleted() == false)
-				.collect(Collectors.toList());
+		List<Chapter> chapters = subject.getChapters();
 		if (chapters.isEmpty())
 			throw new ResourceNotFoundException("No Chapter available for the Subject: " + subject.getSubjectName());
 		return subject.getChapters();
@@ -139,15 +135,15 @@ public class ChapterServiceImpl implements IChapterService {
 		chapterContent.setContent(content);
 		chapterContent.setSubTitle(subTitle);
 		chapterContent.setTitle(title);
-		chapters.add(chapterContent);
+		ChapterContent save = chapterContentRepository.save(chapterContent);
+		chapters.add(save);
 		return chapterRepo.save(chapter);
 	}
 
 	@Override
-	public ChapterContent updateChapterContent(String title, String subTitle, String content,
-			Integer contentId) {
-		 Optional<ChapterContent> obj = this.chapterContentRepository.findById(contentId);
-		 ChapterContent chapter = obj.get();
+	public ChapterContent updateChapterContent(String title, String subTitle, String content, Integer contentId) {
+		Optional<ChapterContent> obj = this.chapterContentRepository.findById(contentId);
+		ChapterContent chapter = obj.get();
 		if (title != null)
 			chapter.setTitle(title);
 		else
@@ -166,16 +162,16 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public ChapterContent getChapterContent(Integer chapterContentId) throws Exception {
-		 Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
-		if (obj.isEmpty()) {
+		System.out.println(chapterContentId);
+		Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
+		if (obj.isEmpty())
 			throw new Exception("Chapter content not found");
-		}
 		return obj.get();
 	}
 
 	@Override
 	public void deleteChapterContent(Integer contentId) {
-		this.chapterContentRepository.findById(contentId);
+		chapterContentRepository.deleteChapterContent(contentId);
 	}
 
 }

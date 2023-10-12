@@ -1,6 +1,5 @@
 package com.cico.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,8 +17,8 @@ public interface AssignmentTaskQuestionRepository extends JpaRepository<Assignme
 
 	@Modifying
     @Transactional
-	@Query("UPDATE AssignmentTaskQuestion a set a.isActive = 0 WHERE a.questionId =:questionId AND a.assignmentId =:assignmentId")
-	void deleteQuestionByIdAndId(Long questionId, Long assignmentId);
+	@Query("UPDATE AssignmentTaskQuestion a set a.isDeleted = 0 WHERE a.questionId =:questionId")
+	void deleteQuestionByIdAndId(Long questionId);
 
-	 List<AssignmentTaskQuestion> findByAssignmentIdAndIsActiveTrue(Long id);
+	// List<AssignmentTaskQuestion> findByAssignmentIdAndIsDeletedFalse(Long id);
 }

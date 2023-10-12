@@ -59,7 +59,7 @@ public class CourseServiceImpl implements ICourseService {
 		Course course = new Course(request.getCourseName(), request.getCourseFees(), request.getDuration(), request.getSortDescription(), null,request.getIsStarterCourse());
 		List<Subject> subjects = course.getSubjects();
 		for (Integer id : request.getSubjectIds()) {
-			subjects.add( subjectRepository.findBySubjectIdAndIsDeleted(id, false).get());
+			subjects.add( subjectRepository.findBySubjectIdAndIsDeleted(id).get());
 		}
 		course.setSubjects(subjects);
 		course.setCreatedDate(LocalDate.now());
@@ -241,6 +241,7 @@ public class CourseServiceImpl implements ICourseService {
         response.put("courseName", findByStudentId.getCourse().getCourseName());
         response.put("joinDate", joinDate);
         response.put("endDate", endDate);
+        response.put("image", findByStudentId.getCourse().getTechnologyStack().getImageName());
 	    return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 

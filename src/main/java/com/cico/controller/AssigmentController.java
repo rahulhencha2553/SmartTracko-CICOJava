@@ -68,9 +68,8 @@ public class AssigmentController {
 	}
 
 	@DeleteMapping("/deleteTaskQuestion")
-	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId,
-			@RequestParam("assignmentId") Long assignmentId) {
-		return service.deleteTaskQuestion(questionId, assignmentId);
+	public ResponseEntity<?> deleteTaskQuestions(@RequestParam("questionId") Long questionId) {
+		return service.deleteTaskQuestion(questionId);
 	}
 
 	@PostMapping("/submitAssignment")

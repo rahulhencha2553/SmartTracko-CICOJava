@@ -74,6 +74,7 @@ import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 import com.cico.util.HelperService;
 import com.cico.util.Roles;
+import com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 
 @Service
 public class StudentServiceImpl implements IStudentService {
@@ -451,8 +452,8 @@ public class StudentServiceImpl implements IStudentService {
 								obj2.setSeatAllocatedDate(LocalDate.now());
 								studentSeatingAlloatmentRepo.save(obj2);
 							}
-							QrManage qrManage = qrManageRepository.findByUserId(username);
-							qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_IN);
+							//QrManage qrManage = qrManageRepository.findByUserId(username);
+							//qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_IN);
 							response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 							return new ResponseEntity<>(response, HttpStatus.OK);
 						} else {
@@ -498,8 +499,8 @@ public class StudentServiceImpl implements IStudentService {
 									StudentWorkReport workReportData = workReportRepository.save(studentWorkReport);
 								}
 								if (Objects.nonNull(saveAttendenceCheckOutData)) {
-									QrManage qrManage = qrManageRepository.findByUserId(username);
-									qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_OUT);
+									//QrManage qrManage = qrManageRepository.findByUserId(username);
+									//qrService.jobEnd(qrManage.getUuid(), AppConstants.CHECK_OUT);
 									response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 									return new ResponseEntity<>(response, HttpStatus.OK);
 								} else {
@@ -618,11 +619,10 @@ public class StudentServiceImpl implements IStudentService {
 						studentSeatingAlloatmentRepo.save(obj3.get());
 					}
 				}
-				//Optional<StudentSeatingAlloatment> obj1 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
 				if (obj.isPresent())
 					dashboardResponseDto.setSeatNumber(obj.get().getSeatNumber());
 
-				AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId);
+				AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId,"CURRENT_MONTH");
 				dashboardResponseDto.setTotalPresent(res.getTotalPresent());
 				dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 				dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
@@ -759,7 +759,8 @@ public class StudentServiceImpl implements IStudentService {
 			}
 			dashboardResponseDto.setStudentResponseDto(studentResponseDto);
 			dashboardResponseDto.setOrganizationInfo(organizationInfoRepository.findById(1).get());
-			AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId);
+			
+			AttendenceOfMonth res = currentMonthAttendenceForDashBoard(studentId,"CURRENT_YEAR");
 			dashboardResponseDto.setTotalPresent(res.getTotalPresent());
 			dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 			dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
@@ -869,7 +870,7 @@ public class StudentServiceImpl implements IStudentService {
 	// get history data after checkout
 	@Override
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
-			Integer limit, Integer offset) {
+		 Integer offset ,Integer limit) {
 		String username = util.getUsername(header.getFirst(AppConstants.AUTHORIZATION));
 		System.out.println(username);
 		Integer studentId = Integer.parseInt(
@@ -879,13 +880,14 @@ public class StudentServiceImpl implements IStudentService {
 		Map<String, Object> response = new HashMap<>();
 
 		if (validateToken) {
-			Page<Attendance> attendanceHistory = attendenceRepository.findAttendanceHistory(studentId,
+			List<Attendance> attendanceHistory = attendenceRepository.findAttendanceHistory(studentId,
 					LocalDate.parse(startDate), LocalDate.parse(endDate),
-					PageRequest.of(limit, offset, Sort.by(Direction.DESC, "attendanceId")));
+					offset,limit);
+			Page<Attendance> pageData = attendenceRepository.findAttendanceHistory(studentId,LocalDate.parse(startDate), LocalDate.parse(endDate), PageRequest.of(0, 10));
 			List<CheckinCheckoutHistoryResponse> historyDto = new ArrayList<>();
 			if (!attendanceHistory.isEmpty()) {
-				List<Attendance> content = attendanceHistory.getContent();
-				for (Attendance attendance : content) {
+				//List<Attendance> content = attendanceHistory.getContent();
+				for (Attendance attendance : attendanceHistory) {
 					StudentWorkReport stdWorkReport = workReportRepository
 							.findByAttendanceId(attendance.getAttendanceId());
 					CheckinCheckoutHistoryResponse cicoHistoryObjDto = getCicoHistoryObjDto(attendance);
@@ -898,10 +900,10 @@ public class StudentServiceImpl implements IStudentService {
 
 				Map<String, Object> map = new HashMap<>();
 				map.put("attendance", historyDto);
-				map.put("totalPages", attendanceHistory.getTotalPages());
-				map.put("totalAttendance", attendanceHistory.getTotalElements());
-				map.put("currentPage", attendanceHistory.getNumber());
-				map.put("pageSize", attendanceHistory.getNumberOfElements());
+//				map.put("totalPages", attendanceHistory.getTotalPages());
+				map.put("totalAttendance", pageData.getTotalElements());
+//				map.put("currentPage", attendanceHistory.getNumber());
+//				map.put("pageSize", attendanceHistory.getNumberOfElements());
 				response.put("response", map);
 				response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
 				return new ResponseEntity<>(response, HttpStatus.OK);
@@ -1056,6 +1058,7 @@ public class StudentServiceImpl implements IStudentService {
 		return map;
 	}
 
+	@SuppressWarnings("unlikely-arg-type")
 	public Map<String, Object> getCalenderData(Integer id, Integer month, Integer year) { // working code
 		Map<String, Object> response = new HashMap<>();
 		LocalDate joinDate = studRepo.findById(id).get().getJoinDate();
@@ -1064,6 +1067,8 @@ public class StudentServiceImpl implements IStudentService {
 			List<Integer> present = new ArrayList<>();
 			List<Integer> leaves = new ArrayList<>();
 			List<Integer> absent = new ArrayList<>();
+			List<Integer> mispunch= new ArrayList<>();
+			List<Integer> earlycheckout = new ArrayList<>();
 
 			// Get the first day of the month
 			LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
@@ -1077,29 +1082,37 @@ public class StudentServiceImpl implements IStudentService {
 
 			if (LocalDate.now().getYear() != year || month <= LocalDate.now().getMonthValue()) {
 				// counting total leaves
-				List<Leaves> leavesData = leaveRepository.findAllByStudentId(id);
+				List<Leaves> leavesData = leaveRepository.findAllByStudentIdForCurrentMonth(id,month);
 				for (Leaves list : leavesData) {
 					LocalDate startLeaveDate = list.getLeaveDate();
 					LocalDate endLeaveDate = list.getLeaveEndDate();
 
-					while (!startLeaveDate.isAfter(endLeaveDate) && startLeaveDate.getMonthValue() == month) {
+					while (!startLeaveDate.isAfter(endLeaveDate)) {
 						leaves.add(startLeaveDate.getDayOfMonth());
 						startLeaveDate = startLeaveDate.plusDays(1);
 					}
 				}
 
 				currentDay = firstDayOfMonth;
-
-				// getting total present
-				// Get total present
-				List<Attendance> studentAttendanceList = attendenceRepository.findAllByStudentId(id);
+				
+				List<Attendance> studentAttendanceList = attendenceRepository.findByStudentIdForCurrentMonth(id,month);
 				for (Attendance attendance : studentAttendanceList) {
-					LocalDate attendanceDate = attendance.getCheckInDate();
-					if (attendanceDate.getMonthValue() == month && attendanceDate.getYear() == year) {
-						present.add(attendanceDate.getDayOfMonth());
+					         LocalDate attendanceDate = attendance.getCheckInDate();
+						    present.add(attendanceDate.getDayOfMonth());
+				   }
+				
+				  List<Attendance> obj1 = attendenceRepository.countTotalEarlyCheckOutForCurrent1(id,month);
+				  for (Attendance attendance : obj1) {
+						    LocalDate attendanceDate = attendance.getCheckInDate();
+							earlycheckout.add(attendanceDate.getDayOfMonth());
 					}
-				}
-
+				  
+				  List<Attendance> obj2 = attendenceRepository.countTotalMishpunchForCurrentYear1(id, month);
+				  for (Attendance attendance : obj2) {
+						     LocalDate attendanceDate = attendance.getCheckInDate();
+							mispunch.add(attendanceDate.getDayOfMonth());
+					}
+				  
 				// getting total absent for current month and till today date
 				if (currentDate.getMonthValue() == month && LocalDate.now().getYear() == year) {
 					if (month == joinDate.getMonth().getValue() && (year == joinDate.getYear())) {
@@ -1107,8 +1120,8 @@ public class StudentServiceImpl implements IStudentService {
 					}
 					while (currentDay.getDayOfMonth() <= currentDate.getDayOfMonth() - 1
 							&& !currentDay.isAfter(lastDayOfMonth)) {
-						if (!present.contains(currentDay.getDayOfMonth())
-								&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+						if (!present.contains(currentDay.getDayOfMonth()) && !mispunch.contains(currentDay.getDayOfMonth()) && !earlycheckout.contains(currentDay.getDayOfMonth())
+								&&	!leaves.contains(currentDay.getDayOfMonth())	&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 							absent.add(currentDay.getDayOfMonth());
 						}
 						currentDay = currentDay.plusDays(1);
@@ -1118,18 +1131,19 @@ public class StudentServiceImpl implements IStudentService {
 						currentDay = joinDate;
 					}
 					while (!currentDay.isAfter(lastDayOfMonth)) {
-						if (!present.contains(currentDay.getDayOfMonth())
-								&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+						if (!present.contains(currentDay.getDayOfMonth()) && !mispunch.contains(currentDay.getDayOfMonth()) && !earlycheckout.contains(currentDay.getDayOfMonth())
+						&&	!leaves.contains(currentDay.getDayOfMonth())	&& currentDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
 							absent.add(currentDay.getDayOfMonth());
 						}
 						currentDay = currentDay.plusDays(1);
 					}
 				}
 			}
-
 			data.setPresent(present);
 			data.setAbsent(absent);
 			data.setLeaves(leaves);
+			data.setMispunch(mispunch);
+			data.setEarlyCheckOut(earlycheckout);
 
 			response.put("StudentCalenderData", data);
 			response.put("status", true);
@@ -1316,7 +1330,6 @@ public class StudentServiceImpl implements IStudentService {
 				logResponse.setStatus("FullDay");
 			} else {
 				logResponse.setStatus("HalfDay");
-				;
 			}
 			attendanceList.add(logResponse);
 		}
@@ -1483,29 +1496,40 @@ public class StudentServiceImpl implements IStudentService {
 	public ResponseEntity<?> getStudentPresentsAbsentsAndLeavesYearWise(Integer year, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
 
-		Map<Integer, Long> leavesCount = new HashMap<Integer, Long>();
+	//	Map<Integer, Long> leavesCount = new HashMap<Integer, Long>();
 		Map<Integer, Integer> absentCount = new HashMap<Integer, Integer>();
-		Map<Integer, Long> present = new HashMap<Integer, Long>();
+		Map<Integer, Integer> present = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> earlyCheckOut = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> mispunch = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> leaves = new HashMap<Integer, Integer>();
+		//Map<Integer, Long> present = new HashMap<Integer, Long>();
 
-		List<Object[]> presentForYear = attendenceRepository.getMonthWisePresentForYear(year, studentId);
-		List<Object[]> leaveForYear = leaveRepository.getMonthWiseLeavesForYear(year, studentId);
-
-		for (Object[] object : presentForYear)
-			present.put((Integer) object[0], (Long) object[1]);
-
-		for (Object[] object : leaveForYear)
-			leavesCount.put((Integer) object[0], (Long) object[1]);
-
+//		List<Object[]> presentForYear = attendenceRepository.getMonthWisePresentForYear(year, studentId);
+//		List<Object[]> leaveForYear = leaveRepository.getMonthWiseLeavesForYear(year, studentId);
+//
+//		for (Object[] object : presentForYear)
+//			present.put((Integer) object[0], (Long) object[1]);
+//
+//		for (Object[] object : leaveForYear)
+//			leavesCount.put((Integer) object[0], (Long) object[1]);
+//
 		int j = studRepo.findById(studentId).get().getJoinDate().getMonthValue();
 
 		for (int i = j; i <= LocalDate.now().getMonthValue(); i++) {
 			Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
 			StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
 			absentCount.put(i, response1.getAbsent().size());
+			present.put(i, response1.getPresent().size());
+			earlyCheckOut.put(i, response1.getEarlyCheckOut().size());
+			mispunch.put(i, response1.getMispunch().size());
+			leaves.put(i, response1.getLeaves().size());
+			
 		}
 		response.put("absents", absentCount);
 		response.put("presents", present);
-		response.put("leaves", leavesCount);
+		response.put("leaves", leaves);
+		response.put("earlyCheckOut", earlyCheckOut);
+		response.put("mispunch", mispunch);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
@@ -1523,16 +1547,34 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(AppConstants.DELETE_SUCCESS, HttpStatus.OK);
 	}
 
-	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId) {
-
+	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId,String status) {
+         
+	 Student student = studRepo.findByStudentId(studentId);
+		
 		AttendenceOfMonth obj = new AttendenceOfMonth();
-		Long presents = attendenceRepository.countPresentStudentsForCurrentMonth(studentId);
-		Long mispunch = attendenceRepository.countTotalMishpunchForCurrentMonth(studentId);
-		Long earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentMonth(studentId);
-		Long totalLeaves = leaveRepository.countTotalLeavesForCurrentMonth(studentId);
+		Long totalLeaves=0l;
+		Long earlyCheckouts=0l;
+		Long mispunch=0l;
+		Long presents=0l;
+		if(status.equals("CURRENT_MONTH")) {
+			 presents = attendenceRepository.countPresentStudentsForCurrentMonth(studentId);
+		     mispunch = attendenceRepository.countTotalMishpunchForCurrentMonth(studentId);
+			 earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentMonth(studentId);
+			 totalLeaves = leaveRepository.countTotalLeavesForCurrentMonth(studentId);
+		}else if(status.equals("CURRENT_YEAR")){
+			System.out.println("1111");
+			presents = attendenceRepository.countTotalPresentStudentsForCurrentYear(studentId,student.getJoinDate());
+			mispunch = attendenceRepository.countTotalMishpunchForCurrentYear(studentId,student.getJoinDate());
+			earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentYear(studentId,student.getJoinDate());
+			totalLeaves = leaveRepository.countTotalLeavesForCurrentYear(studentId,student.getJoinDate());
+		   System.out.println(presents);	
+		   System.out.println(mispunch);	
+		   System.out.println(earlyCheckouts);	
+		   System.out.println(totalLeaves);	
+		}
 
 		Long totalAbsents = 0l;
-
+		
 		if (Objects.isNull(presents))
 			presents = 0L;
 
@@ -1542,8 +1584,11 @@ public class StudentServiceImpl implements IStudentService {
 		if (Objects.isNull(totalLeaves))
 			totalLeaves = 0L;
 
-		totalAbsents = (Long) (LocalDate.now().getDayOfMonth()
-				- (countSundaysInMonth(LocalDate.now()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		if(status.equals("CURRENT_MONTH")) 
+		    	totalAbsents = (Long) (LocalDate.now().getDayOfMonth()- (countSundaysInMonth(LocalDate.now()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		else  if(status.equals("CURRENT_YEAR"))
+				totalAbsents = (Long) ((countSundaysUntilCurrentDate(student.getJoinDate()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		
 
 		obj.setTotalPresent(presents);
 		obj.setTotalMispunch(mispunch);
@@ -1563,7 +1608,19 @@ public class StudentServiceImpl implements IStudentService {
 				sundays++;
 			}
 		}
-
 		return sundays;
+	}
+	
+	public long countSundaysUntilCurrentDate(LocalDate joiningDate) {
+	    LocalDate currentDate = LocalDate.now();
+	    long sundays = 0;
+
+	    while (!joiningDate.isAfter(currentDate)) {
+	        if (joiningDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+	            sundays++;
+	        }
+	        joiningDate = joiningDate.plusDays(1);
+	    }
+	    return sundays;
 	}
 }

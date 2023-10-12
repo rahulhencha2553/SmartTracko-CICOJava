@@ -38,7 +38,7 @@ public interface IStudentService {
 			MultipartFile attachment);
 
 	public ResponseEntity<?> getStudentCheckInCheckOutHistory(HttpHeaders header, String startDate, String endDate,
-			Integer limit, Integer offset);
+			Integer offset, Integer limit);
 
 	public ResponseEntity<?> studentChangePassword(HttpHeaders header, String oldPassword, String newPassword);
 

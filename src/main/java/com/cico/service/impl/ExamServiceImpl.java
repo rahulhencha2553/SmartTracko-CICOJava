@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.hibernate.internal.build.AllowSysOut;
@@ -227,12 +228,14 @@ public class ExamServiceImpl implements IExamService {
 	public ResponseEntity<?> getChapterExamIsCompleteOrNot(Integer chapterId, Integer studentId) {
 		Map<String, Object> response = new HashMap<>();
 		ChapterCompleted chapterCompleted = chapterCompletedRepository.findByChapterAndStudent(chapterId,studentId);
-		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
-		Student student = studentRepository.findByStudentId(studentId);
-		ChapterExamResult examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student).get();
-		response.put("chapterExamComplete", chapterCompleted);
-		response.put("resultId", examResult.getId());
-		return new ResponseEntity<>(response,HttpStatus.OK);
+			Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false).get();
+			Student student = studentRepository.findByStudentId(studentId);
+			Optional<ChapterExamResult> examResult = chapterExamResultRepo.findByChapterAndStudent(chapter, student);
+			response.put("chapterExamComplete", chapterCompleted);
+			if (examResult.isPresent()) {
+				response.put("resultId", examResult.get().getId());
+			}
+			return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
 
