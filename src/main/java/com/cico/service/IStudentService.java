@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Student;
 import com.cico.payload.ApiResponse;
+import com.cico.payload.AttendenceOfMonth;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentResponse;
@@ -89,5 +90,9 @@ public interface IStudentService {
 	public ResponseEntity<?> allStudent();
 
 	public ResponseEntity<?> deleteTodayAttendance(Integer id);	
+	
+	public ResponseEntity<?> getTodaysPresentAbsentEarlyCheckOutsMispunchAndLeaves();
+
+	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId, String status);
 
 }
