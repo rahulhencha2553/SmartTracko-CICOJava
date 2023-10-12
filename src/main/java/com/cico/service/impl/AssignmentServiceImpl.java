@@ -190,7 +190,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			assignmentTaskQuestion.setIsDeleted(false);
 			//assignmentTaskQuestion.setAssignmentId(assignmentId);
 			List<String> fileNames = questionImages.stream()
-					.map(file -> fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR))
+					.map(file -> fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR))
 					.collect(Collectors.toList());
 
 			assignmentTaskQuestion.setQuestionImages(fileNames);

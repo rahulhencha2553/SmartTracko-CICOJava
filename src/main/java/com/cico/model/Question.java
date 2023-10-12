@@ -35,11 +35,6 @@ public class Question {
 	
 	private String correctOption;
 	private String selectedOption;// select by student 
-
-	@ManyToOne
-	private Exam chapterExam;
-	@ManyToOne
-	private Chapter chapter;
 	private String questionImage;
 	private Boolean isDeleted = false;
 	private Boolean isActive = true;

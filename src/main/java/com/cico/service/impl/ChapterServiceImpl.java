@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Chapter;
 import com.cico.model.ChapterContent;
+import com.cico.model.Exam;
 import com.cico.model.Subject;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
@@ -55,6 +56,10 @@ public class ChapterServiceImpl implements IChapterService {
 		Chapter chapter = new Chapter();
 		chapter.setChapterName(chapterName.trim());
 		chapter.setIsCompleted(false);
+		
+		Exam exam = new Exam();
+		Exam exam1 = examRepo.save(exam);////1
+		chapter.setExam(exam1);//////1
 		Chapter obj1 = chapterRepo.save(chapter);
 		subject.getChapters().add(obj1);
 		subjectRepo.save(subject);
@@ -81,7 +86,7 @@ public class ChapterServiceImpl implements IChapterService {
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 		
 		response.put("chapter", chapter);
-		response.put("questionLength", questionRepo.findAllByChapterAndIsDeleted(chapter, false).size());
+		response.put("questionLength",chapter.getExam().getQuestions().size());
 		return response;
 	}
 

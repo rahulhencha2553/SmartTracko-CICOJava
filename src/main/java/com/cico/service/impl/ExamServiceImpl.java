@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.hibernate.internal.build.AllowSysOut;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -179,31 +179,33 @@ public class ExamServiceImpl implements IExamService {
 	    int inCorrect=0;
 	    examResult.setChapter(chapter);
 	    examResult.setStudent(student);
-	   
-	   
-	    
-	    List<Question> questions = questionRepo.findAllByChapterAndIsDeleted(chapter, false);
-	      
-	    // Iterating over the map using a for-each loop
-         
+	  
+	                 List<Question> questions = chapter.getExam().getQuestions();
+	              questions  =  questions.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+
 	    for(Question q :questions) {
-	    	if(!review.containsKey(q.getQuestionId())) {
-	    		 review.put(q.getQuestionId(),"kapil rathore");
-	    	}
+//	    	if(!review.containsKey(q.getQuestionId())) {
+//	    		 review.put(q.getQuestionId()," ");
+//	    	}
 	    	 Integer id = q.getQuestionId();
 	    	 String correctOption = q.getCorrectOption();
 	    	
-	    	 if(review.get(id).equals(correctOption)) {
-	    		 correct++;
-	    	 }else {
-	    		 inCorrect++;
-	    	 }
+	    	if(!review.isEmpty()) {
+	    		 if(review.get(id).equals(correctOption)) {
+		    		 correct++;
+		    	 }else {
+		    		 inCorrect++;
+		    	 }
+	    	}
 	    }
 	    examResult.setReview(review);
 	    examResult.setCorrecteQuestions(correct);
 	    examResult.setWrongQuestions(inCorrect);
 	    examResult.setNotSelectedQuestions(questions.size()-(correct+inCorrect));
+	    examResult.setScoreGet(correct-inCorrect);
+	    examResult.setTotalQuestion(questions.size());
 		ChapterExamResult save = chapterExamResultRepo.save(examResult);
+		
 		
        ChapterCompleted chapterCompleted = new  ChapterCompleted();
         chapterCompleted.setChapterId(chapterExamResult.getChapterId());
@@ -217,9 +219,10 @@ public class ExamServiceImpl implements IExamService {
 	public ResponseEntity<?> getChapterExamResult(Integer id) {
 	    Map<String,Object>response=  new HashMap<>();
 		ChapterExamResult examResult = chapterExamResultRepo.findById(id).orElseThrow(()-> new ResourceNotFoundException(AppConstants.NO_DATA_FOUND));
-		List<Question> findAllByChapterAndIsDeleted = questionRepo.findAllByChapterAndIsDeleted(examResult.getChapter(), false);
+		//List<Question> findAllByChapterAndIsDeleted = questionRepo.findAllByChapterAndIsDeleted(examResult.getChapter(), false);
+		               List<Question> questions = examResult.getChapter().getExam().getQuestions();
 		response.put("examResult", examResult);
-		response.put("questions", findAllByChapterAndIsDeleted);
+		response.put("questions", questions);
 	
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
@@ -237,8 +240,6 @@ public class ExamServiceImpl implements IExamService {
 			}
 			return new ResponseEntity<>(response,HttpStatus.OK);
 	}
-	
-
 }
 
 

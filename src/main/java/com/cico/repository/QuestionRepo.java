@@ -16,6 +16,6 @@ public interface QuestionRepo extends JpaRepository<Question, Integer> {
 
 	List<Question> findByIsDeleted(boolean b);
 	
-	List<Question> findAllByChapterAndIsDeleted(Chapter chapter,Boolean b);
+	List<Question> findByIsDeleted(Boolean b);
 
 }

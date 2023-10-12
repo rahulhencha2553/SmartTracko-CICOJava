@@ -36,7 +36,7 @@ public class ExamController {
 	@PostMapping("/addQuestionsToExam")
 	public ResponseEntity<String> addQuestionsToExam(@RequestParam("examId") Integer examId,
 			@RequestParam("examId") String question, @RequestParam("options") List<String> options,
-			@RequestParam("image") MultipartFile image) {
+			@RequestParam(name = "image",required = false ) MultipartFile image) {
 		examService.addQuestionsToExam(examId, question, options, image);
 		return ResponseEntity.ok("Questions Added");
 	}

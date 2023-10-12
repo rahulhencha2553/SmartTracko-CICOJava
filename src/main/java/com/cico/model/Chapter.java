@@ -1,6 +1,5 @@
 package com.cico.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -34,15 +33,15 @@ public class Chapter {
 
 	@NonNull
 	private String chapterName;
-	private String chapterScore;
+	//private String chapterScore;
 	private String chapterImage;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<ChapterContent> chapterContent;
 	@OneToOne(cascade = CascadeType.ALL)
 	private Exam exam;
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Question>questions = new ArrayList<>();
+    //@OneToMany(cascade = CascadeType.ALL)
+   // private List<Question>questions = new ArrayList<>();
 	private Boolean isDeleted = false;
 	private Boolean isActive = true;
 

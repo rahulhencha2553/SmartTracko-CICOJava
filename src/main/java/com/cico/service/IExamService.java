@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cico.model.ChapterExamResult;
 import com.cico.model.Exam;
 import com.cico.payload.ChapterExamResultRequest;
 
