@@ -298,6 +298,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(
 				studentRepository.findById(studentId).get().getCourse().getCourseId());
+		System.out.println(allAssignment);
 		allAssignment = AllAssignmentTemp(allAssignment);
 		if (!allAssignment.isEmpty()) {
 			unLockedAssignment.add(allAssignment.get(0));
