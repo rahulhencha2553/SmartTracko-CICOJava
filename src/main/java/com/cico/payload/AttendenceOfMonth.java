@@ -8,5 +8,6 @@ public class AttendenceOfMonth {
 	private Long totalAbsent=0l;
 	private Long totalMispunch=0l;
 	private Long totalEarlyCheckOut=0l;
+	private Long totalLeaves = 0l;
 
 }

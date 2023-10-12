@@ -1184,9 +1184,6 @@ public class StudentServiceImpl implements IStudentService {
 			student.setStudentId((Integer) row[4]);
 			absentStudents.add(student);
 		}
-
-		Long totalPresentToday = studRepo.getTotalPresentToday(today);// present
-		response.put("totalPresent", totalPresentToday);
 		response.put("totalAbsent", absentStudents);
 		return response;
 	}
@@ -1346,8 +1343,6 @@ public class StudentServiceImpl implements IStudentService {
 				attendanceList.add(logResponse);
 			}
 		}
-		response.put("presentsCount", findAllByStudentId.size());
-		response.put("leavesCount", leavesList.size());
 		attendanceList.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
 		response.put("attendanceList", attendanceList);
 		return new ResponseEntity<>(response, HttpStatus.OK);
@@ -1594,6 +1589,7 @@ public class StudentServiceImpl implements IStudentService {
 		obj.setTotalMispunch(mispunch);
 		obj.setTotalEarlyCheckOut(earlyCheckouts);
 		obj.setTotalAbsent(totalAbsents);
+		obj.setTotalLeaves(totalLeaves);
 		return obj;
 	}
 
@@ -1622,5 +1618,14 @@ public class StudentServiceImpl implements IStudentService {
 	        joiningDate = joiningDate.plusDays(1);
 	    }
 	    return sundays;
+	}
+	
+	public ResponseEntity<?> getTodaysPresentAbsentEarlyCheckOutsMispunchAndLeaves(){
+		Map<String, Object> response = new HashMap<>();
+		 response.put("earlyCheckOut", attendenceRepository.getTodayEarlyCheckOutsCount());
+		 response.put("present",  studRepo.getTotalPresentToday(LocalDate.now()));
+		 response.put("absent", attendenceRepository.getTodayAbsentCount());
+		 response.put("leaves", studRepo.getTotalOnLeavesCount());
+		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 }

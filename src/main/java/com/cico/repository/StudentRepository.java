@@ -70,7 +70,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 		       "INNER JOIN Attendance a ON a.studentId = s.studentId " +
 		       "INNER JOIN StudentSeatingAlloatment seat ON seat.student.studentId = s.studentId " +
 		       "WHERE s.isCompleted = 0 AND a.checkInDate = :date " +
-		       "ORDER BY a.workingHour DESC")
+		       "ORDER BY a.workingHour DESC , a.checkInTime")
 		List<Object[]> getStudentAttendanceDataForTv(@Param("date") LocalDate date);
 
 	
@@ -95,4 +95,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
 	@Query("SELECT COUNT(s) FROM Student s WHERE s.course.courseId IN :courseIds AND s.isActive = 1 AND s.isCompleted = 0")
 	long findBycourseIdInAndIsActiveTrueAndIsCompletedFalse(@Param("courseIds") List<Integer> courseIds);
+	
+	@Query("SELECT COUNT(l) FROM Leaves l Where l.leaveStatus=1 AND CURRENT_DATE() BETWEEN DATE(l.leaveDate) AND DATE(l.leaveEndDate)  ")
+	public Long getTotalOnLeavesCount();
 }

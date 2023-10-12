@@ -119,4 +119,12 @@ public interface AttendenceRepository extends JpaRepository<Attendance, Integer>
 		       "AND a.isMispunch = 1")
 	public List<Attendance> countTotalMishpunchForCurrentYear1(Integer studentId,@Param("monthNo") Integer monthNo);
 	
+	@Query("SELECT COUNT(a) FROM Attendance a WHERE a.checkInDate = CURRENT_DATE() AND a.workingHour < 32400 AND a.isMispunch = 0")
+	public Long getTodayEarlyCheckOutsCount();
+	
+	@Query("SELECT COUNT(s) FROM Student s WHERE  s.isCompleted = 0 AND  s.studentId  NOT IN ("
+			+ "SELECT a.studentId FROM Attendance a WHERE DATE(a.checkInDate) = CURRENT_DATE())  ")
+	public Long getTodayAbsentCount();
+	
+	
 }

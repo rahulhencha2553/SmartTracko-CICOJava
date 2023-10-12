@@ -277,4 +277,14 @@ public class StudentController {
 		return studentService.deleteTodayAttendance(id);
 	}
 	
+	@GetMapping("/todayAttendanceCountsForAdmin")
+	public ResponseEntity<?> todayAttendanceCountsForAdminDash(){
+		return studentService.getTodaysPresentAbsentEarlyCheckOutsMispunchAndLeaves();
+	}
+	
+	@GetMapping("/totalAttendaceAndLeaveDataOfStudentAfterJoining")
+	public ResponseEntity<?> totalAttendaceAndLeaveDataOfStudentAfterJoining(@RequestParam("id") Integer studentId){
+		return new ResponseEntity<>(studentService.currentMonthAttendenceForDashBoard(studentId,"CURRENT_YEAR"),HttpStatus.OK);
+	}
+	
 }
