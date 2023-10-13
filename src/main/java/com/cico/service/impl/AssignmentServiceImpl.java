@@ -210,7 +210,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		Assignment assignment = assignmentRepository.findById(assignmentId).get();
 		if (Objects.nonNull(assignment)) {
-			String fileName = fileServiceImpl.uploadFileInFolder(attachment, QUESTION_IMAGES_DIR);
+			String fileName = fileServiceImpl.uploadFileInFolder(attachment, ATTACHMENT_FILES_DIR);
 			assignment.setTaskAttachment(fileName);
 		}
 
@@ -299,7 +299,6 @@ public class AssignmentServiceImpl implements IAssignmentService {
 
 		List<Assignment> allAssignment = assignmentRepository.findAllByCourseIdAndIsDeletedFalse(
 				studentRepository.findById(studentId).get().getCourse().getCourseId());
-		System.out.println(allAssignment);
 		allAssignment = AllAssignmentTemp(allAssignment);
 		if (!allAssignment.isEmpty()) {
 			unLockedAssignment.add(allAssignment.get(0));
