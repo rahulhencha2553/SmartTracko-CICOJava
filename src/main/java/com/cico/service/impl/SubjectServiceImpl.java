@@ -53,6 +53,7 @@ public class SubjectServiceImpl implements ISubjectService {
 		subject = new Subject();
 		subject.setSubjectName(subjectName.trim());
 		subject.setTechnologyStack(technologyStackRepository.findById(imageId).get());
+		
 		Subject save = subRepo.save(subject);
 		if (Objects.nonNull(save)) {
 			response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
