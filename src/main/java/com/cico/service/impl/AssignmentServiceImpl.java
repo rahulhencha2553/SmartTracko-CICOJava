@@ -118,7 +118,8 @@ public class AssignmentServiceImpl implements IAssignmentService {
 	@Override
 	public ResponseEntity<?> submitAssignment(MultipartFile file, AssignmentSubmissionRequest readValue) throws Exception {
 		AssignmentSubmission obj = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(readValue.getAssignmentId(),readValue.getTaskId(),readValue.getStudentId());
-	 if(Objects.nonNull(obj)  && obj.getStatus().name().equals("Rejected")  || !Objects.nonNull(obj)) {
+//	 if(Objects.nonNull(obj)  && obj.getStatus().name().equals("Rejected")  || !Objects.nonNull(obj)) {
+		 if(Objects.isNull(obj)) {
 		 AssignmentSubmission submission = new AssignmentSubmission();
 			submission.setStudent(studentRepository.findByStudentId(readValue.getStudentId()));
 			submission.setAssignmentId(readValue.getAssignmentId());
@@ -127,7 +128,7 @@ public class AssignmentServiceImpl implements IAssignmentService {
 			submission.setSubmissionDate(LocalDateTime.now());
 			submission.setStatus(SubmissionStatus.Unreviewed);
 			if (Objects.nonNull(file)) {
-				String fileName = fileServiceImpl.uploadFileInFolder(file, ATTACHMENT_FILES_DIR);
+				String fileName = fileServiceImpl.uploadFileInFolder(file, QUESTION_IMAGES_DIR);
 				submission.setSubmitFile(fileName);
 			}
 			submissionRepository.save(submission);
@@ -345,9 +346,9 @@ public class AssignmentServiceImpl implements IAssignmentService {
 		AssignmentSubmission submission = submissionRepository.findByAssignmentIdAndQuestionIdAndStudentId(assignmentId,
 				questionId, studentId);
 		if (Objects.nonNull(submission)) {
-			if ( "Rejected".equals(submission.getStatus().name()))
-				return new ResponseEntity<>(false, HttpStatus.OK);
-			else
+//			if ( "Rejected".equals(submission.getStatus().name()))
+//				return new ResponseEntity<>(false, HttpStatus.OK);
+//			else
 				return new ResponseEntity<>(true, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(false, HttpStatus.OK);
