@@ -9,19 +9,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class Exam {
     
 	@Id
@@ -29,7 +26,6 @@ public class Exam {
 	private Integer examId;
 
 	@Column(unique = true)
-	@NonNull
 	private String examName;
 
 	private Integer score;
