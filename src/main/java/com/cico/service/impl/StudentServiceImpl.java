@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Stream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.exception.ResourceAlreadyExistException;
 import com.cico.exception.ResourceNotFoundException;
 import com.cico.model.Attendance;
+import com.cico.model.CounsellingInterview;
 import com.cico.model.Course;
 import com.cico.model.Leaves;
+import com.cico.model.MockInterview;
 import com.cico.model.OrganizationInfo;
 import com.cico.model.QrManage;
 import com.cico.model.Student;
@@ -59,9 +62,11 @@ import com.cico.payload.StudentResponse;
 import com.cico.payload.StudentTvResponse;
 import com.cico.payload.TodayLeavesRequestResponse;
 import com.cico.repository.AttendenceRepository;
+import com.cico.repository.CounsellingRepo;
 import com.cico.repository.CourseRepository;
 import com.cico.repository.FeesRepository;
 import com.cico.repository.LeaveRepository;
+import com.cico.repository.MockRepo;
 import com.cico.repository.OrganizationInfoRepository;
 import com.cico.repository.QrManageRepository;
 import com.cico.repository.StudentRepository;
@@ -133,6 +138,12 @@ public class StudentServiceImpl implements IStudentService {
 
 	@Autowired
 	private IQRService qrService;
+	
+	@Autowired
+	private MockRepo mockRepo;
+	
+	@Autowired 
+	private CounsellingRepo counsellingRepo;
 
 	public Student getStudentByUserId(String userId) {
 		return studRepo.findByUserId(userId);
@@ -627,6 +638,8 @@ public class StudentServiceImpl implements IStudentService {
 				dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 				dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
 				dashboardResponseDto.setTotalMispunch(res.getTotalMispunch());
+				dashboardResponseDto.setMock(checkMockForStudent(studentId));
+				dashboardResponseDto.setCounselling(checkCounsellingForStudent(studentId));
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -1416,7 +1429,6 @@ public class StudentServiceImpl implements IStudentService {
 		System.out.println(key);
 		List<StudentPresentAndEarlyCheckOut> studentsPresentAndEarlyCheckout = new ArrayList<>();
 		if (key.equals("Present")) {
-			System.out.println("inside present");
 			List<Object[]> todaysPresents = attendenceRepository.getTodaysPresents(LocalDate.now());
 			System.out.println(todaysPresents);
 			for (Object[] row : todaysPresents) {
@@ -1575,11 +1587,7 @@ public class StudentServiceImpl implements IStudentService {
 			mispunch = attendenceRepository.countTotalMishpunchForCurrentYear(studentId,student.getJoinDate());
 			earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentYear(studentId,student.getJoinDate());
 			totalLeaves = leaveRepository.countTotalLeavesForCurrentYear(studentId,student.getJoinDate());
-		   System.out.println(presents);	
-		   System.out.println(mispunch);	
-		   System.out.println(earlyCheckouts);	
-		   System.out.println(totalLeaves);	
-		}
+		 		}
 
 		Long totalAbsents = 0l;
 		
@@ -1641,4 +1649,114 @@ public class StudentServiceImpl implements IStudentService {
 		 response.put("leaves", studRepo.getTotalOnLeavesCount());
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
+	
+	public void fetchRandomStudentForMockInterview() {
+		   
+		    List<MockInterview>mock = new ArrayList<>();
+		
+		    List<MockInterview>mockDb = mockRepo.findAll();  
+		   
+		    List<Student> list = studRepo.getIsCompleted();
+
+	        for(int i=1;i<=10;i++) {
+	        	 Random random = new Random();
+	 	         int randomIndex = random.nextInt(list.size());
+	 	         Student student = list.get(randomIndex); 	        
+	 	         Stream<MockInterview> filter = mock.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	         Stream<MockInterview> filter1 = mockDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	                                     
+	 	         if(Objects.isNull(filter)  && Objects.isNull(filter1)) {
+	 	        	 MockInterview newMock = new MockInterview();
+	        		 newMock.setIsCompleted(false);
+	        		 newMock.setMockDate(LocalDate.now());
+	        		 newMock.setStudent(student);
+	        		 mock.add(mockRepo.save(newMock));
+	 	         }else {
+	 	        	 --i;
+	 	         }
+	      } 
+	        mockRepo .saveAll(mock);
+	      
+	}
+   
+	
+	public void fetchRandomStudentForCounselling() {
+		  List<CounsellingInterview>counselling = new ArrayList<>();
+			
+		    List<CounsellingInterview>CounsellingDb = counsellingRepo.findAll();  
+		   
+		    List<Student> list = studRepo.getIsCompleted();
+
+	        for(int i=1;i<=3;i++) {
+	        	 Random random = new Random();
+	 	         int randomIndex = random.nextInt(list.size());
+	 	         Student student = list.get(randomIndex); 	        
+	 	         Stream<CounsellingInterview> filter = counselling.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	         Stream<CounsellingInterview> filter1 = CounsellingDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	                                     
+	 	         if(Objects.isNull(filter)  && Objects.isNull(filter1)) {
+	 	        	CounsellingInterview newCounselling = new CounsellingInterview();
+	 	        	newCounselling.setIsCompleted(false);
+	 	        	newCounselling.setCounsellingDate(LocalDate.now());
+	 	        	newCounselling.setStudent(student);
+	        		counselling.add(counsellingRepo.save(newCounselling));
+	 	         }else {
+	 	        	 --i;
+	 	         }
+	       } 
+	        counsellingRepo.saveAll(counselling);
+	}
+	
+	
+	public void  checkMockIsCompleteOrNot() {
+		
+		 List<MockInterview> list = mockRepo.findbycurrentDay();
+		 list.forEach(obj->{
+			 Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(obj.getStudent().getStudentId(),LocalDate.now());
+		      if(Objects.nonNull(attendance)) {
+		    	  obj.setIsCompleted(true);
+		    	  mockRepo.save(obj);
+		      }else {
+		    	  mockRepo.delete(obj);
+		    	 list.remove(obj);
+		      }
+		 });
+		 
+		   if(mockRepo.findAll().size()==studRepo.getIsCompleted().size())
+			   mockRepo.deleteAll();
+	}
+	
+	public void  checkCounsellingkIsCompleteOrNot() {
+		
+		 List<CounsellingInterview> list = counsellingRepo.findbycurrentDay();
+		 list.forEach(obj->{
+			 Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(obj.getStudent().getStudentId(),LocalDate.now());
+		      if(Objects.nonNull(attendance)) {
+		    	  obj.setIsCompleted(true);
+		    	  counsellingRepo.save(obj);
+		      }else {
+		    	  counsellingRepo.delete(obj);
+		    	 list.remove(obj);
+		      }
+		 });
+		 
+		   if(counsellingRepo.findAll().size()==studRepo.getIsCompleted().size())
+			   counsellingRepo.deleteAll();
+	}
+	
+	public boolean checkMockForStudent(Integer studentId) {
+		  MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
+		  return Objects.nonNull(obj)?true:false;
+	}
+	
+	public boolean checkCounsellingForStudent(Integer studentId) {
+		CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
+		 return Objects.nonNull(obj)?true:false;
+	}
 }
+
+
+
+
+
+
