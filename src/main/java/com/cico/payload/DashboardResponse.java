@@ -31,6 +31,8 @@ public class DashboardResponse {
 	private Long totalAbsent;
 	private Long totalMispunch;
 	private Long totalEarlyCheckOut;
+	private boolean isMock;
+	private boolean isCounselling;
 	
 	
 	public DashboardResponse(){
