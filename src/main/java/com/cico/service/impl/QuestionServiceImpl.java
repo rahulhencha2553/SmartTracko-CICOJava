@@ -3,6 +3,7 @@ package com.cico.service.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +66,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		Exam exam = chapter.getExam();
 		exam.getQuestions().add(save);
 		exam.setScore(exam.getQuestions().size());
+		exam.setExamTimer(exam.getQuestions().size());
 		examRepo.save(exam);
 		return save;
 	}
@@ -137,7 +139,6 @@ public class QuestionServiceImpl implements IQuestionService {
 
 		if (question.getIsActive().equals(true))
 			question.setIsActive(false);
-
 		else
 			question.setIsActive(true);
 
@@ -151,7 +152,7 @@ public class QuestionServiceImpl implements IQuestionService {
 		if (questions.isEmpty())
 			new ResourceNotFoundException("No question available");
 
-		return questions;
+		return questions.parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
 	}
 
 	@Override
@@ -170,5 +171,6 @@ public class QuestionServiceImpl implements IQuestionService {
 		return this.questionRepo.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException("Question not found with this id " + questionId));
 	}
+   
 
 }

@@ -36,7 +36,7 @@ public class Exam {
 	
 	private Boolean isDeleted;
 	private Boolean isActive = true;
-    private Long examTimer;
+    private Integer examTimer;
 	
 	
 }
