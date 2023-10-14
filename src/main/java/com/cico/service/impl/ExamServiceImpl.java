@@ -191,11 +191,14 @@ public class ExamServiceImpl implements IExamService {
 	    	 String correctOption = q.getCorrectOption();
 	    	
 	    	if(!review.isEmpty()) {
-	    		 if(review.get(id).equals(correctOption)) {
-		    		 correct++;
-		    	 }else {
-		    		 inCorrect++;
-		    	 }
+	    		String reviewAns = review.get(id);
+	    		if(Objects.nonNull(reviewAns)) {
+	    			if(review.get(id).equals(correctOption)) {
+			    		 correct++;
+			    	 }else {
+			    		 inCorrect++;
+			    	 }
+	    		}
 	    	}
 	    }
 	    examResult.setReview(review);

@@ -614,7 +614,7 @@ public class StudentServiceImpl implements IStudentService {
 						LocalDate.now());
 				if (obj.isEmpty()) {
 					Optional<StudentSeatingAlloatment> obj3 = studentSeatingAlloatmentRepo.findByStudentId(studentId);
-					if (obj3.isPresent() && obj.get().getSeatNumber() != 0) {
+					if (obj3.isPresent()) {
 						obj3.get().setSeatNumber(0);
 						studentSeatingAlloatmentRepo.save(obj3.get());
 					}
@@ -1510,16 +1510,29 @@ public class StudentServiceImpl implements IStudentService {
 //
 		int j = studRepo.findById(studentId).get().getJoinDate().getMonthValue();
 
-		for (int i = j; i <= LocalDate.now().getMonthValue(); i++) {
-			Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
-			StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
-			absentCount.put(i, response1.getAbsent().size());
-			present.put(i, response1.getPresent().size());
-			earlyCheckOut.put(i, response1.getEarlyCheckOut().size());
-			mispunch.put(i, response1.getMispunch().size());
-			leaves.put(i, response1.getLeaves().size());
-			
-		}
+		if(studRepo.findById(studentId).get().getJoinDate().getYear()==LocalDate.now().getYear()) {
+			for (int i = j; i <= LocalDate.now().getMonthValue(); i++) {
+				Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
+				StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
+				absentCount.put(i, response1.getAbsent().size());
+				present.put(i, response1.getPresent().size());
+				earlyCheckOut.put(i, response1.getEarlyCheckOut().size());
+				mispunch.put(i, response1.getMispunch().size());
+				leaves.put(i, response1.getLeaves().size());
+				
+			}
+	   }else {
+		   for (int i = 1; i <= LocalDate.now().getMonthValue(); i++) {
+				Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
+				StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
+				absentCount.put(i, response1.getAbsent().size());
+				present.put(i, response1.getPresent().size());
+				earlyCheckOut.put(i, response1.getEarlyCheckOut().size());
+				mispunch.put(i, response1.getMispunch().size());
+				leaves.put(i, response1.getLeaves().size());
+				
+			}
+	   }
 		response.put("absents", absentCount);
 		response.put("presents", present);
 		response.put("leaves", leaves);
