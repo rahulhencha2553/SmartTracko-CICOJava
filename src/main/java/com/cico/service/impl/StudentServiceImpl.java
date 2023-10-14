@@ -1093,10 +1093,10 @@ public class StudentServiceImpl implements IStudentService {
 					}
 				}
 
-				currentDay = firstDayOfMonth;
+				 currentDay = firstDayOfMonth;
 				
-				List<Attendance> studentAttendanceList = attendenceRepository.findByStudentIdForCurrentMonth(id,month);
-				for (Attendance attendance : studentAttendanceList) {
+				  List<Attendance> studentAttendanceList = attendenceRepository.findByStudentIdForCurrentMonth(id,month);
+				  for (Attendance attendance : studentAttendanceList) {
 					         LocalDate attendanceDate = attendance.getCheckInDate();
 						    present.add(attendanceDate.getDayOfMonth());
 				   }

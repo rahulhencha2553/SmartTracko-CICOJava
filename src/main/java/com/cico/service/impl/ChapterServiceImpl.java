@@ -30,10 +30,7 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Autowired
 	ChapterRepository chapterRepo;
-
-	@Autowired
-	private QuestionRepo questionRepo;
-
+	
 	@Autowired
 	ExamRepo examRepo;
 
@@ -58,8 +55,8 @@ public class ChapterServiceImpl implements IChapterService {
 		chapter.setIsCompleted(false);
 		
 		Exam exam = new Exam();
-		Exam exam1 = examRepo.save(exam);////1
-		chapter.setExam(exam1);//////1
+		Exam exam1 = examRepo.save(exam);
+		chapter.setExam(exam1);
 		Chapter obj1 = chapterRepo.save(chapter);
 		subject.getChapters().add(obj1);
 		subjectRepo.save(subject);
@@ -76,7 +73,7 @@ public class ChapterServiceImpl implements IChapterService {
 		}
 
 		chapter.setChapterName(chapterName.trim());
-		return new ResponseEntity<>(chapterRepo.save(chapter), HttpStatus.OK);
+		return new ResponseEntity<>(chapterFilter(chapterRepo.save(chapter)), HttpStatus.OK);
 	}
 
 	@Override
@@ -85,7 +82,7 @@ public class ChapterServiceImpl implements IChapterService {
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
 		
-		response.put("chapter", chapter);
+		response.put("chapter", chapterFilter(chapter));
 		response.put("questionLength",chapter.getExam().getQuestions().size());
 		return response;
 	}
@@ -118,7 +115,7 @@ public class ChapterServiceImpl implements IChapterService {
 		List<Chapter> chapters = subject.getChapters();
 		if (chapters.isEmpty())
 			new ResourceNotFoundException("No chapter available");
-		return chapters;
+		return ChapterFilter(chapters);
 	}
 
 	@Override
@@ -128,7 +125,7 @@ public class ChapterServiceImpl implements IChapterService {
 		List<Chapter> chapters = subject.getChapters();
 		if (chapters.isEmpty())
 			throw new ResourceNotFoundException("No Chapter available for the Subject: " + subject.getSubjectName());
-		return subject.getChapters();
+		return ChapterFilter(subject.getChapters());
 	}
 
 	@Override
@@ -142,7 +139,7 @@ public class ChapterServiceImpl implements IChapterService {
 		chapterContent.setTitle(title);
 		ChapterContent save = chapterContentRepository.save(chapterContent);
 		chapters.add(save);
-		return chapterRepo.save(chapter);
+		return chapterFilter(chapter);
 	}
 
 	@Override
@@ -178,5 +175,25 @@ public class ChapterServiceImpl implements IChapterService {
 	public void deleteChapterContent(Integer contentId) {
 		chapterContentRepository.deleteChapterContent(contentId);
 	}
-
+	
+	
+	public List<Chapter>ChapterFilter(List<Chapter>list) {
+		list.parallelStream().filter(obj->{
+			obj.setChapterContent(obj.getChapterContent().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList()));
+			if( Objects.isNull(obj.getExam()) &&!obj.getExam().getIsDeleted()) {
+				obj.setExam(new Exam());
+			}else {
+			 obj.getExam().getQuestions().addAll(obj.getExam().getQuestions().parallelStream().filter(o->!o.getIsDeleted()).collect(Collectors.toList()));
+			}
+			return obj != null;
+			});
+		return list;
+	}
+	
+    public Chapter chapterFilter(Chapter chapter)
+    {
+        chapter.getChapterContent().parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
+        chapter.getExam().getQuestions().addAll(chapter.getExam().getQuestions().parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList()));
+        return chapter;
+    }
 }
