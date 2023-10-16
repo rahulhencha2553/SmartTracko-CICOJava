@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,7 +77,6 @@ import com.cico.service.IStudentService;
 import com.cico.util.AppConstants;
 import com.cico.util.HelperService;
 import com.cico.util.Roles;
-import com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 
 @Service
 public class StudentServiceImpl implements IStudentService {
@@ -375,6 +372,45 @@ public class StudentServiceImpl implements IStudentService {
 
 					return new ResponseEntity<>(
 							new ApiResponse(Boolean.TRUE, AppConstants.APPROVAL_REQUEST, HttpStatus.OK), HttpStatus.OK);
+				}
+
+				else {
+					return new ResponseEntity<>(new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK),
+							HttpStatus.OK);
+				}
+			}
+
+			else {
+				return new ResponseEntity<>(
+						new ApiResponse(Boolean.FALSE, AppConstants.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST),
+						HttpStatus.BAD_REQUEST);
+			}
+
+		}
+
+		else {
+			return new ResponseEntity<>(
+					new ApiResponse(Boolean.FALSE, AppConstants.ALL_REQUIRED, HttpStatus.BAD_REQUEST),
+					HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	
+	@Override
+	public ResponseEntity<?> approveStudentDevice(String userId, String deviceId) {
+		if (Objects.nonNull(userId) && Objects.nonNull(deviceId)) {
+			Student student = studRepo.findByUserId(userId);
+
+			if (student != null) {
+				student.setInUseDeviceId(deviceId);
+				student.setDeviceId("");
+				student.setIsDeviceApproved("Approved");
+				
+				Student updateStudent = studRepo.save(student);
+
+				if (updateStudent != null) {
+					return new ResponseEntity<>(
+							new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK), HttpStatus.OK);
 				}
 
 				else {
@@ -1095,7 +1131,7 @@ public class StudentServiceImpl implements IStudentService {
 
 			if (LocalDate.now().getYear() != year || month <= LocalDate.now().getMonthValue()) {
 				// counting total leaves
-				List<Leaves> leavesData = leaveRepository.findAllByStudentIdForCurrentMonth(id,month);
+				List<Leaves> leavesData = leaveRepository.findAllByStudentIdForCurrentMonth(id,month,year);
 				for (Leaves list : leavesData) {
 					LocalDate startLeaveDate = list.getLeaveDate();
 					LocalDate endLeaveDate = list.getLeaveEndDate();
@@ -1108,19 +1144,19 @@ public class StudentServiceImpl implements IStudentService {
 
 				 currentDay = firstDayOfMonth;
 				
-				  List<Attendance> studentAttendanceList = attendenceRepository.findByStudentIdForCurrentMonth(id,month);
+				  List<Attendance> studentAttendanceList = attendenceRepository.findByStudentIdForCurrentMonth(id,month,year);
 				  for (Attendance attendance : studentAttendanceList) {
 					         LocalDate attendanceDate = attendance.getCheckInDate();
 						    present.add(attendanceDate.getDayOfMonth());
 				   }
 				
-				  List<Attendance> obj1 = attendenceRepository.countTotalEarlyCheckOutForCurrent1(id,month);
+				  List<Attendance> obj1 = attendenceRepository.countTotalEarlyCheckOutForCurrent1(id,month,year);
 				  for (Attendance attendance : obj1) {
 						    LocalDate attendanceDate = attendance.getCheckInDate();
 							earlycheckout.add(attendanceDate.getDayOfMonth());
 					}
 				  
-				  List<Attendance> obj2 = attendenceRepository.countTotalMishpunchForCurrentYear1(id, month);
+				  List<Attendance> obj2 = attendenceRepository.countTotalMishpunchForCurrentYear1(id, month,year);
 				  for (Attendance attendance : obj2) {
 						     LocalDate attendanceDate = attendance.getCheckInDate();
 							mispunch.add(attendanceDate.getDayOfMonth());
@@ -1534,7 +1570,7 @@ public class StudentServiceImpl implements IStudentService {
 				
 			}
 	   }else {
-		   for (int i = 1; i <= LocalDate.now().getMonthValue(); i++) {
+		   for (int i = 1; i <= 12; i++) {
 				Map<String, Object> calenderData = this.getCalenderData(studentId, i, year);
 				StudentCalenderResponse response1 = (StudentCalenderResponse) calenderData.get("StudentCalenderData");
 				absentCount.put(i, response1.getAbsent().size());
@@ -1582,7 +1618,6 @@ public class StudentServiceImpl implements IStudentService {
 			 earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentMonth(studentId);
 			 totalLeaves = leaveRepository.countTotalLeavesForCurrentMonth(studentId);
 		}else if(status.equals("CURRENT_YEAR")){
-			System.out.println("1111");
 			presents = attendenceRepository.countTotalPresentStudentsForCurrentYear(studentId,student.getJoinDate());
 			mispunch = attendenceRepository.countTotalMishpunchForCurrentYear(studentId,student.getJoinDate());
 			earlyCheckouts = attendenceRepository.countTotalEarlyCheckOutForCurrentYear(studentId,student.getJoinDate());
@@ -1650,8 +1685,9 @@ public class StudentServiceImpl implements IStudentService {
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
 	
+	@Override
 	public void fetchRandomStudentForMockInterview() {
-		   
+		   System.err.println("111");
 		    List<MockInterview>mock = new ArrayList<>();
 		
 		    List<MockInterview>mockDb = mockRepo.findAll();  
@@ -1662,24 +1698,23 @@ public class StudentServiceImpl implements IStudentService {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
 	 	         Student student = list.get(randomIndex); 	        
-	 	         Stream<MockInterview> filter = mock.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
-	 	         Stream<MockInterview> filter1 = mockDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
-	 	                                     
-	 	         if(Objects.isNull(filter)  && Objects.isNull(filter1)) {
+	 	       List<MockInterview> filter = mock.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
+	 	       List<MockInterview> filter1 = mockDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
+	 	      if(filter.isEmpty()  && filter1.isEmpty()) {
 	 	        	 MockInterview newMock = new MockInterview();
 	        		 newMock.setIsCompleted(false);
 	        		 newMock.setMockDate(LocalDate.now());
 	        		 newMock.setStudent(student);
 	        		 mock.add(mockRepo.save(newMock));
 	 	         }else {
-	 	        	 --i;
+	 	           --i;
 	 	         }
 	      } 
 	        mockRepo .saveAll(mock);
 	      
 	}
    
-	
+	@Override
 	public void fetchRandomStudentForCounselling() {
 		  List<CounsellingInterview>counselling = new ArrayList<>();
 			
@@ -1691,10 +1726,10 @@ public class StudentServiceImpl implements IStudentService {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
 	 	         Student student = list.get(randomIndex); 	        
-	 	         Stream<CounsellingInterview> filter = counselling.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
-	 	         Stream<CounsellingInterview> filter1 = CounsellingDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	         List<CounsellingInterview> filter = counselling.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
+	 	         List<CounsellingInterview> filter1 = CounsellingDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
 	 	                                     
-	 	         if(Objects.isNull(filter)  && Objects.isNull(filter1)) {
+	 	         if( filter.isEmpty() && filter1.isEmpty()) {
 	 	        	CounsellingInterview newCounselling = new CounsellingInterview();
 	 	        	newCounselling.setIsCompleted(false);
 	 	        	newCounselling.setCounsellingDate(LocalDate.now());
@@ -1703,29 +1738,29 @@ public class StudentServiceImpl implements IStudentService {
 	 	         }else {
 	 	        	 --i;
 	 	         }
-	       } 
+	       }
 	        counsellingRepo.saveAll(counselling);
 	}
-	
-	
+	@Override
 	public void  checkMockIsCompleteOrNot() {
 		
 		 List<MockInterview> list = mockRepo.findbycurrentDay();
-		 list.forEach(obj->{
-			 Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(obj.getStudent().getStudentId(),LocalDate.now());
-		      if(Objects.nonNull(attendance)) {
-		    	  obj.setIsCompleted(true);
-		    	  mockRepo.save(obj);
-		      }else {
-		    	  mockRepo.delete(obj);
-		    	 list.remove(obj);
-		      }
-		 });
+		if(!list.isEmpty()) {
+			 list.forEach(obj->{
+				 Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(obj.getStudent().getStudentId(),LocalDate.now());     
+				 if(Objects.nonNull(attendance)) {
+			    	  obj.setIsCompleted(true);
+			    	  mockRepo.save(obj);
+			      }else {
+			    	  mockRepo.delete(obj);
+			      }
+			 });
+		}
 		 
 		   if(mockRepo.findAll().size()==studRepo.getIsCompleted().size())
 			   mockRepo.deleteAll();
 	}
-	
+	@Override
 	public void  checkCounsellingkIsCompleteOrNot() {
 		
 		 List<CounsellingInterview> list = counsellingRepo.findbycurrentDay();
@@ -1736,23 +1771,23 @@ public class StudentServiceImpl implements IStudentService {
 		    	  counsellingRepo.save(obj);
 		      }else {
 		    	  counsellingRepo.delete(obj);
-		    	 list.remove(obj);
 		      }
 		 });
 		 
 		   if(counsellingRepo.findAll().size()==studRepo.getIsCompleted().size())
 			   counsellingRepo.deleteAll();
 	}
-	
+	@Override
 	public boolean checkMockForStudent(Integer studentId) {
 		  MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
 		  return Objects.nonNull(obj)?true:false;
 	}
-	
+	@Override
 	public boolean checkCounsellingForStudent(Integer studentId) {
 		CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
 		 return Objects.nonNull(obj)?true:false;
 	}
+
 }
 
 

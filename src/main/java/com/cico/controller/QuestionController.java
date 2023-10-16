@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cico.model.Question;
 import com.cico.service.IQuestionService;
+
 @RestController
 @RequestMapping("/question")
 @CrossOrigin("*")
@@ -36,41 +37,39 @@ public class QuestionController {
 		return new ResponseEntity<Question>(question, HttpStatus.OK);
 	}
 
-	@PutMapping("/updateQuestionById")//   // changes remove chapter id
-	public ResponseEntity<Question> updateQuestion(
-			@RequestParam("questionContent") String questionContent, @RequestParam("option1") String option1,
-			@RequestParam("option2") String option2, @RequestParam("option3") String option3,
-			@RequestParam("option4") String option4,
-			@RequestParam("questionId")Integer questionId,
-			@RequestParam("correctOption") String correctOption,
-			@RequestParam(name = "image" ,required = false)MultipartFile image
-			) {
-		Question updateQuestion = questionService.updateQuestion(questionId,questionContent,option1,option2,option3,option4,correctOption,image);
+	@PutMapping("/updateQuestionById")
+	public ResponseEntity<Question> updateQuestion(@RequestParam("questionContent") String questionContent,
+			@RequestParam("option1") String option1, @RequestParam("option2") String option2,
+			@RequestParam("option3") String option3, @RequestParam("option4") String option4,
+			@RequestParam("questionId") Integer questionId, @RequestParam("correctOption") String correctOption,
+			@RequestParam(name = "image", required = false) MultipartFile image) {
+		Question updateQuestion = questionService.updateQuestion(questionId, questionContent, option1, option2, option3,
+				option4, correctOption, image);
 		return new ResponseEntity<Question>(updateQuestion, HttpStatus.OK);
 	}
 
-	@GetMapping("/getAllQuestionByChapterId") // k
+	@GetMapping("/getAllQuestionByChapterId")
 	public ResponseEntity<List<Question>> getAllQuestionById(@RequestParam("chapterId") Integer chapterId) {
 		List<Question> question = questionService.getAllQuestionByChapterId(chapterId);
 		return ResponseEntity.ok(question);
 	}
 
-	@GetMapping("/getQuestionById") // k
+	@GetMapping("/getQuestionById")
 	public ResponseEntity<Question> getQuestionById(@RequestParam("questionId") Integer questionId) {
 		Question question = questionService.getQuestionById(questionId);
 		return ResponseEntity.ok(question);
 	}
 
 	@PutMapping("/deleteQuestionById")
-	public ResponseEntity<String> deleteQuestion(@RequestParam("questionId") Integer questionId) {
+	public ResponseEntity<?> deleteQuestion(@RequestParam("questionId") Integer questionId) {
 		questionService.deleteQuestion(questionId);
-		return new ResponseEntity<String>("SUCCESS",HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping("/updateQuestionStatus")
-	public ResponseEntity<String> updateQuestionStatus(@RequestParam("questionId") Integer questionId) {
+	public ResponseEntity<?> updateQuestionStatus(@RequestParam("questionId") Integer questionId) {
 		questionService.updateQuestionStatus(questionId);
-		return ResponseEntity.ok("Question Updated");
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping("/getAllQuestions")

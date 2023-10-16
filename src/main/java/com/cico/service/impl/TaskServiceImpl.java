@@ -105,12 +105,9 @@ public class TaskServiceImpl implements ITaskService {
 		task.setCourse(course);
 		task.setSubject(subject);
 		task.setIsDeleted(taskFilter.getStatus());
-
 		example = Example.of(task);
-
-		List<Task> list = taskRepo.findAll(example);
-		list = filterTasks(list);
-		return list;
+		return filterTasks(taskRepo.findAll(example));
+		 
 
 	}
 
@@ -118,20 +115,17 @@ public class TaskServiceImpl implements ITaskService {
 	public Task getTaskById(Long taskId) {
 		Task task = taskRepo.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("TASK NOT FOUND WITH THIS ID"));
-		task = filterTask(task);
-		return task;
+		return filterTask(task);
+		
 	}
 
 	@Override
 	public List<Task> getAllTask() {
-		
 		List<Task> list = taskRepo.findAll();
-		if (list.isEmpty()) {
+		if (list.isEmpty()) 
 			throw new ResourceNotFoundException("Task not Found");
-		} else {
-			list = filterTasks(list);
-			return list;
-		}
+		 else 
+			return filterTasks(list);
 	}
 
 	@Override
@@ -320,7 +314,7 @@ public class TaskServiceImpl implements ITaskService {
 		subjects.forEach(obj -> {
 			list.addAll(filterTasks(taskRepo.findBySubjectAndIsDeletedFalse(obj)));
 		});
-		return list;
+		return filterTasks(list);
 	}
 
 	@Override
@@ -337,13 +331,13 @@ public class TaskServiceImpl implements ITaskService {
 	}
 
 	public List<Task> filterTasks(List<Task> list) {
-		list.parallelStream().filter(o -> !o.getIsDeleted()).collect(Collectors.toList());
-		list.forEach(obj -> {
-			obj.setTaskQuestion(obj.getTaskQuestion().parallelStream().filter(obj1 -> !obj1.getIsDeleted())
-					.collect(Collectors.toList()));
-		});
-		return list;
-	}
+		
+	    List<Task> list2 = list.parallelStream().filter(o -> !o.getIsDeleted()).collect(Collectors.toList());					
+		return list2.parallelStream().filter(obj->{
+		 obj.setTaskQuestion(obj.getTaskQuestion().parallelStream().filter(o->!o.getIsDeleted()).collect(Collectors.toList()));
+		 return obj != null;
+	 }).collect(Collectors.toList());	
+	}     
 
 	public Task filterTask(Task task) {
 		task.setTaskQuestion(task.getTaskQuestion().parallelStream().filter(obj -> !obj.getIsDeleted())

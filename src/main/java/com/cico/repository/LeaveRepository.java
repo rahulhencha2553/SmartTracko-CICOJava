@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
-import javax.websocket.server.PathParam;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +13,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.cico.model.Leaves;
 
@@ -83,7 +81,7 @@ public interface LeaveRepository extends JpaRepository<Leaves, Integer> {
 
 	
 	
-	@Query("SELECT u FROM Leaves u where u.studentId =:id And u.leaveStatus = 1 AND MONTH(u.leaveDate)= :month")
-	public List<Leaves> findAllByStudentIdForCurrentMonth(@Param("id") Integer id,@Param("month")Integer month);
+	@Query("SELECT u FROM Leaves u where u.studentId =:id And u.leaveStatus = 1 AND MONTH(u.leaveDate)= :month  AND YEAR(u.leaveDate) =:year")
+	public List<Leaves> findAllByStudentIdForCurrentMonth(@Param("id") Integer id,@Param("month")Integer month,@Param("year") Integer year);
 	
 }
