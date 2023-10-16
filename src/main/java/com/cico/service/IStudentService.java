@@ -95,4 +95,18 @@ public interface IStudentService {
 
 	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId, String status);
 
+	void fetchRandomStudentForMockInterview();
+
+	void fetchRandomStudentForCounselling();
+
+	void checkMockIsCompleteOrNot();
+
+	void checkCounsellingkIsCompleteOrNot();
+
+	boolean checkMockForStudent(Integer studentId);
+
+	boolean checkCounsellingForStudent(Integer studentId);
+
+	public ResponseEntity<?> approveStudentDevice(String userId, String deviceId);
+
 }

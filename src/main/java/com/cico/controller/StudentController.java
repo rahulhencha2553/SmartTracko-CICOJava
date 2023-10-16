@@ -69,13 +69,20 @@ public class StudentController {
 		
 	}
 
-	@PostMapping("/studentDeviceIdApprovalApi")
+	@PostMapping("/studentDeviceIdApprovalApi")   // for request 
 	public ResponseEntity<?> approveDevice(@RequestParam("userId") String userId,
 			@RequestParam("deviceId") String deviceId) {
 
 		return studentService.approveDevice(userId, deviceId);
 
 	}
+
+	@PostMapping("/studentDeviceApprovalApi")    
+	public ResponseEntity<?> approveStudentDevice(@RequestParam("userId") String userId,
+			@RequestParam("deviceId") String deviceId) {
+		return studentService.approveStudentDevice(userId, deviceId);
+	}
+	
 	
 	
 	@PostMapping("/studentCheckInCheckOutApi")
@@ -286,5 +293,6 @@ public class StudentController {
 	public ResponseEntity<?> totalAttendaceAndLeaveDataOfStudentAfterJoining(@RequestParam("id") Integer studentId){
 		return new ResponseEntity<>(studentService.currentMonthAttendenceForDashBoard(studentId,"CURRENT_YEAR"),HttpStatus.OK);
 	}
+	
 	
 }
