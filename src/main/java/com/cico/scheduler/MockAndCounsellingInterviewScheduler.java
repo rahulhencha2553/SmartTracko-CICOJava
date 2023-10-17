@@ -8,7 +8,6 @@ import com.cico.service.IStudentService;
 
 @Component
 public class MockAndCounsellingInterviewScheduler {
-
 	@Autowired
 	private IStudentService studentService;
 

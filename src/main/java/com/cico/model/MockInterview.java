@@ -3,6 +3,7 @@ package com.cico.model;
 import java.time.LocalDate;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,6 +27,7 @@ public class MockInterview {
 	private Integer id;
 
 	private LocalDate mockDate;
+	
 	@OneToOne
 	private Student student;
 	private Boolean isCompleted;

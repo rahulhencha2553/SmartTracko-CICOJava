@@ -94,6 +94,14 @@ public interface IStudentService {
 	public ResponseEntity<?> getTodaysPresentAbsentEarlyCheckOutsMispunchAndLeaves();
 
 	public AttendenceOfMonth currentMonthAttendenceForDashBoard(Integer studentId, String status);
+	
+	public void fetchRandomStudentForMockInterview();
+	
+	public void fetchRandomStudentForCounselling();
+	
+	public void  checkMockIsCompleteOrNot();
+	
+	public void  checkCounsellingkIsCompleteOrNot();
 
 	void fetchRandomStudentForMockInterview();
 
