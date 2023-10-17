@@ -1687,7 +1687,7 @@ public class StudentServiceImpl implements IStudentService {
 	
 	@Override
 	public void fetchRandomStudentForMockInterview() {
-		   System.err.println("111");
+		   
 		    List<MockInterview>mock = new ArrayList<>();
 		
 		    List<MockInterview>mockDb = mockRepo.findAll();  
@@ -1697,10 +1697,12 @@ public class StudentServiceImpl implements IStudentService {
 	        for(int i=1;i<=10;i++) {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
-	 	         Student student = list.get(randomIndex); 	        
-	 	       List<MockInterview> filter = mock.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
-	 	       List<MockInterview> filter1 = mockDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
-	 	      if(filter.isEmpty()  && filter1.isEmpty()) {
+	 	         Student student = list.get(randomIndex); 	 
+	 	         
+	 	       boolean isMatch1 = mock.parallelStream().anyMatch(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	       boolean isMatch2 = mockDb.parallelStream().anyMatch(obj -> obj.getStudent().getStudentId() == student.getStudentId());
+
+	 	      if( !isMatch1  && !isMatch2 ) {
 	 	        	 MockInterview newMock = new MockInterview();
 	        		 newMock.setIsCompleted(false);
 	        		 newMock.setMockDate(LocalDate.now());
@@ -1711,12 +1713,11 @@ public class StudentServiceImpl implements IStudentService {
 	 	         }
 	      } 
 	        mockRepo .saveAll(mock);
-	      
 	}
    
 	@Override
 	public void fetchRandomStudentForCounselling() {
-		  List<CounsellingInterview>counselling = new ArrayList<>();
+		    List<CounsellingInterview>counselling = new ArrayList<>();
 			
 		    List<CounsellingInterview>CounsellingDb = counsellingRepo.findAll();  
 		   
@@ -1725,11 +1726,12 @@ public class StudentServiceImpl implements IStudentService {
 	        for(int i=1;i<=3;i++) {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
-	 	         Student student = list.get(randomIndex); 	        
-	 	         List<CounsellingInterview> filter = counselling.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
-	 	         List<CounsellingInterview> filter1 = CounsellingDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId()).collect(Collectors.toList());
+	 	          Student student = list.get(randomIndex); 	 
+	 	         
+	 	           boolean isMatch1 = counselling.parallelStream().anyMatch(obj->obj.getStudent().getStudentId()==student.getStudentId());
+	 	           boolean isMatch2 = CounsellingDb.parallelStream().anyMatch(obj->obj.getStudent().getStudentId()==student.getStudentId());
 	 	                                     
-	 	         if( filter.isEmpty() && filter1.isEmpty()) {
+	 	         if( !isMatch1 && !isMatch2) {
 	 	        	CounsellingInterview newCounselling = new CounsellingInterview();
 	 	        	newCounselling.setIsCompleted(false);
 	 	        	newCounselling.setCounsellingDate(LocalDate.now());
@@ -1777,6 +1779,7 @@ public class StudentServiceImpl implements IStudentService {
 		   if(counsellingRepo.findAll().size()==studRepo.getIsCompleted().size())
 			   counsellingRepo.deleteAll();
 	}
+	
 	@Override
 	public boolean checkMockForStudent(Integer studentId) {
 		  MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
