@@ -63,9 +63,9 @@ public class ChapterController {
 	
 	
 	@PutMapping("/deleteChapterContent")
-	public ResponseEntity<String> deleteChapterContent(@RequestParam("contentId")Integer contentId){
+	public ResponseEntity<?> deleteChapterContent(@RequestParam("contentId")Integer contentId){
 	 chapterService.deleteChapterContent(contentId);	
-	return new ResponseEntity<String>("Success",HttpStatus.OK);
+	return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@PutMapping("/deleteChapter")

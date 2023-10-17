@@ -103,4 +103,18 @@ public interface IStudentService {
 	
 	public void  checkCounsellingkIsCompleteOrNot();
 
+	void fetchRandomStudentForMockInterview();
+
+	void fetchRandomStudentForCounselling();
+
+	void checkMockIsCompleteOrNot();
+
+	void checkCounsellingkIsCompleteOrNot();
+
+	boolean checkMockForStudent(Integer studentId);
+
+	boolean checkCounsellingForStudent(Integer studentId);
+
+	public ResponseEntity<?> approveStudentDevice(String userId, String deviceId);
+
 }
