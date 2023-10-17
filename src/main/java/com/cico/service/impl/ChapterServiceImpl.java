@@ -22,7 +22,6 @@ import com.cico.model.Subject;
 import com.cico.repository.ChapterContentRepository;
 import com.cico.repository.ChapterRepository;
 import com.cico.repository.ExamRepo;
-import com.cico.repository.QuestionRepo;
 import com.cico.repository.SubjectRepository;
 import com.cico.service.IChapterService;
 
@@ -83,9 +82,8 @@ public class ChapterServiceImpl implements IChapterService {
 		Map<String, Object> response = new HashMap<>();
 		Chapter chapter = chapterRepo.findByChapterIdAndIsDeleted(chapterId, false)
 				.orElseThrow(() -> new ResourceNotFoundException("Chapter not found"));
-		
-		response.put("chapter", chapterFilter(chapter));
-		response.put("questionLength",chapter.getExam().getQuestions().size());
+		response.put("chapter",chapterFilter(chapter));
+	 	response.put("questionLength",chapter.getExam().getQuestions().size());
 		return response;
 	}
 
@@ -139,9 +137,11 @@ public class ChapterServiceImpl implements IChapterService {
 		chapterContent.setContent(content);
 		chapterContent.setSubTitle(subTitle);
 		chapterContent.setTitle(title);
+		chapterContent.setIsDeleted(false);		
 		ChapterContent save = chapterContentRepository.save(chapterContent);
 		chapters.add(save);
-		return chapterFilter(chapter);
+		chapter.setChapterContent(chapters);
+		return chapterFilter(chapterFilter(chapterRepo.save(chapter)));
 	}
 
 	@Override
@@ -166,7 +166,6 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public ChapterContent getChapterContent(Integer chapterContentId) throws Exception {
-		System.out.println(chapterContentId);
 		Optional<ChapterContent> obj = this.chapterContentRepository.findById(chapterContentId);
 		if (obj.isEmpty())
 			throw new Exception("Chapter content not found");
@@ -186,8 +185,7 @@ public class ChapterServiceImpl implements IChapterService {
 			if( Objects.isNull(obj.getExam()) &&!obj.getExam().getIsDeleted()) {
 				obj.setExam(new Exam());
 			}else {
-			// obj.getExam().getQuestions().addAll(obj.getExam().getQuestions().parallelStream().filter(o->!o.getIsDeleted()).collect(Collectors.toList()));
-				   Exam exam = obj.getExam();
+    			   Exam exam = obj.getExam();
 			       List<Question> collect = obj.getExam().getQuestions().parallelStream().filter(obj1->!obj1.getIsDeleted()).collect(Collectors.toList());
 			       exam.setQuestions(collect);
 			       obj.setExam(exam);
@@ -196,11 +194,9 @@ public class ChapterServiceImpl implements IChapterService {
 			}).collect(Collectors.toList());
 	}
 	
-    public Chapter chapterFilter(Chapter chapter)
-    {
+    public Chapter chapterFilter(Chapter chapter){
+    	
        chapter.setChapterContent(chapter.getChapterContent().parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList()));
-     //  chapter.getExam().setQuestions(chapter.getExam().getQuestions().parallelStream().filter(obj -> !obj.getIsDeleted()).collect(Collectors.toList()));
-
        Exam exam = chapter.getExam();
        List<Question> collect = chapter.getExam().getQuestions().parallelStream().filter(obj->!obj.getIsDeleted()).collect(Collectors.toList());
        exam.setQuestions(collect);
