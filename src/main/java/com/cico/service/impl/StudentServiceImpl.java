@@ -1658,7 +1658,7 @@ public class StudentServiceImpl implements IStudentService {
 		   
 		    List<Student> list = studRepo.getIsCompleted();
 
-	        for(int i=1;i<=10;i++) {
+	        for(int i=1;i<=1;i++) {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
 	 	         Student student = list.get(randomIndex); 	        
@@ -1687,10 +1687,11 @@ public class StudentServiceImpl implements IStudentService {
 		   
 		    List<Student> list = studRepo.getIsCompleted();
 
-	        for(int i=1;i<=3;i++) {
+	        for(int i=1;i<=1;i++) {
 	        	 Random random = new Random();
 	 	         int randomIndex = random.nextInt(list.size());
-	 	         Student student = list.get(randomIndex); 	        
+	 	         Student student = list.get(randomIndex); 	
+	 	         System.out.println(student);
 	 	         Stream<CounsellingInterview> filter = counselling.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
 	 	         Stream<CounsellingInterview> filter1 = CounsellingDb.parallelStream().filter(obj->obj.getStudent().getStudentId()==student.getStudentId());
 	 	                                     
