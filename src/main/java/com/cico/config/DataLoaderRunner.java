@@ -2,7 +2,6 @@ package com.cico.config;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
