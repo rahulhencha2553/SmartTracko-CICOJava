@@ -1,0 +1,50 @@
+package com.cico.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cico.service.IdiscussionForm;
+
+@RestController
+@CrossOrigin("*")
+@RequestMapping("discussionForm")
+public class DiscussionFormController {
+
+	
+	@Autowired
+	private IdiscussionForm discussionFormService;
+
+	@PostMapping("createDiscussionForm")
+	public ResponseEntity<?> createDiscussionForm(@RequestParam("studentId")Integer studentId,@RequestParam(name = "file",required = false )MultipartFile file,@RequestParam("content")String content) {
+      return discussionFormService.createDiscussionForm(studentId,file,content);
+	}
+    
+	@PostMapping("createComment")
+	public  ResponseEntity<?>createComment(@RequestParam("studentId")Integer studentId,@RequestParam("content")String content,@RequestParam("discussionFormId")Integer discussionFormId) {
+		return  discussionFormService.createComment(studentId,content,discussionFormId);
+	}
+	
+	@GetMapping("getAllDiscussionForm")
+	public ResponseEntity<?>getAllDiscussionForm(){
+		return this.discussionFormService.getAllDiscussionForm();
+	}
+	
+	@GetMapping("getDiscussionFormById")
+	public ResponseEntity<?>getDiscussionFormById(@RequestParam("id")Integer id){
+		return this.discussionFormService.getDiscussionFormById(id);
+	}
+	
+	@PostMapping("/likeApi")
+	public ResponseEntity<?>addLike(@RequestParam("studentId") Integer studentId,@RequestParam("discussionFormId")Integer discussionFormId ){
+	  return	discussionFormService.addLike(studentId,discussionFormId);
+	}
+	
+	
+}
