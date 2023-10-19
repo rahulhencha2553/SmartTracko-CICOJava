@@ -68,7 +68,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId) {
-
+		System.err.println(content);
 		Student student = studentRepository.findById(studentId).get();
 		Optional<DiscusssionForm> discussionForm = discussionFormRepo.findById(discussionFormId);
 		if (Objects.nonNull(student)) {
@@ -83,7 +83,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				discussionForm.get().setComments(comments);
 				discussionFormRepo.save(discussionForm.get());
 			}
-			return new ResponseEntity<>(HttpStatus.OK);
+			return new ResponseEntity<>(getCommentFilter(savedComment), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -91,7 +91,6 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> getAllDiscussionForm() {
-		System.err.println("1111");
 		List<DiscusssionForm> list = discussionFormRepo.findAll();
 
 		if (list.isEmpty()) {
@@ -118,21 +117,16 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> addOrRemoveLike(Integer studentId, Integer discussionFormId) {
-		System.out.println(studentId);
-		System.out.println(discussionFormId);
-
 		Optional<Student> student1 = studentRepository.findById(studentId);
 		Optional<DiscusssionForm> discusssionForm = discussionFormRepo.findById(discussionFormId);
-		if (Objects.nonNull(student1) && Objects.nonNull(discusssionForm)) {
+		if (student1.isPresent() && discusssionForm.isPresent()) {
 			DiscusssionForm form = discusssionForm.get();
-			Student  student = student1.get();
+			Student student = student1.get();
 			List<Likes> likes = form.getLikes();
-			Likes like = new Likes();
-			if (!likes.isEmpty()) {
-				like = likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() == studentId).findFirst()
-						.orElse(null);
-			}
+			Likes like = likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() == studentId)
+					.findFirst().orElse(null);
 			if (Objects.isNull(like)) {
+				System.err.println("case 1");
 				Likes obj = new Likes();
 				obj.setCreatedDate(LocalDateTime.now());
 				obj.setStudent(student);
@@ -143,12 +137,10 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
 						.collect(Collectors.toList()));
-				discussionFormRepo.save(form);
-				int deleteLike = likeRepo.deleteLike(student);
-				if (deleteLike != 0)
-					return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
-				else
-					return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+				DiscusssionForm form2 = discussionFormRepo.save(form);
+				likeRepo.delete(like);
+				System.err.println("case 2");
+				return new ResponseEntity<>(discussionFormFilter(form2),HttpStatus.OK);
 			}
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -189,6 +181,16 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		object.setLikes(likes);
 		object.setComments(comments);
 		return object;
+	}
+
+	public CommentResponse getCommentFilter(DiscussionFormComment obj2) {
+		CommentResponse commentResponse = new CommentResponse();
+		commentResponse.setCreatedDate(obj2.getCreatedDate());
+		commentResponse.setStudentName(obj2.getStudent().getFullName());
+		commentResponse.setStudentProfilePic(obj2.getStudent().getProfilePic());
+		commentResponse.setId(obj2.getId());
+		commentResponse.setContent(obj2.getContent());
+		return commentResponse;
 	}
 
 }
