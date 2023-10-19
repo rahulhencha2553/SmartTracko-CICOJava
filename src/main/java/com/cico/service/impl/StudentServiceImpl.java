@@ -1636,9 +1636,9 @@ public class StudentServiceImpl implements IStudentService {
 			totalLeaves = 0L;
 
 		if(status.equals("CURRENT_MONTH")) 
-		    	totalAbsents = (Long) (LocalDate.now().getDayOfMonth()- (countSundaysInMonth(LocalDate.now()) + totalLeaves + earlyCheckouts + presents + mispunch));
+		    	totalAbsents = (Long) (LocalDate.now().getDayOfMonth()- (countSundaysInMonth(LocalDate.now()) +( totalLeaves + earlyCheckouts + presents + mispunch)));
 		else  if(status.equals("CURRENT_YEAR"))
-				totalAbsents = (Long) ((countSundaysUntilCurrentDate(student.getJoinDate()) + totalLeaves + earlyCheckouts + presents + mispunch));
+				totalAbsents = (Long) (ChronoUnit.DAYS.between(student.getJoinDate(), LocalDate.now())-(countSundaysUntilCurrentDate(student.getJoinDate())+(totalLeaves + earlyCheckouts + presents + mispunch)));
 		
 
 		obj.setTotalPresent(presents);
