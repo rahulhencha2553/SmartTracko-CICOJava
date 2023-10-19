@@ -183,6 +183,16 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		return object;
 	}
 
+
+	@Override
+	public ResponseEntity<?> removeComment(Integer discussionFormId,Integer commentsId) {
+		  
+		Optional<DiscusssionForm> findById = discussionFormRepo.findById(discussionFormId);
+		if(findById.isPresent()) {
+		discussionFormCommentRepo.deleteById(commentsId);
+		}
+		return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
+}
 	public CommentResponse getCommentFilter(DiscussionFormComment obj2) {
 		CommentResponse commentResponse = new CommentResponse();
 		commentResponse.setCreatedDate(obj2.getCreatedDate());
@@ -191,6 +201,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		commentResponse.setId(obj2.getId());
 		commentResponse.setContent(obj2.getContent());
 		return commentResponse;
+
 	}
 
 }
