@@ -15,5 +15,5 @@ public interface IdiscussionForm {
 
 	ResponseEntity<?> getDiscussionFormById(Integer id);
 
-	ResponseEntity<?> addLike(Integer studentId, Integer discussionFormId);
+	ResponseEntity<?> addOrRemoveLike(Integer studentId, Integer discussionFormId);
 }
