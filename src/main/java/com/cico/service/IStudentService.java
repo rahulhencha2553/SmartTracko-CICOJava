@@ -103,14 +103,6 @@ public interface IStudentService {
 	
 	public void  checkCounsellingkIsCompleteOrNot();
 
-	void fetchRandomStudentForMockInterview();
-
-	void fetchRandomStudentForCounselling();
-
-	void checkMockIsCompleteOrNot();
-
-	void checkCounsellingkIsCompleteOrNot();
-
 	boolean checkMockForStudent(Integer studentId);
 
 	boolean checkCounsellingForStudent(Integer studentId);

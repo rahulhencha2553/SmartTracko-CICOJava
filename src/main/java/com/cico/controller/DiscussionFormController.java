@@ -14,7 +14,7 @@ import com.cico.service.IdiscussionForm;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("discussionForm")
+@RequestMapping("/discussionForm/")
 public class DiscussionFormController {
 
 	
@@ -41,9 +41,9 @@ public class DiscussionFormController {
 		return this.discussionFormService.getDiscussionFormById(id);
 	}
 	
-	@PostMapping("/likeApi")
+	@PostMapping("addOrRemoveLike")
 	public ResponseEntity<?>addLike(@RequestParam("studentId") Integer studentId,@RequestParam("discussionFormId")Integer discussionFormId ){
-	  return	discussionFormService.addLike(studentId,discussionFormId);
+	  return	discussionFormService.addOrRemoveLike(studentId,discussionFormId);
 	}
 	
 	

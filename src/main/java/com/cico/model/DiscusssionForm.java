@@ -1,6 +1,6 @@
 package com.cico.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class DiscusssionForm {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
-	private LocalDate createdDate;
+	private LocalDateTime createdDate;
 	@Column(columnDefinition = "longtext")
 	private String Content;
 	private String file;

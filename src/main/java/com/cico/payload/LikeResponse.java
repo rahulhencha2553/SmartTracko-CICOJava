@@ -1,6 +1,6 @@
 package com.cico.payload;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import lombok.Data;
 public class LikeResponse {
 
 	private Integer id;
-	private LocalDate createdDate;
+	private LocalDateTime createdDate;
 	private String studentName;
 	private String studentProfilePic;
 }

@@ -1,10 +1,11 @@
 package com.cico.service.impl;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		Student student = studentRepository.findById(studentId).get();
 		if (Objects.nonNull(student)) {
 			DiscusssionForm discusssionForm = new DiscusssionForm();
-			discusssionForm.setCreatedDate(LocalDate.now());
+			discusssionForm.setCreatedDate(LocalDateTime.now());
 			discusssionForm.setContent(content);
 			discusssionForm.setStudent(student);
 			if (Objects.nonNull(file)) {
@@ -72,7 +73,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		Optional<DiscusssionForm> discussionForm = discussionFormRepo.findById(discussionFormId);
 		if (Objects.nonNull(student)) {
 			DiscussionFormComment comment = new DiscussionFormComment();
-			comment.setCreatedDate(LocalDate.now());
+			comment.setCreatedDate(LocalDateTime.now());
 			comment.setContent(content);
 			comment.setStudent(student);
 			DiscussionFormComment savedComment = discussionFormCommentRepo.save(comment);
@@ -90,7 +91,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> getAllDiscussionForm() {
-
+		System.err.println("1111");
 		List<DiscusssionForm> list = discussionFormRepo.findAll();
 
 		if (list.isEmpty()) {
@@ -116,22 +117,38 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 	}
 
 	@Override
-	public ResponseEntity<?> addLike(Integer studentId, Integer discussionFormId) {
-		Student student = studentRepository.findById(studentId).get();
+	public ResponseEntity<?> addOrRemoveLike(Integer studentId, Integer discussionFormId) {
+		System.out.println(studentId);
+		System.out.println(discussionFormId);
+
+		Optional<Student> student1 = studentRepository.findById(studentId);
 		Optional<DiscusssionForm> discusssionForm = discussionFormRepo.findById(discussionFormId);
-		if (Objects.nonNull(student) && Objects.nonNull(discusssionForm)) {
-			List<Likes> likes = discusssionForm.get().getLikes();
-			boolean anyMatch = likes.parallelStream().anyMatch(obj -> obj.getStudent().getStudentId() == studentId);
-			if (!anyMatch) {
+		if (Objects.nonNull(student1) && Objects.nonNull(discusssionForm)) {
+			DiscusssionForm form = discusssionForm.get();
+			Student  student = student1.get();
+			List<Likes> likes = form.getLikes();
+			Likes like = new Likes();
+			if (!likes.isEmpty()) {
+				like = likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() == studentId).findFirst()
+						.orElse(null);
+			}
+			if (Objects.isNull(like)) {
 				Likes obj = new Likes();
-				obj.setCreatedDate(LocalDate.now());
+				obj.setCreatedDate(LocalDateTime.now());
 				obj.setStudent(student);
 				likes.add(likeRepo.save(obj));
-				discusssionForm.get().setLikes(likes);
-				DiscusssionForm save = discussionFormRepo.save(discusssionForm.get());
+				form.setLikes(likes);
+				DiscusssionForm save = discussionFormRepo.save(form);
 				return new ResponseEntity<>(discussionFormFilter(save), HttpStatus.OK);
 			} else {
-				return new ResponseEntity<>("Already Liked !!", HttpStatus.OK);
+				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
+						.collect(Collectors.toList()));
+				discussionFormRepo.save(form);
+				int deleteLike = likeRepo.deleteLike(student);
+				if (deleteLike != 0)
+					return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
+				else
+					return new ResponseEntity<>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -146,6 +163,8 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		object.setStudentName(obj.getStudent().getFullName());
 		object.setStudentProfilePic(obj.getStudent().getProfilePic());
 		object.setId(obj.getId());
+		object.setFile(obj.getFile());
+		object.setCourseName(obj.getStudent().getApplyForCourse());
 		if (Objects.nonNull(obj.getLikes())) {
 			obj.getLikes().forEach(obj1 -> {
 				LikeResponse likeResponse = new LikeResponse();
