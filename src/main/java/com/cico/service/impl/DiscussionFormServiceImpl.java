@@ -191,4 +191,14 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		return object;
 	}
 
+	@Override
+	public ResponseEntity<?> removeComment(Integer discussionFormId,Integer commentsId) {
+		  
+		Optional<DiscusssionForm> findById = discussionFormRepo.findById(discussionFormId);
+		if(findById.isPresent()) {
+		discussionFormCommentRepo.deleteById(commentsId);
+		}
+		return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
+	}
+
 }
