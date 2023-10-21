@@ -48,7 +48,7 @@ public class DiscussionFormController {
 	}
 	
 	@DeleteMapping("removeComment")
-	public ResponseEntity<?>removeComment(@RequestParam("discussionFormId")Integer discussionFormId ,@RequestParam("commentsId")Integer commentsId ){
+	public ResponseEntity<?>removeComment(@RequestParam("discussionFormId")Integer discussionFormId,@RequestParam("commentsId")Integer commentsId  ){
 		  return	discussionFormService.removeComment(discussionFormId,commentsId);
 		}
 	
