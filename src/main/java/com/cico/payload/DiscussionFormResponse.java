@@ -11,6 +11,7 @@ public class DiscussionFormResponse {
 	private Integer id;
 	private LocalDateTime createdDate;
 	private String content;
+	private Integer studentId;
 	private String studentName;
 	private String studentProfilePic;
 	private String file;

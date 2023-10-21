@@ -152,6 +152,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		DiscussionFormResponse object = new DiscussionFormResponse();
 		object.setCreatedDate(obj.getCreatedDate());
 		object.setContent(obj.getContent());
+		object.setStudentId(obj.getStudent().getStudentId());
 		object.setStudentName(obj.getStudent().getFullName());
 		object.setStudentProfilePic(obj.getStudent().getProfilePic());
 		object.setId(obj.getId());
@@ -185,14 +186,30 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 
 	@Override
-	public ResponseEntity<?> removeComment(Integer discussionFormId,Integer commentsId) {
-		  
-		Optional<DiscusssionForm> findById = discussionFormRepo.findById(discussionFormId);
-		if(findById.isPresent()) {
-		discussionFormCommentRepo.deleteById(commentsId);
-		}
-		return new ResponseEntity<>("Deleted Successfully", HttpStatus.OK);
-}
+	public ResponseEntity<?> removeComment( Integer discussionFormId,Integer commentsId) {
+		
+	    Optional<DiscusssionForm> discussionForm= discussionFormRepo.findById(discussionFormId);
+	     Optional<DiscussionFormComment> commentsForm = discussionFormCommentRepo.findById(commentsId);
+	   
+	    if (discussionForm.isPresent() && commentsForm.isPresent()) {
+	          DiscusssionForm discusssionForm1=discussionForm.get();
+	          DiscussionFormComment comment1=commentsForm.get();
+	     
+	          List<DiscussionFormComment> comments=discusssionForm1.getComments();
+	          DiscussionFormComment discussionFormComment=  comments.parallelStream().filter(obj ->obj.getId()==commentsId)
+	        		  .findFirst().orElse(null);
+
+	        	  discusssionForm1.setComments(comments.parallelStream().filter(obj -> obj.getId() != commentsId)
+							.collect(Collectors.toList()));
+	        	  DiscusssionForm form2 = discussionFormRepo.save(discusssionForm1);
+	        	  discussionFormCommentRepo.delete(discussionFormComment);
+	        	  return new ResponseEntity<>(discussionFormFilter(form2),HttpStatus.OK);
+	          }
+	    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	        
+	    
+	}
+
 	public CommentResponse getCommentFilter(DiscussionFormComment obj2) {
 		CommentResponse commentResponse = new CommentResponse();
 		commentResponse.setCreatedDate(obj2.getCreatedDate());
