@@ -4,24 +4,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 
+import com.cico.config.SocketHandler;
 import com.cico.model.Attendance;
 import com.cico.model.QrManage;
 import com.cico.model.Student;
@@ -35,6 +34,7 @@ import com.cico.security.JwtUtil;
 import com.cico.service.IQRService;
 import com.cico.util.AppConstants;
 import com.cico.util.Roles;
+import com.google.gson.Gson;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
@@ -46,27 +46,22 @@ public class QRServiceImpl implements IQRService {
 
 	@Autowired
 	private StudentRepository studentRepository;
-	
+
 	@Autowired
 	private QrManageRepository qrManageRepository;
 
 	@Autowired
 	private JwtUtil util;
-	
+
 	@Value("${cico.key}")
 	private String qrSecretKey;
-	
+
 	@Autowired
 	private AttendenceRepository attendenceRepository;
-
-	@Autowired
-	private SimpMessageSendingOperations messageSendingOperations;
-
-	ExecutorService executor = Executors.newSingleThreadExecutor();
-
+	
 	@Override
 	public QRResponse generateQRCode() throws WriterException, IOException {
-		String randomData = qrSecretKey+UUID.randomUUID().toString();
+		String randomData = qrSecretKey + UUID.randomUUID().toString();
 
 		int imageSize = 283;
 		BitMatrix matrix = new MultiFormatWriter().encode(randomData, BarcodeFormat.QR_CODE, imageSize, imageSize);
@@ -76,31 +71,29 @@ public class QRServiceImpl implements IQRService {
 	}
 
 	@Override
-	public ResponseEntity<?>  QRLogin(String qrKey, String token) {
-    	qrKey="CICO#"+qrKey;
+	public ResponseEntity<?> QRLogin(String qrKey, String token) {
+		qrKey = "CICO#" + qrKey;
 		String[] split = qrKey.split("#");
-		
-		if(split[0].equals("CICO")){
+
+		if (split[0].equals("CICO")) {
 			QrManage findByUuid = qrManageRepository.findByUuid(split[1]);
-			if(Objects.isNull(findByUuid)) {
-				
+			if (Objects.isNull(findByUuid)) {
 				String username = util.getUsername(token);
-				if(Objects.isNull(qrManageRepository.findByUserId(username))) {
-					findByUuid = new QrManage(username,split[1]);
-					QrManage qrManage = qrManageRepository.save(findByUuid);
+				if (Objects.isNull(qrManageRepository.findByUserId(username))) {
+					findByUuid = new QrManage(username, split[1]);
+					qrManageRepository.save(findByUuid);
 				}
 				JwtResponse message = ClientLogin(token);
-				executor.submit(() -> {
-					message.setToken(token);
-					jobEnd(split[1], message.getToken());
-				});
-				return new ResponseEntity<> (new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+				message.setToken(token);
+				jobEnd(split[1], message.getToken());
+				return new ResponseEntity<>(new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),
+						HttpStatus.OK);
 			}
 		}
-		return new ResponseEntity<> (new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.BAD_REQUEST),HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.BAD_REQUEST),
+				HttpStatus.BAD_REQUEST);
 	}
 
-	
 	public JwtResponse ClientLogin(String token) {
 		String username = util.getUsername(token);
 		Student student = studentRepository.findByUserId(username);
@@ -112,11 +105,38 @@ public class QRServiceImpl implements IQRService {
 		return jwtResponse;
 	}
 
+//	public void jobEnd(String qrKey, String message) {
+//
+//		List<WebSocketSession> sessions = SocketHandler.qrSessions;
+//		sessions.forEach(obj -> {
+//			Map<String, Object> attributes = obj.getAttributes();
+//			System.out.println("session key are"+ attributes.get("sessionId"));
+//			if (attributes.get("sessionId").equals(qrKey)) {
+//				try {
+//					System.out.println("sending to session id ---> "+attributes.get("sessionId"));
+//					obj.sendMessage(new TextMessage(new Gson().toJson(message)));
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 	public void jobEnd(String qrKey, String message) {
-		messageSendingOperations.convertAndSend("/queue/messages-" + qrKey, message);
+	    List<WebSocketSession> sessions = SocketHandler.qrSessions;
+	    for (WebSocketSession session : sessions) {
+	        Map<String, Object> attributes = session.getAttributes();
+	        Object sessionId = attributes.get("sessionId");
+	        if (sessionId != null && sessionId.equals(qrKey)) {
+	            try {
+	                session.sendMessage(new TextMessage(new Gson().toJson(message)));
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	            }
+	        }
+	    }
 	}
 
-	
+
 	public ResponseEntity<?> getLinkedDeviceData(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		Integer studentId = Integer.parseInt(
@@ -126,35 +146,38 @@ public class QRServiceImpl implements IQRService {
 		Map<String, Object> response = new HashMap<>();
 		response.put("loginDevice", findByUserId);
 		response.put("attendance", attendance);
-		response.put("loginAt",findByUserId != null ? findByUserId.getLoginAt().toString().replace('T',' '):"");
+		response.put("loginAt", findByUserId != null ? findByUserId.getLoginAt().toString().replace('T', ' ') : "");
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
-	
 	public ResponseEntity<?> removeDeviceFromWeb(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
-		if(findByUserId != null) {
-			System.out.println(findByUserId);
+		System.out.println(username);
+		System.err.println("qr "+findByUserId);
+		if (findByUserId != null) {
+			System.err.println(findByUserId);
 			jobEnd(findByUserId.getUuid(), "LOGOUT");
 			qrManageRepository.delete(findByUserId);
-			return new ResponseEntity<>(new ApiResponse(Boolean.TRUE,AppConstants.SUCCESS, HttpStatus.OK),HttpStatus.OK);
+			return new ResponseEntity<>(new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),
+					HttpStatus.OK);
 		}
-		return new ResponseEntity<>(new ApiResponse(Boolean.FALSE,AppConstants.FAILED, HttpStatus.OK),HttpStatus.OK);
-		
+		return new ResponseEntity<>(new ApiResponse(Boolean.FALSE, AppConstants.FAILED, HttpStatus.OK), HttpStatus.OK);
+
 	}
 
 	@Override
 	public ResponseEntity<?> updateWebLoginStatus(String token, String os, String deviceType, String browser) {
 		String username = util.getUsername(token);
+		System.out.println("in web update "+token);
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
-			findByUserId.setBrowser(browser);
-			findByUserId.setDeviceType(deviceType);
-			findByUserId.setOs(os);
-			findByUserId.setLoginAt(LocalDateTime.now());
-			QrManage save = qrManageRepository.save(findByUserId);
-			return new ResponseEntity<>(save,HttpStatus.OK);
+		findByUserId.setBrowser(browser);
+		findByUserId.setDeviceType(deviceType);
+		findByUserId.setOs(os);
+		findByUserId.setLoginAt(LocalDateTime.now());
+		QrManage save = qrManageRepository.save(findByUserId);
+		return new ResponseEntity<>(save, HttpStatus.OK);
 	}
 
 	@Override
@@ -163,10 +186,7 @@ public class QRServiceImpl implements IQRService {
 		Map<String, Object> response = new HashMap<>();
 		response.put("loginDevice", findByUuid);
 		response.put(AppConstants.MESSAGE, AppConstants.SUCCESS);
-		return new ResponseEntity<>(response,HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
-	
 
 }
-

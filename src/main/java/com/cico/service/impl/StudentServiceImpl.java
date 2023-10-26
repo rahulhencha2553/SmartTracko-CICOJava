@@ -49,8 +49,10 @@ import com.cico.payload.AttendanceLogResponse;
 import com.cico.payload.AttendenceOfMonth;
 import com.cico.payload.CheckinCheckoutHistoryResponse;
 import com.cico.payload.CheckoutResponse;
+import com.cico.payload.CounsellingResponse;
 import com.cico.payload.DashboardResponse;
 import com.cico.payload.MispunchResponse;
+import com.cico.payload.MockResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentCalenderResponse;
@@ -674,8 +676,8 @@ public class StudentServiceImpl implements IStudentService {
 				dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 				dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
 				dashboardResponseDto.setTotalMispunch(res.getTotalMispunch());
-				dashboardResponseDto.setMock(checkMockForStudent(studentId));
-				dashboardResponseDto.setCounselling(checkCounsellingForStudent(studentId));
+				dashboardResponseDto.setMockResponse(checkMockForStudent(studentId));
+				dashboardResponseDto.setCounsellingResponse(checkCounsellingForStudent(studentId));
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -1781,14 +1783,29 @@ public class StudentServiceImpl implements IStudentService {
 	}
 	
 	@Override
-	public boolean checkMockForStudent(Integer studentId) {
-		  MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
-		  return Objects.nonNull(obj)?true:false;
+	public MockResponse checkMockForStudent(Integer studentId) {
+		
+		MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
+		
+		 MockResponse response = new MockResponse();
+         response.setMockPerson("Kamal Gupta");
+         response.setMockDate(obj.getMockDate());
+         response.setIsMock(true);
+		
+         return  response;
 	}
+	
 	@Override
-	public boolean checkCounsellingForStudent(Integer studentId) {
-		CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
-		 return Objects.nonNull(obj)?true:false;
+	public CounsellingResponse checkCounsellingForStudent(Integer studentId) {
+		
+		 CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
+		 
+		 CounsellingResponse response = new CounsellingResponse();
+		 response.setCounsellingPerson("Kamal Gupta");
+         response.setCounsellingDate(obj.getCounsellingDate());
+         response.setIsCounselling(true);
+		
+         return  response;
 	}
 
 }

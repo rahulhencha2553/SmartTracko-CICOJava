@@ -31,16 +31,14 @@ public class DashboardResponse {
 	private Long totalAbsent;
 	private Long totalMispunch;
 	private Long totalEarlyCheckOut;
-	private boolean isMock;
-	private boolean isCounselling;
-	
-	
-	public DashboardResponse(){
+	private MockResponse mockResponse;
+	private CounsellingResponse counsellingResponse;
+
+	public DashboardResponse() {
 		this.totalAbsent = 0L;
 		this.totalEarlyCheckOut = 0L;
 		this.totalMispunch = 0L;
 		this.totalPresent = 0L;
 	}
-	
-	
+
 }

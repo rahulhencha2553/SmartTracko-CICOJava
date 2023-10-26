@@ -117,13 +117,14 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> addOrRemoveLike(Integer studentId, Integer discussionFormId) {
+		System.out.println(studentId);
 		Optional<Student> student1 = studentRepository.findById(studentId);
 		Optional<DiscusssionForm> discusssionForm = discussionFormRepo.findById(discussionFormId);
 		if (student1.isPresent() && discusssionForm.isPresent()) {
 			DiscusssionForm form = discusssionForm.get();
 			Student student = student1.get();
 			List<Likes> likes = form.getLikes();
-			Likes like = likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() == studentId)
+			Likes like = likes.stream().filter(obj -> obj.getStudent().getStudentId() == studentId)
 					.findFirst().orElse(null);
 			if (Objects.isNull(like)) {
 				System.err.println("case 1");
@@ -133,6 +134,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 				likes.add(likeRepo.save(obj));
 				form.setLikes(likes);
 				DiscusssionForm save = discussionFormRepo.save(form);
+				System.out.println(save.getStudent());
 				return new ResponseEntity<>(discussionFormFilter(save), HttpStatus.OK);
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
@@ -161,7 +163,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		if (Objects.nonNull(obj.getLikes())) {
 			obj.getLikes().forEach(obj1 -> {
 				LikeResponse likeResponse = new LikeResponse();
-				likeResponse.setCreatedDate(obj1.getCreatedDate());
+				//likeResponse.setCreatedDate(obj1.getCreatedDate());
 				likeResponse.setStudentName(obj1.getStudent().getFullName());
 				likeResponse.setStudentProfilePic(obj1.getStudent().getProfilePic());
 				likeResponse.setId(obj1.getId());
