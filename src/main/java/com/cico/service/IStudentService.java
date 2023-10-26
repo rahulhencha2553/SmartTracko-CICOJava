@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cico.model.Student;
 import com.cico.payload.ApiResponse;
 import com.cico.payload.AttendenceOfMonth;
+import com.cico.payload.CounsellingResponse;
+import com.cico.payload.MockResponse;
 import com.cico.payload.OnLeavesResponse;
 import com.cico.payload.PageResponse;
 import com.cico.payload.StudentResponse;
@@ -103,9 +105,9 @@ public interface IStudentService {
 	
 	public void  checkCounsellingkIsCompleteOrNot();
 
-	boolean checkMockForStudent(Integer studentId);
+	MockResponse checkMockForStudent(Integer studentId);
 
-	boolean checkCounsellingForStudent(Integer studentId);
+	CounsellingResponse checkCounsellingForStudent(Integer studentId);
 
 	public ResponseEntity<?> approveStudentDevice(String userId, String deviceId);
 
