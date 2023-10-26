@@ -676,8 +676,14 @@ public class StudentServiceImpl implements IStudentService {
 				dashboardResponseDto.setTotalAbsent(res.getTotalAbsent());
 				dashboardResponseDto.setTotalEarlyCheckOut(res.getTotalEarlyCheckOut());
 				dashboardResponseDto.setTotalMispunch(res.getTotalMispunch());
-				dashboardResponseDto.setMockResponse(checkMockForStudent(studentId));
-				dashboardResponseDto.setCounsellingResponse(checkCounsellingForStudent(studentId));
+				MockResponse mock = checkMockForStudent(studentId);
+				dashboardResponseDto.setMock(mock.getIsMock());
+				dashboardResponseDto.setMockDate(mock.getMockDate());
+				dashboardResponseDto.setMockPerson(mock.getMockPerson());
+				CounsellingResponse counselling = checkCounsellingForStudent(studentId);
+				 dashboardResponseDto.setCounselling(counselling.getIsCounselling());
+				 dashboardResponseDto.setCounsellingDate(counselling.getCounsellingDate());
+				 dashboardResponseDto.setCounsellingPerson(counselling.getCounsellingPerson());
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -1786,13 +1792,17 @@ public class StudentServiceImpl implements IStudentService {
 	public MockResponse checkMockForStudent(Integer studentId) {
 		
 		MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
-		
 		 MockResponse response = new MockResponse();
-         response.setMockPerson("Kamal Gupta");
-         response.setMockDate(obj.getMockDate());
-         response.setIsMock(true);
-		
-         return  response;
+		if(Objects.nonNull(obj)) {
+			
+	         response.setMockPerson("Kamal Gupta");
+	         response.setMockDate(obj.getMockDate());
+	         response.setIsMock(true);
+			
+	         return  response;
+		}
+		response.setIsMock(false);
+	   return  response;
 	}
 	
 	@Override
@@ -1801,11 +1811,15 @@ public class StudentServiceImpl implements IStudentService {
 		 CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
 		 
 		 CounsellingResponse response = new CounsellingResponse();
-		 response.setCounsellingPerson("Kamal Gupta");
-         response.setCounsellingDate(obj.getCounsellingDate());
-         response.setIsCounselling(true);
-		
-         return  response;
+		if(Objects.nonNull(obj)) {
+			 response.setCounsellingPerson("Kamal Gupta");
+	         response.setCounsellingDate(obj.getCounsellingDate());
+	         response.setIsCounselling(true);
+			
+	         return  response;
+		}
+		response.setIsCounselling(false);
+		return response;
 	}
 
 }
