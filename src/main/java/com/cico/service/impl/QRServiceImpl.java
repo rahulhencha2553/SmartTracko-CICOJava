@@ -74,7 +74,7 @@ public class QRServiceImpl implements IQRService {
 	public ResponseEntity<?> QRLogin(String qrKey, String token) {
 		qrKey = "CICO#" + qrKey;
 		String[] split = qrKey.split("#");
-
+ 
 		if (split[0].equals("CICO")) {
 			QrManage findByUuid = qrManageRepository.findByUuid(split[1]);
 			if (Objects.isNull(findByUuid)) {
@@ -85,6 +85,7 @@ public class QRServiceImpl implements IQRService {
 				}
 				JwtResponse message = ClientLogin(token);
 				message.setToken(token);
+				System.err.println("qr login");
 				jobEnd(split[1], message.getToken());
 				return new ResponseEntity<>(new ApiResponse(Boolean.TRUE, AppConstants.SUCCESS, HttpStatus.OK),
 						HttpStatus.OK);
@@ -121,13 +122,17 @@ public class QRServiceImpl implements IQRService {
 //			}
 //		});
 //	}
+	
 	public void jobEnd(String qrKey, String message) {
 	    List<WebSocketSession> sessions = SocketHandler.qrSessions;
+	  	System.err.println("sending 1");
 	    for (WebSocketSession session : sessions) {
 	        Map<String, Object> attributes = session.getAttributes();
 	        Object sessionId = attributes.get("sessionId");
+	      	System.err.println("sending 2");
 	        if (sessionId != null && sessionId.equals(qrKey)) {
 	            try {
+	            	System.err.println("sending");
 	                session.sendMessage(new TextMessage(new Gson().toJson(message)));
 	            } catch (IOException e) {
 	                e.printStackTrace();

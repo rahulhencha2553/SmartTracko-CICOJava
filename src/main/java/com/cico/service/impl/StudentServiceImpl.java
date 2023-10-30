@@ -1774,6 +1774,7 @@ public class StudentServiceImpl implements IStudentService {
 	public void  checkCounsellingkIsCompleteOrNot() {
 		
 		 List<CounsellingInterview> list = counsellingRepo.findbycurrentDay();
+		 
 		 list.forEach(obj->{
 			 Attendance attendance = attendenceRepository.findByStudentIdAndCheckInDate(obj.getStudent().getStudentId(),LocalDate.now());
 		      if(Objects.nonNull(attendance)) {
@@ -1791,16 +1792,18 @@ public class StudentServiceImpl implements IStudentService {
 	@Override
 	public MockResponse checkMockForStudent(Integer studentId) {
 		
-		MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
+	 	MockInterview obj = mockRepo.findByStudentIdAndCurrentDate(studentId);
+		
 		 MockResponse response = new MockResponse();
+		 
 		if(Objects.nonNull(obj)) {
-			
 	         response.setMockPerson("Kamal Gupta");
 	         response.setMockDate(obj.getMockDate());
 	         response.setIsMock(true);
 			
 	         return  response;
 		}
+		
 		response.setIsMock(false);
 	   return  response;
 	}
@@ -1811,13 +1814,15 @@ public class StudentServiceImpl implements IStudentService {
 		 CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
 		 
 		 CounsellingResponse response = new CounsellingResponse();
+		 
 		if(Objects.nonNull(obj)) {
 			 response.setCounsellingPerson("Kamal Gupta");
 	         response.setCounsellingDate(obj.getCounsellingDate());
 	         response.setIsCounselling(true);
-			
+
 	         return  response;
 		}
+		
 		response.setIsCounselling(false);
 		return response;
 	}
