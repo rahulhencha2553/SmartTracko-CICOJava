@@ -684,6 +684,7 @@ public class StudentServiceImpl implements IStudentService {
 				 dashboardResponseDto.setCounselling(counselling.getIsCounselling());
 				 dashboardResponseDto.setCounsellingDate(counselling.getCounsellingDate());
 				 dashboardResponseDto.setCounsellingPerson(counselling.getCounsellingPerson());
+
 				response.put("dashboardResponseDto", dashboardResponseDto);
 				return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -1800,7 +1801,6 @@ public class StudentServiceImpl implements IStudentService {
 	         response.setMockPerson("Kamal Gupta");
 	         response.setMockDate(obj.getMockDate());
 	         response.setIsMock(true);
-			
 	         return  response;
 		}
 		
@@ -1814,17 +1814,16 @@ public class StudentServiceImpl implements IStudentService {
 		 CounsellingInterview obj = counsellingRepo.findByStudentIdAndCurrentDate(studentId);
 		 
 		 CounsellingResponse response = new CounsellingResponse();
-		 
 		if(Objects.nonNull(obj)) {
 			 response.setCounsellingPerson("Kamal Gupta");
 	         response.setCounsellingDate(obj.getCounsellingDate());
 	         response.setIsCounselling(true);
-
 	         return  response;
 		}
 		
 		response.setIsCounselling(false);
 		return response;
+
 	}
 
 }
