@@ -72,7 +72,7 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?> QRLogin(String qrKey, String token) {
-		qrKey = "CICO#" + qrKey;
+	//	qrKey = "CICO#" + qrKey;
 		String[] split = qrKey.split("#");
 
 		if (split[0].equals("CICO")) {
@@ -121,6 +121,7 @@ public class QRServiceImpl implements IQRService {
 //			}
 //		});
 //	}
+
 	public void jobEnd(String qrKey, String message) {
 	    List<WebSocketSession> sessions = SocketHandler.qrSessions;
 	    for (WebSocketSession session : sessions) {
