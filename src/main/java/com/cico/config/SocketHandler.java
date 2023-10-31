@@ -21,15 +21,9 @@ public class SocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-
-		System.err.println("request comes___");
-
 		for (WebSocketSession webSocketSession : dicussionSessions) {
 			// Sends message to all sessions excepted himself
-			System.out.println("sessionid---" + (String) webSocketSession.getAttributes().get("sessionId"));
 			if (!session.equals(webSocketSession)) {
-				String payload = message.getPayload();
-
 				ObjectMapper objectMapper = new ObjectMapper();
 
 				try {
@@ -67,7 +61,7 @@ public class SocketHandler extends TextWebSocketHandler {
 	public void afterConnectionEstablished(WebSocketSession session) {
 
 		URI uri = session.getUri();
-		System.out.println("URI__"+uri);
+		System.out.println("URI__" + uri);
 		if (uri.getPath().equals("/ws/sessionId")) {
 			qrSessions.add(session);
 			System.out.println("sessoin added in qr sessions");
@@ -84,6 +78,7 @@ public class SocketHandler extends TextWebSocketHandler {
 		URI uri = session.getUri();
 		if (uri.getPath().equals("/ws/sessionId")) {
 			qrSessions.remove(session);
+			System.err.println("disconnect");
 		}
 		if (uri.getPath().equals("/ws/discussion")) {
 			dicussionSessions.remove(session);
