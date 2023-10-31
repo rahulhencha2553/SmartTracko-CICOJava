@@ -41,7 +41,7 @@ public class SecurityConfig {
 			"/swagger-ui/**","/swagger-ui.html", "/swagger-resources/**","/v3/api-docs", "/v2/api-docs", "/webjars/**",
 			"/student/**","/file/**","/leave/**","/admin/**","/job/**","/technologyStack/**","/assignment/**","/course/**",
 			"/newsEvents/**","/qr/**","/resources/**","/queue/**","/batch/**","/fees/**","/subject/**","/chapter/**","/question/**",
-			"/exam/**","/task/**","/announcement/**","/discussionForm/**","/ws","/ws/sessionId/**","/ws/**","/ws/discussion/**"
+			"/exam/**","/task/**","/announcement/**","/discussionForm/**","/ws/**","/ws/sessionId/**","/ws/**","/ws/discussion/**"
 	};
 	
 	@Bean	

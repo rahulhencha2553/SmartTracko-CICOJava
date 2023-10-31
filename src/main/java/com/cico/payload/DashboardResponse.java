@@ -31,9 +31,15 @@ public class DashboardResponse {
 	private Long totalAbsent;
 	private Long totalMispunch;
 	private Long totalEarlyCheckOut;
-	private MockResponse mockResponse;
-	private CounsellingResponse counsellingResponse;
-
+//	private MockResponse mockResponse;
+	//private CounsellingResponse counsellingResponse;
+   private boolean mock;
+   private boolean counselling;
+   private LocalDate mockDate;
+   private LocalDate counsellingDate;
+   private String counsellingPerson;
+   private String mockPerson;
+   
 	public DashboardResponse() {
 		this.totalAbsent = 0L;
 		this.totalEarlyCheckOut = 0L;
