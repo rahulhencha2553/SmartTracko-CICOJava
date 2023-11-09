@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.cico.config.Qrresponse;
 import com.cico.config.SocketHandler;
 import com.cico.model.Attendance;
 import com.cico.model.QrManage;
@@ -58,7 +59,7 @@ public class QRServiceImpl implements IQRService {
 
 	@Autowired
 	private AttendenceRepository attendenceRepository;
-	
+
 	@Override
 	public QRResponse generateQRCode() throws WriterException, IOException {
 		String randomData = qrSecretKey + UUID.randomUUID().toString();
@@ -72,7 +73,7 @@ public class QRServiceImpl implements IQRService {
 
 	@Override
 	public ResponseEntity<?> QRLogin(String qrKey, String token) {
-	//	qrKey = "CICO#" + qrKey;
+		qrKey = "CICO#" + qrKey;
 		String[] split = qrKey.split("#");
 
 		if (split[0].equals("CICO")) {
@@ -123,20 +124,22 @@ public class QRServiceImpl implements IQRService {
 //	}
 
 	public void jobEnd(String qrKey, String message) {
-	    List<WebSocketSession> sessions = SocketHandler.qrSessions;
-	    for (WebSocketSession session : sessions) {
-	        Map<String, Object> attributes = session.getAttributes();
-	        Object sessionId = attributes.get("sessionId");
-	        if (sessionId != null && sessionId.equals(qrKey)) {
-	            try {
-	                session.sendMessage(new TextMessage(new Gson().toJson(message)));
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    }
+		List<WebSocketSession> sessions = SocketHandler.qrSessions;
+		for (WebSocketSession session : sessions) {
+			Map<String, Object> attributes = session.getAttributes();
+			Object sessionId = attributes.get("sessionId");
+			if (sessionId != null && sessionId.equals(qrKey)) {
+				try {
+					//Qrresponse res = new Qrresponse();
+					//res.token = message;
+					//res.type = "QrResponse";
+					session.sendMessage(new TextMessage(new Gson().toJson(message)));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
-
 
 	public ResponseEntity<?> getLinkedDeviceData(HttpHeaders headers) {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
@@ -156,7 +159,7 @@ public class QRServiceImpl implements IQRService {
 		String username = util.getUsername(headers.getFirst(AppConstants.AUTHORIZATION));
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
 		System.out.println(username);
-		System.err.println("qr "+findByUserId);
+		System.err.println("qr " + findByUserId);
 		if (findByUserId != null) {
 			System.err.println(findByUserId);
 			jobEnd(findByUserId.getUuid(), "LOGOUT");
@@ -171,7 +174,7 @@ public class QRServiceImpl implements IQRService {
 	@Override
 	public ResponseEntity<?> updateWebLoginStatus(String token, String os, String deviceType, String browser) {
 		String username = util.getUsername(token);
-		System.out.println("in web update "+token);
+		System.out.println("in web update " + token);
 		QrManage findByUserId = qrManageRepository.findByUserId(username);
 		findByUserId.setBrowser(browser);
 		findByUserId.setDeviceType(deviceType);

@@ -18,6 +18,7 @@ public class SocketHandler extends TextWebSocketHandler {
 
 	public static List<WebSocketSession> qrSessions = new CopyOnWriteArrayList<>();
 	public static List<WebSocketSession> dicussionSessions = new CopyOnWriteArrayList<>();
+	public static List<WebSocketSession> announcementSessions = new CopyOnWriteArrayList<>();
 
 	@Override
 	public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
@@ -52,7 +53,6 @@ public class SocketHandler extends TextWebSocketHandler {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
 			}
 		}
 	}
@@ -70,6 +70,10 @@ public class SocketHandler extends TextWebSocketHandler {
 			dicussionSessions.add(session);
 			System.out.println("sessoin added in Discussion sessions");
 		}
+//		if(uri.getPath().equals("/ws/announcement")) {
+//			announcementSessions.add(session);
+//			System.out.println("sessoin added in Announcement sessions");
+//		}
 	}
 
 	@Override
@@ -83,5 +87,8 @@ public class SocketHandler extends TextWebSocketHandler {
 		if (uri.getPath().equals("/ws/discussion")) {
 			dicussionSessions.remove(session);
 		}
+//		if (uri.getPath().equals("/ws/announcement")) {
+//			announcementSessions.remove(session);
+//		}
 	}
 }

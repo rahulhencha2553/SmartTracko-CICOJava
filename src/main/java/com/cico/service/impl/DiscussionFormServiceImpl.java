@@ -2,6 +2,7 @@ package com.cico.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +29,8 @@ import com.cico.repository.StudentRepository;
 import com.cico.service.IFileService;
 import com.cico.service.IdiscussionForm;
 
+import io.jsonwebtoken.lang.Collections;
+
 @Service
 public class DiscussionFormServiceImpl implements IdiscussionForm {
 
@@ -49,6 +52,9 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> createDiscussionForm(Integer studentId, MultipartFile file, String content) {
+		if(Objects.isNull(content)) {
+			return new ResponseEntity<>("Message can not be empty!! ",HttpStatus.BAD_REQUEST);
+		}
 		Student student = studentRepository.findById(studentId).get();
 		if (Objects.nonNull(student)) {
 			DiscusssionForm discusssionForm = new DiscusssionForm();
@@ -64,14 +70,13 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-	}
-
+	}                                                             
+               
 	@Override
 	public ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId) {
-		System.err.println(content);
 		Student student = studentRepository.findById(studentId).get();
 		Optional<DiscusssionForm> discussionForm = discussionFormRepo.findById(discussionFormId);
-		if (Objects.nonNull(student)) {
+		if (Objects.nonNull(student) && !content.equals("")) {
 			DiscussionFormComment comment = new DiscussionFormComment();
 			comment.setCreatedDate(LocalDateTime.now());
 			comment.setContent(content);
@@ -100,7 +105,7 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			list.forEach(obj -> {
 				response.add(discussionFormFilter(obj));
 			});
-
+		   java.util.Collections.reverse(Arrays.asList(response));
 			return new ResponseEntity<>(response, HttpStatus.OK);
 		}
 	}
@@ -117,7 +122,6 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 
 	@Override
 	public ResponseEntity<?> addOrRemoveLike(Integer studentId, Integer discussionFormId) {
-		System.out.println(studentId);
 		Optional<Student> student1 = studentRepository.findById(studentId);
 		Optional<DiscusssionForm> discusssionForm = discussionFormRepo.findById(discussionFormId);
 		if (student1.isPresent() && discusssionForm.isPresent()) {
@@ -127,21 +131,18 @@ public class DiscussionFormServiceImpl implements IdiscussionForm {
 			Likes like = likes.stream().filter(obj -> obj.getStudent().getStudentId() == studentId)
 					.findFirst().orElse(null);
 			if (Objects.isNull(like)) {
-				System.err.println("case 1");
 				Likes obj = new Likes();
 				obj.setCreatedDate(LocalDateTime.now());
 				obj.setStudent(student);
 				likes.add(likeRepo.save(obj));
 				form.setLikes(likes);
 				DiscusssionForm save = discussionFormRepo.save(form);
-				System.out.println(save.getStudent());
 				return new ResponseEntity<>(discussionFormFilter(save), HttpStatus.OK);
 			} else {
 				form.setLikes(likes.parallelStream().filter(obj -> obj.getStudent().getStudentId() != studentId)
 						.collect(Collectors.toList()));
 				DiscusssionForm form2 = discussionFormRepo.save(form);
 				likeRepo.delete(like);
-				System.err.println("case 2");
 				return new ResponseEntity<>(discussionFormFilter(form2),HttpStatus.OK);
 			}
 		}

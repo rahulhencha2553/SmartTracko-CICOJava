@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    	 System.err.println("request comes ");
+    	 System.err.println("socket start...");
     	 registry.addHandler(new SocketHandler(), "/ws/sessionId").setAllowedOrigins("http://localhost:4200","*","http://localhost:4200/","http://cico.dollopinfotech.com/","http://cico.dollopinfotech.com","*").addInterceptors(new CustomHandshakeInterceptor());
     	 registry.addHandler(new SocketHandler(), "/ws/discussion").setAllowedOrigins("*");//.addInterceptors(new CustomHandshakeInterceptor());
     }  

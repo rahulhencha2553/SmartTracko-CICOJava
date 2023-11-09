@@ -17,19 +17,16 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
 		String uri = request.getURI().toString();
 		String sessionId = extractSessionIdFromURI(uri);
 		attributes.put("sessionId", sessionId);
-
 		return true;
 	}
 
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Exception exception) {
-		// After the handshake (no additional actions needed)
 	}
 
 	private String extractSessionIdFromURI(String uri) {
 		String[] parts = uri.split("\\?=");
 		return parts[parts.length - 1];
-
 	}
 }
