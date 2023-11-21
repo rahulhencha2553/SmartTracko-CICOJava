@@ -12,4 +12,5 @@ public class CommentResponse {
 	private String content;
 	private String studentName;
 	private String studentProfilePic;
+	private Integer studentId;
 }

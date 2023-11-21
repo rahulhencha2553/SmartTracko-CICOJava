@@ -18,5 +18,6 @@ public class DiscussionFormResponse {
 	private String courseName;
     private List<LikeResponse>likes;
     private List<CommentResponse>comments;
+    private Boolean isLike;
 
 }

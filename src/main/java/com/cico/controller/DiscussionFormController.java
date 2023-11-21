@@ -23,8 +23,8 @@ public class DiscussionFormController {
 	private IdiscussionForm discussionFormService;
 
 	@PostMapping("createDiscussionForm")
-	public ResponseEntity<?> createDiscussionForm(@RequestParam("studentId")Integer studentId,@RequestParam(name = "file",required = false )MultipartFile file,@RequestParam("content")String content) {
-      return discussionFormService.createDiscussionForm(studentId,file,content);
+	public ResponseEntity<?> createDiscussionForm(@RequestParam("studentId")Integer studentId,@RequestParam(name = "file",required = false )MultipartFile file,@RequestParam("content")String content,@RequestParam(name ="audioFile",required = false )MultipartFile audioFile) {    
+      return discussionFormService.createDiscussionForm(studentId,file,content,audioFile);
 	}
     
 	@PostMapping("createComment")
@@ -33,8 +33,8 @@ public class DiscussionFormController {
 	}
 	
 	@GetMapping("getAllDiscussionForm")
-	public ResponseEntity<?>getAllDiscussionForm(){
-		return this.discussionFormService.getAllDiscussionForm();
+	public ResponseEntity<?>getAllDiscussionForm(@RequestParam("studentId")Integer studentId){
+		return this.discussionFormService.getAllDiscussionForm(studentId);
 	}
 	
 	@GetMapping("getDiscussionFormById")

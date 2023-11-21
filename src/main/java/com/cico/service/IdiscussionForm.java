@@ -7,11 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public interface IdiscussionForm {
 
-	ResponseEntity<?> createDiscussionForm(Integer studentId, MultipartFile file, String content);
+	ResponseEntity<?> createDiscussionForm(Integer studentId, MultipartFile file, String content, MultipartFile audioFile);
 
 	ResponseEntity<?> createComment(Integer studentId, String content, Integer discussionFormId);
 
-	ResponseEntity<?> getAllDiscussionForm();
+	ResponseEntity<?> getAllDiscussionForm(Integer studentId);
 
 	ResponseEntity<?> getDiscussionFormById(Integer id);
 
