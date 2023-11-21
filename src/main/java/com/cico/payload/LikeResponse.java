@@ -9,4 +9,5 @@ public class LikeResponse {
 	//private LocalDateTime createdDate;
 	private String studentName;
 	private String studentProfilePic;
+	private Integer studentId;
 }

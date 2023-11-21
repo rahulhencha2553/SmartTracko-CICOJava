@@ -28,6 +28,7 @@ public class DiscusssionForm {
 	private LocalDateTime createdDate;
 	@Column(columnDefinition = "longtext")
 	private String Content;
+	private String audioFile;
 	private String file;
 	@OneToOne
 	private Student student;
